@@ -1042,7 +1042,7 @@ function App(){
     if(!ok)syncError('Reposição recorrente removida localmente; será sincronizada quando a conexão voltar.');
   }
 
-  async function saveConsumptionRule(foodId:string,amount:number,periodDays:number,threshold:number|null,restockQuantity:number|null){
+  async function saveConsumptionRule(foodId:string,daysPerUnit:number){
     if(!userId||!householdId){
       setAuthModal(true);
       setAuthMessage('Entre na sua conta para programar o consumo deste alimento.');
@@ -1054,11 +1054,11 @@ function App(){
       id:existing?.id||uid(),
       household_id:householdId,
       food_id:foodId,
-      amount,
-      period_days:periodDays,
-      next_suggestion_on:existing?.next_suggestion_on||addIsoDays(today,periodDays),
-      low_stock_threshold:threshold,
-      restock_quantity:restockQuantity,
+      amount:1,
+      period_days:daysPerUnit,
+      next_suggestion_on:existing?.next_suggestion_on||addIsoDays(today,daysPerUnit),
+      low_stock_threshold:existing?.low_stock_threshold??null,
+      restock_quantity:existing?.restock_quantity??null,
       is_active:true,
       created_by:existing?.created_by||userId,
       last_confirmed_at:existing?.last_confirmed_at||null
@@ -1069,8 +1069,7 @@ function App(){
       userId,table:'food_consumption_rules',action:existing?'update':'upsert',
       rowId:rule.id,
       data:existing?{
-        amount:rule.amount,period_days:rule.period_days,low_stock_threshold:rule.low_stock_threshold,
-        restock_quantity:rule.restock_quantity,next_suggestion_on:rule.next_suggestion_on,is_active:true
+        amount:1,period_days:daysPerUnit,next_suggestion_on:rule.next_suggestion_on,is_active:true
       }:rule as unknown as Record<string,unknown>
     });
     if(!ok)syncError('Programação salva neste dispositivo; será sincronizada quando a conexão voltar.');
@@ -1094,7 +1093,7 @@ function App(){
     if(!found?.food)return;
     const food=found.food;
     const previousQuantity=food.quantity;
-    const amount=confirm?Math.min(previousQuantity,rule.amount):0;
+    const amount=confirm?Math.min(previousQuantity,1):0;
     const nextQuantity=confirm?Math.max(0,Number((previousQuantity-amount).toFixed(3))):previousQuantity;
     if(confirm){
       setPlaces(current=>current.map(place=>place.id!==found.place.id?place:{
@@ -1751,10 +1750,10 @@ function App(){
               <div className="smart-panel-heading"><div><p className="eyebrow">CONSUMO PLANEJADO</p><h3>Uma revisão rápida</h3><p>Confirme o consumo real para manter o estoque correto.</p></div><span>{dueConsumptionSuggestions.length}</span></div>
               <div className="smart-suggestion-list">
                 {dueConsumptionSuggestions.map(({rule,food,place,subdivision})=>{
-                  const useAmount=Math.min(food.quantity,rule.amount);
+                  const useAmount=Math.min(food.quantity,1);
                   const nextQuantity=Math.max(0,Number((food.quantity-useAmount).toFixed(3)));
                   return <article key={rule.id} className="smart-suggestion">
-                    <div className="smart-suggestion-copy"><strong>{food.name}</strong><small>{place.name} · previsto: {formatQuantity(rule.amount,food.unit)} a cada {rule.period_days} dias</small><p>Estoque atual: {formatQuantity(food.quantity,food.unit)}. Confirmando, ficará com {formatQuantity(nextQuantity,food.unit)}.</p></div>
+                    <div className="smart-suggestion-copy"><strong>{food.name}</strong><small>{place.name} · previsto: {formatQuantity(1,food.unit)} a cada {rule.period_days} dias</small><p>Estoque atual: {formatQuantity(food.quantity,food.unit)}. Confirmando, ficará com {formatQuantity(nextQuantity,food.unit)}.</p></div>
                     <div className="smart-suggestion-actions">
                       <button className="primary" onClick={()=>void handleConsumptionSuggestion(rule,true)}>Confirmar consumo</button>
                       <button className="secondary-action" onClick={()=>void handleConsumptionSuggestion(rule,false)}>Adiar</button>
@@ -2050,31 +2049,20 @@ function RecipeCookModal({recipe,onClose,onConfirm}:{recipe:Recipe;onClose:()=>v
   </Modal>
 }
 
-function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;rule?:ConsumptionRule;onClose:()=>void;onSave:(foodId:string,amount:number,periodDays:number,threshold:number|null,restockQuantity:number|null)=>void;onDelete:()=>void}){
-  const[amount,setAmount]=useState(rule?.amount??1);
-  const[periodDays,setPeriodDays]=useState(rule?.period_days??7);
-  const[threshold,setThreshold]=useState(rule?.low_stock_threshold===null||rule?.low_stock_threshold===undefined?'':String(rule.low_stock_threshold));
-  const[restockQuantity,setRestockQuantity]=useState(rule?.restock_quantity===null||rule?.restock_quantity===undefined?'':String(rule.restock_quantity));
+function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;rule?:ConsumptionRule;onClose:()=>void;onSave:(foodId:string,daysPerUnit:number)=>void;onDelete:()=>void}){
+  const initialDays=rule?Math.max(1,Math.round(rule.period_days/Math.max(1,rule.amount))):7;
+  const[daysPerUnit,setDaysPerUnit]=useState(initialDays);
   if(!food)return <Modal title="Programar consumo" onClose={onClose}><p className="modal-help">Este alimento não está mais no estoque.</p></Modal>;
-  const step=food.unit==='kg'||food.unit==='L'?0.1:1;
-  const canSave=Number.isFinite(amount)&&amount>0&&Number.isInteger(periodDays)&&periodDays>=1&&periodDays<=365&&(!threshold.trim()||(Number.isFinite(Number(threshold))&&Number(threshold)>=0))&&(!restockQuantity.trim()||(Number.isFinite(Number(restockQuantity))&&Number(restockQuantity)>0));
+  const totalDays=Number.isInteger(daysPerUnit)&&daysPerUnit>0?Math.round(food.quantity*daysPerUnit):0;
   return <Modal title={rule?'Editar consumo previsto':'Programar consumo'} onClose={onClose}>
     <div className="move-current"><span>Alimento</span><strong>{food.name}</strong><small>Estoque atual: {formatQuantity(food.quantity,food.unit)}</small></div>
-    <p className="modal-help">Defina uma previsão. O OrganizaApp vai sugerir a baixa; o estoque só muda quando você confirmar.</p>
-    <div className="row">
-      <label>Quantidade por ciclo<input type="number" min="0.01" step={step} value={amount} onChange={e=>setAmount(Number(e.target.value))}/></label>
-      <label>Repetir a cada (dias)<input type="number" min="1" max="365" step="1" value={periodDays} onChange={e=>setPeriodDays(Number(e.target.value))}/></label>
-    </div>
-    <div className="consumption-rule-help">Exemplo: 1 caixa a cada 7 dias. Se tiver 3, o app sugere atualizar para 2 após a confirmação.</div>
-    <div className="row">
-      <label>Alertar com estoque em<input type="number" min="0" step={step} value={threshold} onChange={e=>setThreshold(e.target.value)} placeholder="Opcional"/></label>
-      <label>Adicionar à lista de compras<input type="number" min="0.01" step={step} value={restockQuantity} onChange={e=>setRestockQuantity(e.target.value)} placeholder="Opcional"/></label>
-    </div>
-    <button className="primary full" disabled={!canSave} onClick={()=>onSave(food.id,amount,periodDays,threshold.trim()?Number(threshold):null,restockQuantity.trim()?Number(restockQuantity):null)}>{rule?'Salvar programação':'Ativar consumo previsto'}</button>
+    <p className="modal-help">Informe por quantos dias uma unidade costuma durar. Na data prevista, perguntaremos se você consumiu uma unidade. O estoque só muda quando confirmar.</p>
+    <label>Quantos dias dura uma unidade?<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
+    <div className="consumption-rule-help">Com {formatQuantity(food.quantity,food.unit)} em estoque, a duração estimada é de {totalDays} dias. Exemplo: 3 caixas, 7 dias por caixa = 21 dias.</div>
+    <button className="primary full" disabled={!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365} onClick={()=>onSave(food.id,daysPerUnit)}>{rule?'Salvar programação':'Ativar consumo previsto'}</button>
     {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> Remover programação</button>}
   </Modal>
 }
-
 function ShoppingPage({items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
   const[name,setName]=useState('');
   const[quantity,setQuantity]=useState(1);
