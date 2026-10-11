@@ -1707,6 +1707,7 @@ function App(){
           </section>
         ):workspace==='shopping'?(
           <ShoppingPage
+            places={places}
             items={shoppingItems}
             loading={shoppingLoading}
             signedIn={!!userId&&!!householdId}
@@ -2082,7 +2083,7 @@ function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;ru
     {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> Remover programação</button>}
   </Modal>
 }
-function ShoppingPage({items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
+function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{places:Place[];items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
   const[name,setName]=useState('');
   const[quantity,setQuantity]=useState(1);
   const[unit,setUnit]=useState<Unit>('unidades');
@@ -2146,7 +2147,7 @@ function ShoppingPage({items,loading,signedIn,recurringRules,recurringBusy,onAdd
     ):<>
       <form className="shopping-add-form" onSubmit={submit}>
         <div className="shopping-form-heading"><strong>Adicionar à lista</strong><span>Itens repetidos com a mesma unidade são somados.</span></div>
-        <label>Produto<input value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/></label>
+        <label>Produto<input list="shopping-pantry-suggestions" value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/><datalist id="shopping-pantry-suggestions">{Array.from(new Map(places.flatMap(place=>place.subdivisions.flatMap(sub=>sub.foods)).map(food=>[searchKey(food.name),food])).values()).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(food=><option key={food.id} value={food.name}/>)}</datalist></label>
         <div className="shopping-form-row">
           <label>Quantidade<input type="number" min="0.01" step={unit==='kg'||unit==='L'?0.1:1} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
           <label>Unidade<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
