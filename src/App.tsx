@@ -1780,24 +1780,6 @@ function App(){
               )}
             </div>
 
-            {!search&&dueConsumptionSuggestions.length>0&&<section className="consumption-panel">
-              <div className="smart-panel-heading"><div><p className="eyebrow">CONSUMO PLANEJADO</p><h3>Uma revisão rápida</h3><p>Confirme o consumo real para manter o estoque correto.</p></div><span>{dueConsumptionSuggestions.length}</span></div>
-              <div className="smart-suggestion-list">
-                {dueConsumptionSuggestions.map(({rule,food,place,subdivision})=>{
-                  const useAmount=Math.min(food.quantity,1);
-                  const nextQuantity=Math.max(0,Number((food.quantity-useAmount).toFixed(3)));
-                  return <article key={rule.id} className="smart-suggestion">
-                    <div className="smart-suggestion-copy"><strong>{food.name}</strong><small>{place.name} · previsto: {formatQuantity(1,food.unit)} a cada {rule.period_days} dias</small><p>Estoque atual: {formatQuantity(food.quantity,food.unit)}. Confirmando, ficará com {formatQuantity(nextQuantity,food.unit)}.</p></div>
-                    <div className="smart-suggestion-actions">
-                      <button className="primary" onClick={()=>void handleConsumptionSuggestion(rule,true)}>Confirmar consumo</button>
-                      <button className="secondary-action" onClick={()=>void handleConsumptionSuggestion(rule,false)}>Adiar</button>
-                      <button className="tertiary-action" onClick={()=>setConsumptionRuleModal({foodId:food.id})}>Editar regra</button>
-                    </div>
-                  </article>
-                })}
-              </div>
-            </section>}
-
             {!search&&expiringFoods.length>0&&<section className="expiry-panel">
               <div className="smart-panel-heading"><div><p className="eyebrow">REDUZA O DESPERDÍCIO</p><h3>Validade próxima</h3><p>Itens vencidos ou que vencem nos próximos 7 dias.</p></div><span>{expiringFoods.length}</span></div>
               <div className="expiry-items">
