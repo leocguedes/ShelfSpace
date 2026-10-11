@@ -746,3 +746,48 @@ button{touch-action:manipulation}
  .inventory-sort-bar select{width:100%}
  .report-sort-filter{min-width:0;width:100%}
 }
+
+
+/* Subtle, actionable notification center */
+.header-actions{position:relative}
+.notification-bell{position:relative;display:grid;place-items:center;width:40px;height:40px;flex:0 0 40px;border:1px solid var(--line,#e3e8df);border-radius:12px;background:var(--surface,#fffefa);color:#607665;cursor:pointer;transition:background .18s,border-color .18s}
+.notification-bell:hover,.notification-bell.active{background:#eef4eb;border-color:#cfddca;color:#3f6247}
+.notification-count{position:absolute;top:-5px;right:-5px;display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border:2px solid var(--canvas,#f6f7f2);border-radius:999px;background:#b96c59;color:white;font-size:9px;font-weight:700;line-height:1}
+.notification-center{position:relative;z-index:20;max-width:760px;margin:-12px 0 24px auto;overflow:hidden;border:1px solid #e1e8de;border-radius:17px;background:#fffefa;box-shadow:0 10px 32px rgba(37,55,39,.08)}
+.notification-center-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:17px 19px 14px;border-bottom:1px solid #edf1eb;background:#fbfcf9}
+.notification-center-head .eyebrow{margin:0 0 4px;font-size:9px}
+.notification-center-head h3{margin:0;color:#344638;font-size:17px;letter-spacing:-.02em}
+.notification-center-head p:not(.eyebrow){margin:4px 0 0;color:#879288;font-size:11px}
+.notification-close{display:grid;place-items:center;width:31px;height:31px;border:0;border-radius:9px;background:transparent;color:#849087;cursor:pointer}
+.notification-close:hover{background:#edf3e9;color:#45694e}
+.notification-list{display:flex;flex-direction:column;padding:0 16px}
+.notification-item{display:flex;align-items:flex-start;gap:11px;padding:15px 2px;border-bottom:1px solid #edf1eb}
+.notification-item:last-child{border-bottom:0}
+.notification-dot{width:8px;height:8px;flex:0 0 8px;margin-top:6px;border-radius:50%;background:#9baf91}
+.expiry-dot{background:#bd8065}
+.consumption-dot{background:#8aa77e}
+.notification-copy{min-width:0;flex:1}
+.notification-copy strong{display:block;color:#3b4e40;font-size:12px;line-height:1.45;font-weight:700}
+.notification-copy small{display:block;margin-top:3px;color:#879288;font-size:10px;line-height:1.5}
+.notification-copy p{margin:5px 0 0;color:#647267;font-size:11px;line-height:1.5}
+.notification-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.notification-actions button{min-height:31px;padding:7px 10px;border:1px solid #e0e7dd;border-radius:9px;background:#fffefa;color:#67766b;font:600 10px 'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+.notification-actions button:hover{background:#f0f5ed;border-color:#cbdac6}
+.notification-actions .notification-remove{border-color:#dce8d8;background:#eaf2e6;color:#416548}
+.notification-actions .notification-remove:hover{background:#dfeada}
+.notification-empty{display:flex;align-items:center;justify-content:center;gap:9px;padding:24px;color:#7d8a80;font-size:12px}
+.notification-empty svg{color:#719073}
+.food-alert-indicator{display:grid;place-items:center;align-self:center;width:28px;height:32px;flex:0 0 28px;border:0;border-radius:9px;background:transparent;cursor:pointer}
+.food-alert-indicator span{width:8px;height:8px;border-radius:50%;background:#b97a60;box-shadow:0 0 0 3px #f8ece5}
+.food-alert-indicator:hover{background:#f7eee8}
+.food.has-notification{border-color:#e4dcd1}
+@media(max-width:600px){
+  .notification-center{margin:-5px 0 19px;border-radius:14px}
+  .notification-center-head{padding:14px}
+  .notification-list{padding:0 12px}
+  .notification-item{gap:8px;flex-wrap:wrap;padding:13px 1px}
+  .notification-copy{flex:1 1 calc(100% - 22px)}
+  .notification-actions{width:100%;padding-left:19px}
+  .notification-actions button{flex:1}
+  .notification-bell{width:37px;height:37px;flex-basis:37px}
+}
