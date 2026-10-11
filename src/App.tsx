@@ -384,6 +384,7 @@ function App(){
   const shoppingItemsRef=useRef<ShoppingItem[]>([]);
   const[shoppingLoading,setShoppingLoading]=useState(false);
   const[shoppingStockItem,setShoppingStockItem]=useState<ShoppingItem|null>(null);
+  const[shoppingAddFood,setShoppingAddFood]=useState<Food|null>(null);
   const[consumptionRules,setConsumptionRules]=useState<ConsumptionRule[]>([]);
   const[notificationCenterOpen,setNotificationCenterOpen]=useState(false);
   const[handledNotifications,setHandledNotifications]=useState<string[]>([]);
@@ -1684,6 +1685,7 @@ function App(){
                           {foodMenu===f.id&&(
                             <div className="action-menu" onClick={e=>e.stopPropagation()}>
                               <button onClick={()=>{setFoodModal({place:selected,sub:selectedSub,food:f});setFoodMenu(null)}}><Edit3 size={16}/> Editar</button>
+                              <button onClick={()=>{setShoppingAddFood(f);setFoodMenu(null)}}><ShoppingCart size={16}/> Adicionar à lista de compras</button>
                               <button onClick={()=>{setMoveModal({place:selected,sub:selectedSub,food:f});setFoodMenu(null)}}><MoveRight size={16}/> Mover para...</button>
                               <button onClick={()=>{setConsumptionRuleModal({foodId:f.id});setFoodMenu(null)}}><CalendarClock size={16}/> {consumptionRules.some(rule=>rule.food_id===f.id)?'Editar consumo previsto':'Programar consumo'}</button>
                               <button className="danger" onClick={()=>removeFood(selected,selectedSub,f.id)}><Trash2 size={16}/> Excluir</button>
@@ -1915,6 +1917,7 @@ function App(){
         onClose={()=>setShoppingStockItem(null)}
         onConfirm={addPurchasedShoppingToStock}
       />}
+      {shoppingAddFood&&<AddFoodToShoppingModal food={shoppingAddFood} onClose={()=>setShoppingAddFood(null)} onConfirm={quantity=>{void addShoppingItem(shoppingAddFood.name,quantity,shoppingAddFood.unit,'manual');setShoppingAddFood(null)}}/>}
       {householdModal&&<HouseholdModal
         busy={householdBusy}
         households={households}
@@ -2202,6 +2205,16 @@ function ShoppingRow({item,onToggle,onDelete,onStock}:{item:ShoppingItem;onToggl
       <button type="button" className="shopping-delete" onClick={()=>onDelete(item)} aria-label={'Excluir '+item.name} title="Excluir item"><Trash2 size={16}/></button>
     </div>
   </div>
+}
+
+function AddFoodToShoppingModal({food,onClose,onConfirm}:{food:Food;onClose:()=>void;onConfirm:(quantity:number)=>void}){
+  const[quantity,setQuantity]=useState(1);
+  const step=quantityStep(food.unit);
+  return <Modal title="Adicionar à lista de compras" onClose={onClose}>
+    <div className="move-current"><span>Alimento</span><strong>{food.name}</strong><small>Unidade: {food.unit}</small></div>
+    <label>Quantidade para comprar<input type="number" min={step} step={step} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
+    <button className="primary full" disabled={!Number.isFinite(quantity)||quantity<=0} onClick={()=>onConfirm(Number(quantity))}>Adicionar {Number.isFinite(quantity)&&quantity>0?formatQuantity(quantity,food.unit):''} à lista</button>
+  </Modal>
 }
 
 function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;places:Place[];onConfirm:(item:ShoppingItem,placeId:string,subId:string,expiresOn:string|null)=>void;onClose:()=>void}){
