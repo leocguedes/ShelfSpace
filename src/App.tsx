@@ -4,7 +4,7 @@ import{formatQuantity,quantityStep,searchKey,units}from'./lib/domain';
 import type{Unit}from'./lib/domain';
 import{convertRecipeQuantity,getRecipeIngredientStatuses,matchesRecipeIngredient,recipes}from'./lib/recipes';
 import type{Recipe,RecipeIngredient,RecipePantryItem}from'./lib/recipes';
-import{Apple,ArrowDownUp,BookOpen,Box,CalendarClock,ChevronRight,ClipboardList,Copy,Edit3,Home,Minus,MoreHorizontal,MoveRight,PackagePlus,Plus,Search,Settings,ShoppingCart,Trash2,Users,X}from'lucide-react';
+import{Apple,ArrowDownUp,Bell,BookOpen,Box,CalendarClock,Check,ChevronRight,ClipboardList,Copy,Edit3,Home,Minus,MoreHorizontal,MoveRight,PackagePlus,Plus,Search,Settings,ShoppingCart,Trash2,Users,X}from'lucide-react';
 import{supabase}from'./lib/supabase';
 
 type RecentFood={name:string;unit:Unit};
@@ -385,6 +385,8 @@ function App(){
   const[shoppingLoading,setShoppingLoading]=useState(false);
   const[shoppingStockItem,setShoppingStockItem]=useState<ShoppingItem|null>(null);
   const[consumptionRules,setConsumptionRules]=useState<ConsumptionRule[]>([]);
+  const[notificationCenterOpen,setNotificationCenterOpen]=useState(false);
+  const[handledNotifications,setHandledNotifications]=useState<string[]>([]);
   const[consumptionRuleModal,setConsumptionRuleModal]=useState<{foodId:string}|null>(null);
   const[cookConfirmRecipe,setCookConfirmRecipe]=useState<Recipe|null>(null);
   const[online,setOnline]=useState(()=>navigator.onLine);
@@ -603,6 +605,17 @@ function App(){
     })();
     return()=>{active=false};
   },[userId,householdId]);
+
+  useEffect(()=>{
+    const key='organizapp-handled-notifications-'+(userId||'anonymous')+'-'+(householdId||'local');
+    try{const raw=JSON.parse(localStorage.getItem(key)||'[]');setHandledNotifications(Array.isArray(raw)?raw:[])}catch{setHandledNotifications([])}
+    setNotificationCenterOpen(false);
+  },[userId,householdId]);
+
+  useEffect(()=>{
+    const key='organizapp-handled-notifications-'+(userId||'anonymous')+'-'+(householdId||'local');
+    try{localStorage.setItem(key,JSON.stringify(handledNotifications))}catch{}
+  },[handledNotifications,userId,householdId]);
 
   useEffect(()=>{
     if(!userId||!householdId){
@@ -1332,7 +1345,7 @@ function App(){
     .filter(food=>!!food.expires_on&&daysUntilExpiry(food.expires_on!)<=7)
     .map(food=>({food,place,subdivision,days:daysUntilExpiry(food.expires_on!)}))))
     .sort((a,b)=>a.days-b.days);
-  const dueConsumptionSuggestions=consumptionRules.filter(rule=>rule.is_active&&rule.next_suggestion_on<=todayISO)
+  const dueConsumptionSuggestions=consumptionRules.filter(rule=>rule.is_active&&rule.next_suggestion_on<=todayISO&&!handledNotifications.includes('consumption:'+rule.id+':'+rule.next_suggestion_on))
     .flatMap(rule=>{
       for(const place of places){
         for(const subdivision of place.subdivisions){
@@ -1342,6 +1355,16 @@ function App(){
       }
       return[];
     });
+  const expiredNotifications=places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods
+    .filter(food=>food.quantity>0&&!!food.expires_on&&food.expires_on<=todayISO&&!handledNotifications.includes('expiry:'+food.id+':'+food.expires_on))
+    .map(food=>({food,place,subdivision,key:'expiry:'+food.id+':'+food.expires_on}))));
+  const notificationCount=expiredNotifications.length+dueConsumptionSuggestions.length;
+  function handleNotification(key:string){setHandledNotifications(current=>current.includes(key)?current:[...current,key]);}
+  function foodHasAlert(food:Food){
+    const expired=food.quantity>0&&!!food.expires_on&&food.expires_on<=todayISO&&!handledNotifications.includes('expiry:'+food.id+':'+food.expires_on);
+    const due=dueConsumptionSuggestions.some(item=>item.food.id===food.id);
+    return expired||due;
+  }
 
   async function saveFood(placeId:string,subId:string,data:Omit<Food,'id'>,id?:string):Promise<string|null>{
     const cleanName=data.name.trim();
@@ -1567,6 +1590,9 @@ function App(){
           <div><h1>OrganizaApp</h1><span>Sua casa, organizada.</span></div>
         </div>
         <div className="header-actions">
+          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title="Notificações">
+            <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
+          </button>
           {user&&!user.is_anonymous&&<button className="sync-btn family-btn" onClick={()=>setHouseholdModal(true)} disabled={householdBusy} title="Compartilhar esta casa com a família">
             <Users size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Família'}</span>
           </button>}
@@ -1579,6 +1605,13 @@ function App(){
       </header>
 
       <main>
+        {notificationCenterOpen&&<section className="notification-center" aria-label="Central de notificações">
+          <div className="notification-center-head"><div><p className="eyebrow">CENTRAL DE ALERTAS</p><h3>Notificações</h3><p>{notificationCount?`${notificationCount} ${notificationCount===1?'item precisa':'itens precisam'} da sua atenção`:'Tudo em dia por aqui.'}</p></div><button className="notification-close" onClick={()=>setNotificationCenterOpen(false)} aria-label="Fechar notificações"><X size={17}/></button></div>
+          {notificationCount===0?<div className="notification-empty"><Check size={19}/><span>Nenhuma decisão pendente.</span></div>:<div className="notification-list">
+            {expiredNotifications.map(({food,place,subdivision,key})=><article className="notification-item expiry-notification" key={key}><span className="notification-dot expiry-dot"/><div className="notification-copy"><strong>{food.name} atingiu a validade</strong><small>{place.name} · validade {food.expires_on?.split('-').reverse().join('/')}</small><p>Deseja retirar do estoque?</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void removeFood(place.id,subdivision.id,food.id)}>Retirar</button><button onClick={()=>handleNotification(key)}>Manter</button></div></article>)}
+            {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{food.name} atingiu o consumo previsto</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>Consumiu uma unidade? Estoque atual: {formatQuantity(food.quantity,food.unit)}.</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>Atualizar estoque</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>Adiar</button></div></article>)}
+          </div>}
+        </section>}
         {authMessage&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
 
         {!selected&&workspace==='inventory'&&<div className="inventory-import-action"><button className="secondary" onClick={()=>setImportModal(true)}><Copy size={17}/> Importar lista</button></div>}
@@ -1626,7 +1659,7 @@ function App(){
                 {sub.foods.length?(
                   <div className="food-list">
                     {sortedLocalFoods.map(f=>(
-                      <div className={'food '+(f.quantity===0?'out-of-stock':'')} key={f.id}>
+                      <div className={'food '+(f.quantity===0?'out-of-stock':'')+(foodHasAlert(f)?' has-notification':'')} key={f.id}>
                         
                         <div className="food-name">
                           <strong>{f.name}</strong>
@@ -1643,6 +1676,7 @@ function App(){
                             <Plus size={15}/>
                           </button>
                         </div>
+                        {foodHasAlert(f)&&<button className="food-alert-indicator" onClick={()=>setNotificationCenterOpen(true)} aria-label={'Ver notificação de '+f.name} title="Este item tem uma notificação"><span/></button>}
                         <div className="food-actions">
                           <button className="small action-trigger" title="Mais ações" aria-label={'Mais ações para '+f.name} onClick={e=>{e.stopPropagation();setFoodMenu(foodMenu===f.id?null:f.id)}}>
                             <MoreHorizontal size={18}/>
