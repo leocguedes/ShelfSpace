@@ -791,3 +791,68 @@ button{touch-action:manipulation}
   .notification-actions button{flex:1}
   .notification-bell{width:37px;height:37px;flex-basis:37px}
 }
+
+
+/* Visual refresh inspired by the Groceries List Mobile App reference */
+:root{
+  --canvas:#f6f6f8;
+  --surface:#ffffff;
+  --surface-soft:#f7f3ff;
+  --ink:#344056;
+  --muted:#68758d;
+  --line:#e7e9ef;
+  --green:#8056dc;
+  --green-deep:#7044ca;
+  --green-soft:#f1eaff;
+  --radius-card:16px;
+  --shadow-card:0 3px 12px rgba(35,42,60,.045);
+  --shadow-hover:0 10px 26px rgba(45,38,69,.09);
+}
+body{background:#f5f5f7;color:#344056}
+header{background:#fff;border-color:#e8e9ee}
+.logo{background:#f0e8ff;color:#8056dc;border-radius:14px}
+.icon-btn:hover,.small:hover{background:#f3edff}
+.hero h2,h2{font-family:'DM Sans',sans-serif;color:#344056;letter-spacing:-.035em}
+.eyebrow{color:#8664d7}
+.total{background:#f1eaff;border-radius:16px}
+.total span{color:#8056dc}
+.search{border-color:#e8e9ef;border-radius:12px;box-shadow:0 2px 8px rgba(35,42,60,.035)}
+.section-title button,.sub-head button,.back{color:#8056dc}
+.place-card{background:#fff;border-color:#e8e9ef;border-radius:16px;box-shadow:0 2px 8px rgba(35,42,60,.025)}
+.place-card:hover{box-shadow:0 10px 24px rgba(45,38,69,.075)}
+.place-icon,.food-icon{background:#f1eaff;color:#8056dc}
+.progress{background:#efedf4}
+.progress span{background:#9a78ed}
+.primary{background:#8056dc;border-radius:10px;box-shadow:0 2px 4px rgba(83,54,150,.08)}
+.primary:hover{background:#7044ca}
+.sub-card{border-color:#e8e9ef;background:#fff;border-radius:12px}
+.sub-card:hover,.sub-card.active{border-color:#c6b1f4;background:#f7f2ff}
+.sub-card strong{color:#344056}
+.food{background:#fff;border-color:#e8e9ef;border-radius:12px}
+.qty button,.number button{background:#faf9fc;border-color:#e5e3ec}
+.result{border-color:#e8e9ef;border-radius:12px}
+.result>svg:first-child{color:#8056dc}
+.modal{background:#fff;border-radius:22px;box-shadow:0 18px 55px rgba(35,35,55,.15)}
+.modal input,.modal select{border-color:#dfe2eb;border-radius:9px}
+.modal input:focus,.modal select:focus{border-color:#a98bea;box-shadow:0 0 0 3px #f1eaff}
+.manage-list>div{background:#f7f5fb}
+.notification-bell{border-color:#e8e5f0;background:#fff;color:#8056dc;border-radius:12px}
+.notification-bell:hover,.notification-bell.active{background:#f3edff;border-color:#d9c9f8;color:#7044ca}
+.notification-count{background:#8056dc}
+.notification-center{border-color:#e8e5f0;background:#fff;box-shadow:0 10px 32px rgba(35,35,55,.08)}
+.notification-center-head{border-color:#efedf4;background:#fcfbfe}
+.notification-center-head h3,.notification-copy strong{color:#344056}
+.notification-close:hover{background:#f3edff;color:#7044ca}
+.notification-item{border-color:#efedf4}
+.notification-dot,.consumption-dot{background:#9a78ed}
+.notification-actions button{border-color:#e7e3ef;background:#fff}
+.notification-actions button:hover{background:#f7f2ff;border-color:#d9c9f8}
+.notification-actions .notification-remove{border-color:#d9c9f8;background:#f1eaff;color:#7044ca}
+.food.has-notification{border-color:#ded4f2}
+.inventory-sort-bar select,.report-sort-filter select{border-color:#e5e3ec;background:#fff;color:#344056}
+.inventory-sort-bar select:focus,.report-sort-filter select:focus{border-color:#a98bea;box-shadow:0 0 0 3px #f1eaff}
+@media(max-width:600px){
+  header{height:68px}
+  main{padding-top:28px}
+  .place-card{padding:16px}
+}
