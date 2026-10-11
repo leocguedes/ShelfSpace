@@ -289,6 +289,7 @@ header{position:sticky;top:0;z-index:6;background:#fffdf9ee;backdrop-filter:blur
 
 /* Inventory / shopping workspace */
 .workspace-nav{display:flex;gap:7px;width:max-content;max-width:100%;padding:5px;background:#e9efe6;border:1px solid #dce6d9;border-radius:14px;margin:0 0 28px}
+.inventory-import-action{display:flex;justify-content:flex-end;margin:-14px 0 20px}.inventory-import-action .secondary{border:1px solid #dce6d9;border-radius:12px;background:#fffdf9;color:#45694d;padding:10px 14px;font:600 12px 'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:7px;cursor:pointer}.inventory-import-action .secondary:hover{background:#eef2eb}
 .workspace-nav button{border:0;background:transparent;color:#6e7d72;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
 .workspace-nav button.active{background:#fffdf9;color:#45694d;box-shadow:0 2px 8px #293d2b0d}
 .workspace-nav button span{min-width:19px;height:19px;display:grid;place-items:center;background:#dce9d9;color:#47674d;border-radius:99px;font-size:10px}
