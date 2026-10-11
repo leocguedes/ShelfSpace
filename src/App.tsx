@@ -396,6 +396,7 @@ function App(){
   const[selectedSub,setSelectedSub]=useState<string|null>(null);
   const[search,setSearch]=useState('');
   const[foodModal,setFoodModal]=useState<{place:string;sub:string;food?:Food}|null>(null);
+  const[importModal,setImportModal]=useState(false);
   const[moveModal,setMoveModal]=useState<{place:string;sub:string;food:Food}|null>(null);
   const[foodMenu,setFoodMenu]=useState<string|null>(null);
   const[placeModal,setPlaceModal]=useState(false);
@@ -1581,6 +1582,8 @@ function App(){
       <main>
         {authMessage&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
 
+        {!selected&&workspace==='inventory'&&<div className="inventory-import-action"><button className="secondary" onClick={()=>setImportModal(true)}><Copy size={17}/> Importar lista</button></div>}
+
         {!selected&&<nav className="workspace-nav" aria-label="Áreas do OrganizaApp">
           <button className={workspace==='inventory'?'active':''} onClick={()=>setWorkspace('inventory')}><Box size={17}/> Estoque</button>
           <button className={workspace==='shopping'?'active':''} onClick={()=>setWorkspace('shopping')}><ShoppingCart size={17}/> Compras{shoppingItems.filter(item=>!item.is_purchased).length>0&&<span>{shoppingItems.filter(item=>!item.is_purchased).length}</span>}</button>
@@ -1855,7 +1858,19 @@ function App(){
 
       </main>
 
-      {foodModal&&(
+      {importModal&&<ImportInventoryModal places={places} onClose={()=>setImportModal(false)} onImport={async(placeId,rows)=>{
+        const place=places.find(item=>item.id===placeId);
+        const destination=place?.subdivisions[0];
+        if(!place||!destination||!rows.length)return;
+        const imported=rows.map(row=>({id:uid(),name:row.name.trim(),quantity:Math.max(0,row.quantity),unit:row.unit,expires_on:row.expires_on||null}));
+        setPlaces(prev=>prev.map(item=>item.id!==placeId?item:{...item,subdivisions:item.subdivisions.map(sub=>sub.id!==destination.id?sub:{...sub,foods:[...sub.foods,...imported]})}));
+        for(const food of imported){
+          if(userId)await writeOrQueue(userId,{userId,table:'foods',action:'upsert',rowId:food.id,data:{id:food.id,user_id:userId,subdivision_id:destination.id,name:food.name,quantity:food.quantity,unit:food.unit,expires_on:food.expires_on}});
+          rememberFood(food.name,food.unit);
+        }
+        setImportModal(false);
+        setAuthMessage(imported.length+' '+(imported.length===1?'produto importado':'produtos importados')+' para '+place.name+'.');
+      }}/>}\n      {foodModal&&(
         <FoodModal
           data={foodModal.food}
           placeId={foodModal.place}
@@ -2235,6 +2250,60 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
 
 function Empty({title,text,action}:{title:string;text:string;action?:()=>void}){
   return <div className="empty"><PackagePlus size={30}/><h3>{title}</h3><p>{text}</p>{action&&<button className="primary" onClick={action}><Plus size={18}/> Adicionar alimento</button>}</div>
+}
+
+type ImportRow={name:string;quantity:number;unit:Unit;expires_on:string|null};
+function ImportInventoryModal({places,onClose,onImport}:{places:Place[];onClose:()=>void;onImport:(placeId:string,rows:ImportRow[])=>Promise<void>;}) {
+  const [placeId,setPlaceId]=useState(places[0]?.id||'');
+  const [text,setText]=useState('');
+  const [fileName,setFileName]=useState('');
+  const [error,setError]=useState('');
+  const [busy,setBusy]=useState(false);
+  const parse=()=>{
+    const lines=text.split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+    if(!lines.length)return [] as ImportRow[];
+    const first=lines[0].split(/[\t;,]/).map(value=>value.trim().toLowerCase());
+    const hasHeader=first.some(value=>['nome','produto','alimento','name','product','item'].includes(value));
+    const header=hasHeader?first:[];
+    const data=hasHeader?lines.slice(1):lines;
+    return data.map(line=>{
+      const values=line.includes('\t')?line.split('\t'):line.includes(';')?line.split(';'):line.split(',');
+      const get=(keys:string[],fallback:number)=>{const index=header.findIndex(value=>keys.includes(value));return (values[index>=0?index:fallback]||'').trim()};
+      const name=get(['nome','produto','alimento','name','product','item'],0);
+      if(!name)return null;
+      const rawQuantity=get(['quantidade','quantity','qty'],1);
+      const quantityText=rawQuantity.replace(',','.');
+      const quantity=rawQuantity&&Number.isFinite(Number(quantityText))?Math.max(0,Number(quantityText)):1;
+      const rawUnit=get(['unidade','unit'],2).toLowerCase();
+      const unitMap:Record<string,Unit>={'unidade':'unidades','unidades':'unidades','unit':'unidades','units':'unidades','un':'unidades','kg':'kg','quilo':'kg','quilos':'kg','g':'g','gramas':'g','l':'L','litro':'L','litros':'L','ml':'ml'};
+      const unit=unitMap[rawUnit]||'unidades';
+      const rawExpiry=get(['validade','vencimento','expires_on','expiry','expiry date'],3);
+      let expires_on:string|null=null;
+      if(/^\d{4}-\d{2}-\d{2}$/.test(rawExpiry))expires_on=rawExpiry;
+      else if(/^\d{2}\/\d{2}\/\d{4}$/.test(rawExpiry)){const [month,day,year]=rawExpiry.split('/');expires_on=year+'-'+month+'-'+day;}
+      return {name,quantity,unit,expires_on};
+    }).filter((row):row is ImportRow=>!!row);
+  };
+  const rows=parse();
+  const readFile=(file?:File)=>{
+    if(!file)return;
+    if(!/\.(csv|txt)$/i.test(file.name)){setError('Use um arquivo CSV ou TXT. Para Excel, salve como CSV ou copie e cole as células aqui.');return;}
+    const reader=new FileReader();
+    reader.onload=()=>{setText(String(reader.result||''));setFileName(file.name);setError('');};
+    reader.onerror=()=>setError('Não foi possível ler esse arquivo.');
+    reader.readAsText(file);
+  };
+  const submit=async()=>{if(!placeId||!rows.length){setError('Escolha um local e informe pelo menos um produto.');return;}setBusy(true);setError('');try{await onImport(placeId,rows);}catch{setError('Não foi possível concluir a importação. Confira sua conexão e tente novamente.');}finally{setBusy(false);}};
+  return <Modal title="Importar lista para o estoque" onClose={onClose}>
+    <p className="modal-help">Cole uma lista copiada do Excel ou importe um arquivo CSV/TXT. Formato por linha: produto, quantidade, unidade e validade (opcional).</p>
+    <label>Local de destino<select value={placeId} onChange={event=>setPlaceId(event.target.value)}>{places.map(place=><option key={place.id} value={place.id}>{place.name}</option>)}</select></label>
+    <label>Arquivo CSV ou TXT<input type="file" accept=".csv,.txt,text/csv,text/plain" onChange={event=>readFile(event.target.files?.[0])}/></label>
+    {fileName&&<p className="field-help">Arquivo carregado: {fileName}</p>}
+    <label>Lista de produtos<textarea rows={7} value={text} onChange={event=>{setText(event.target.value);setError('');}} placeholder={'Arroz, 2, kg\nLeite, 3, unidades\nFeijão\n\nOu copie diretamente as células do Excel.'}/></label>
+    <p className="field-help">{rows.length} {rows.length===1?'produto identificado':'produtos identificados'}. Quantidade e unidade são opcionais; quando ausentes, será usada quantidade 1 e unidade “unidades”.</p>
+    {error&&<p className="auth-note" role="alert">{error}</p>}
+    <button className="primary full" disabled={busy||!rows.length||!placeId} onClick={()=>void submit()}>{busy?'Importando...':'Importar '+rows.length+' '+(rows.length===1?'produto':'produtos')}</button>
+  </Modal>;
 }
 
 function FoodModal({data,placeId,subId,places,recentFoods,onClose,onSave,onAddToExisting}:{data?:Food;placeId:string;subId:string;places:Place[];recentFoods:RecentFood[];onClose:()=>void;onSave:(placeId:string,subId:string,d:Omit<Food,'id'>)=>void;onAddToExisting:(placeId:string,subId:string,existingId:string,amount:number,unit:Unit)=>void}){
