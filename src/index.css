@@ -856,3 +856,87 @@ header{background:#fff;border-color:#e8e9ee}
   main{padding-top:28px}
   .place-card{padding:16px}
 }
+
+
+/* Shopping list screen: clearer hierarchy and checklist interaction */
+.workspace-nav{
+  display:flex;align-items:center;gap:5px;padding:5px;
+  border:1px solid #e8e5ef;border-radius:14px;background:#fff;
+  box-shadow:0 2px 8px rgba(35,35,55,.025);
+}
+.workspace-nav button{
+  min-height:42px;border:0;border-radius:10px;background:transparent;
+  color:#68758d;font-weight:600;transition:background .16s,color .16s;
+}
+.workspace-nav button:hover{background:#f7f3ff;color:#7044ca}
+.workspace-nav button.active{background:#f1eaff;color:#7044ca}
+.workspace-nav button>span{
+  display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;
+  border-radius:7px;background:#e4d8ff;color:#7044ca;font-size:10px;font-weight:700;
+}
+.shopping-page{max-width:820px}
+.shopping-hero{align-items:center;margin-bottom:22px}
+.shopping-hero .eyebrow{color:#8b6cdb}
+.shopping-hero h2{font-size:32px;letter-spacing:-.04em}
+.shopping-hero .hero-copy>p:last-child{font-size:12px;line-height:1.65;color:#778198}
+.shopping-summary{min-width:104px;background:#f4efff;border:1px solid #e8ddff;border-radius:14px;color:#7044ca;padding:13px 15px}
+.shopping-summary strong{font-size:27px;color:#8056dc}
+.shopping-summary span{font-size:10px;color:#75688f}
+.shopping-add-form{background:#fff;border-color:#e7e5ed;border-radius:15px;padding:17px 17px 2px;box-shadow:0 3px 12px rgba(35,35,55,.025);margin-bottom:20px}
+.shopping-form-heading{margin-bottom:14px}
+.shopping-form-heading strong{font-size:14px;color:#344056}
+.shopping-form-heading span{color:#8790a3}
+.shopping-add-form label{color:#58647a}
+.shopping-add-form input,.shopping-add-form select{border-color:#dfe2eb;border-radius:9px}
+.shopping-add-form input:focus,.shopping-add-form select:focus{border-color:#a98bea;box-shadow:0 0 0 3px #f1eaff}
+.shopping-add-button{border-radius:9px}
+.recurring-panel{border-color:#e7e5ed;background:#fff;border-radius:14px;margin-bottom:25px}
+.recurring-panel>summary strong{color:#344056}
+.recurring-panel>summary>b{background:#f1eaff;color:#7044ca}
+.recurring-panel[open]>summary{border-color:#eeeaf5;background:#fcfbff}
+.recurring-form{border-color:#eeeaf5}
+.recurring-form>strong{color:#4e5870}
+.recurring-form label{color:#68738a}
+.recurring-form input,.recurring-form select{border-color:#dfe2eb;border-radius:9px}
+.recurring-rule{border-color:#eeeaf5}
+.shopping-section-heading{align-items:center;margin-bottom:13px}
+.shopping-section-heading h3{font-size:18px;color:#344056;letter-spacing:-.025em}
+.shopping-section-heading p{color:#7e879c;font-size:11px}
+.shopping-items{gap:8px}
+.shopping-row{
+  min-height:58px;padding:10px 12px;gap:12px;background:#fff;
+  border:1px solid #e8e9ef;border-radius:11px;transition:border-color .16s,background .16s,box-shadow .16s;
+}
+.shopping-row:hover{border-color:#d7c8f5;box-shadow:0 2px 8px rgba(55,42,90,.035)}
+.shopping-row.purchased{background:#faf8ff;border-color:#e1d5fb}
+.shopping-row-name strong{font-size:13px;color:#344056}
+.shopping-row-name small{font-size:10px;color:#7b859b}
+.shopping-row.purchased .shopping-row-name strong{color:#8a7aa8}
+.shopping-check{width:22px;height:22px;flex-basis:22px}
+.shopping-checkmark{width:19px;height:19px;border:1.5px solid #d1d5e0;border-radius:5px;transition:background .15s,border-color .15s}
+.shopping-check input:checked+.shopping-checkmark{background:#8056dc;border-color:#8056dc}
+.shopping-check input:focus-visible+.shopping-checkmark{outline-color:#e3d7ff}
+.shopping-row-actions button{border-color:#e3d8fb;background:#f5f0ff;color:#7044ca;border-radius:8px}
+.shopping-row-actions button:hover{background:#eee5ff}
+.shopping-row-actions button.shopping-delete{color:#9299aa}
+.shopping-stock-linked{border-radius:7px;background:#f1eaff;color:#7044ca;padding:5px 7px;font-size:9px;font-weight:700}
+.shopping-empty{border:1px dashed #ded8eb;background:#fff;border-radius:15px;padding:44px 22px}
+.shopping-empty>svg{color:#9a78ed}
+.shopping-empty strong{color:#344056}
+.shopping-empty span{max-width:330px;color:#7b859b}
+.shopping-purchased{border-color:#e8e5ef}
+.shopping-purchased summary{color:#68758d}
+.shopping-signin{background:#fff;border-color:#e4d9fa}
+@media(max-width:600px){
+  .workspace-nav{gap:3px;padding:4px;border-radius:12px}
+  .workspace-nav button{min-width:0;font-size:11px}
+  .shopping-hero h2{font-size:28px}
+  .shopping-summary{min-width:86px;padding:10px 11px}
+  .shopping-summary strong{font-size:23px}
+  .shopping-add-form{padding:14px 13px 1px}
+  .shopping-row{min-height:56px}
+}
+@media(max-width:420px){
+  .workspace-nav button{gap:4px;padding:9px 5px}
+  .shopping-row-actions button:not(.shopping-delete){max-width:92px}
+}
