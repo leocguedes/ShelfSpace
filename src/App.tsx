@@ -2441,12 +2441,13 @@ function FoodModal({data,placeId,subId,places,recentFoods,onClose,onSave,onAddTo
   const canSave=!!name.trim()&&!!chosenPlace&&!!chosenSub&&Number.isFinite(quantity)&&quantity>=0;
   const canMerge=!!duplicateFood&&duplicateFood.unit===unit&&quantity>0;
   return <Modal title={data?'Editar alimento':'Novo alimento'} onClose={onClose}>
-    {!data&&<div className="destination-fields">
+    {!data&&(!placeId||!places.some(p=>p.id===placeId))&&<div className="destination-fields">
       <div className="destination-title"><span>Onde ele fica?</span><small>Escolha o local.</small></div>
       <div className="row">
         <label>Local<select value={chosenPlace} onChange={e=>{const nextPlace=places.find(p=>p.id===e.target.value);setChosenPlace(e.target.value);setChosenSub(nextPlace?.subdivisions[0]?.id||'')}}><option value="">Selecione...</option>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
       </div>
     </div>}
+    {!data&&placeId&&places.some(p=>p.id===placeId)&&<p className="food-destination-note"><Check size={14}/> Será adicionado a <strong>{places.find(p=>p.id===placeId)?.name}</strong>.</p>}
     <label>Nome do alimento<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Arroz"/></label>
     {!data&&recentFoods.length>0&&!name&&<div className="recent-foods"><span>Adicionados recentemente</span><div>{recentFoods.slice(0,6).map(f=><button key={f.name} onClick={()=>{setName(f.name);setUnit(f.unit)}}>{f.name}</button>)}</div></div>}
     {duplicate&&<div className="duplicate-note"><strong>“{duplicateFood?.name}” já está neste local.</strong><span>Você pode somar a nova quantidade ao estoque existente.</span>{canMerge&&<button type="button" onClick={()=>onAddToExisting(chosenPlace,chosenSub,duplicateFood!.id,quantity,unit)}><Plus size={15}/> Somar {formatQuantity(quantity,unit)}</button>}</div>}
