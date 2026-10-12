@@ -778,6 +778,18 @@ button{touch-action:manipulation}
 
 
 /* Inventory sorting controls */
+.local-inventory-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;margin:0 0 14px}
+.local-food-search{height:42px;min-width:0;display:flex;align-items:center;gap:9px;padding:0 12px;border:1px solid #dfe6dd;border-radius:11px;background:#fffdf9;color:#839087}
+.local-food-search:focus-within{border-color:#a7bba8;box-shadow:0 0 0 3px #dfeadd}
+.local-food-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#405146;font:12px 'DM Sans',sans-serif}
+.local-food-search input::placeholder{color:#9aa49c}
+.local-food-search button{display:grid;place-items:center;border:0;background:transparent;color:#839087;cursor:pointer;padding:3px}
+.local-inventory-tools .inventory-sort-bar{margin:0}
+@media(max-width:650px){
+ .local-inventory-tools{grid-template-columns:1fr;gap:10px}
+ .local-inventory-tools .inventory-sort-bar{align-items:center;flex-direction:row}
+ .local-inventory-tools .inventory-sort-bar select{width:auto;flex:1}
+}
 .inventory-sort-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:0 2px}
 .inventory-sort-bar>span{display:flex;align-items:center;gap:7px;color:#7d8a80;font-size:11px;font-weight:600;white-space:nowrap}
 .inventory-sort-bar select,.report-sort-filter select{height:42px;max-width:100%;border:1px solid #dfe6dd;border-radius:10px;background:#fffdf9;padding:0 12px;color:#405146;font:12px 'DM Sans',sans-serif;outline:0;cursor:pointer}
