@@ -718,11 +718,8 @@ button{touch-action:manipulation}
 }
 
 
-/* Minimal food rows; locations use an emoji without a decorative tile. */
-.food{gap:14px}
-.location-icon,.place-icon{width:auto;height:auto;min-width:0;min-height:0;border-radius:0;background:transparent;color:inherit;display:flex;align-items:center;justify-content:center;line-height:1;flex:0 0 auto}
-.location-icon{font-size:34px}
-.place-icon{font-size:28px}
+/* Keep location headers consistent with the app's icon system. */
+.location-icon{width:50px;height:50px;border-radius:15px;background:#e7efe4;color:#56745d;display:grid;place-items:center;flex:0 0 auto}
 
 .recipe-online-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 16px}
 .recipe-online-controls>span,.recipe-online-message{font-size:11px;color:#7f8b81;line-height:1.5}
@@ -1398,7 +1395,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#718
 .place-photo.photo-pantry{background-image:url('https://images.unsplash.com/photo-1604719312566-8912e9c8a213?auto=format&fit=crop&w=900&q=82')}
 .place-photo.photo-freezer{background-image:url('https://images.unsplash.com/photo-1584473457409-ceb3f6f4e7a3?auto=format&fit=crop&w=900&q=82')}
 .place-photo.photo-generic{background-image:url('https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=900&q=82')}
-.place-photo-icon{width:42px;height:42px;display:grid;place-items:center;background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.8);border-radius:13px;font-size:21px;box-shadow:0 3px 10px #29352e12}
+
 .place-photo .place-card-actions{display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,.94);border-radius:50%;box-shadow:0 3px 10px #29352e12}
 .place-photo .card-edit{display:grid;background:transparent;color:#4b594c;width:34px;height:34px}
 .place-photo .place-card-actions>svg{color:#4b594c}
@@ -1451,7 +1448,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#718
  .home-shortcuts button{padding:10px}
  .places{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
  .place-photo{height:88px;padding:8px}
- .place-photo-icon{width:34px;height:34px;border-radius:10px;font-size:18px}
+
  .place-photo .place-card-actions{width:32px;height:32px}
  .place-card h3{font-size:15px;margin:10px 10px 4px}
  .place-card>.place-card-summary{margin:0 10px}
