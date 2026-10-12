@@ -1387,7 +1387,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#718
 .home-stat>div>strong{font-size:27px;line-height:1.05}
 .home-stat>div>span{font-size:11px;line-height:1.35}
 .home-stat-icon{width:42px;height:42px;flex:0 0 auto}
-.home-stat-icon.places{background:#edf1e9!important;color:#526b50!important}
+.home-stat-icon.places{background:#edf1e9!important;color:#526b50!important;position:relative;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden}.home-stat-icon.places svg{position:static!important;display:block!important;transform:none!important;margin:0!important;flex:0 0 auto}
 .home-stat-icon.expiry{background:#fbf0e3!important;color:#b86c30!important}
 .home-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .home-shortcuts button{min-width:0;padding:11px 12px;gap:10px;border-radius:14px}
