@@ -1300,9 +1300,24 @@ function App(){
   const sub=current?.subdivisions.find(s=>s.id===selectedSub);
   const total=places.reduce((n,p)=>n+p.subdivisions.reduce((m,s)=>m+s.foods.length,0),0);
   const sortedLocalFoods=useMemo(()=>{
-    const query=searchKey(localFoodSearch.trim());
-    const items=[...(sub?.foods||[])].filter(food=>!query||searchKey(food.name).includes(query));
+    const query=searchKey(localFoodSearch.trim()).replace(/\\s+/g,' ');
+    const words=query.split(' ').filter(Boolean);
+    const rank=(name:string)=>{
+      if(!query)return 0;
+      const normalized=searchKey(name).replace(/\\s+/g,' ').trim();
+      if(normalized===query)return 0;
+      if(normalized.startsWith(query))return 1;
+      if(normalized.split(/[^a-z0-9]+/).some(word=>word.startsWith(query)))return 2;
+      if(words.every(word=>normalized.split(/[^a-z0-9]+/).some(part=>part.startsWith(word))))return 3;
+      if(normalized.includes(query))return 4;
+      return -1;
+    };
+    const items=[...(sub?.foods||[])].filter(food=>rank(food.name)>=0);
     return items.sort((a,b)=>{
+      if(query){
+        const relevance=rank(a.name)-rank(b.name);
+        if(relevance)return relevance;
+      }
       if(foodSort==='expiry'){
         if(!a.expires_on&&!b.expires_on)return a.name.localeCompare(b.name,'pt-BR');
         if(!a.expires_on)return 1;
