@@ -367,7 +367,42 @@ header{position:sticky;top:0;z-index:6;background:#fffdf9ee;backdrop-filter:blur
 .expiry-label{display:inline-flex;align-items:center;width:max-content;max-width:100%;font-size:10px;color:#73816f;background:#eef4e9;border-radius:6px;padding:3px 6px;font-weight:600}
 .expiry-label.urgent{background:#fbf0dd;color:#94703a}
 .expiry-label.expired{background:#fae9e7;color:#a8514c}
-.consumption-panel,.expiry-panel{margin:0 0 25px;padding:17px;background:#fffdf9;border:1px solid #e1e8de;border-radius:17px}
+.consumption-panel,
+.home-overview{margin:0 0 25px;padding:18px;background:#fffdf9;border:1px solid #e3e9e0;border-radius:18px}
+.home-overview-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.home-overview-heading .eyebrow{margin:0 0 4px;font-size:9px}
+.home-overview-heading h3{margin:0;color:#405146;font-size:17px;letter-spacing:-.02em}
+.home-overview-heading>span{color:#98a198;font-size:10px}
+.home-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.home-stat{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 11px;border:1px solid #e8ede5;border-radius:13px;background:#fcfdfb}
+.home-stat-icon{width:34px;height:34px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px}
+.home-stat-icon.stock{background:#eaf2e7;color:#56765b}
+.home-stat-icon.places{background:#f0ebfa;color:#7b63a7}
+.home-stat-icon.expiry{background:#fff0df;color:#a96d32}
+.home-stat>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.home-stat strong{color:#3e4f44;font-size:22px;line-height:1;font-weight:700;letter-spacing:-.04em}
+.home-stat>div>span{color:#849087;font-size:10px;line-height:1.35}
+.home-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.home-shortcuts>button{display:flex;align-items:center;gap:10px;min-width:0;padding:11px 12px;border:1px solid #e3e9e0;border-radius:13px;background:#fff;text-align:left;color:#65766a;cursor:pointer;transition:background .16s,border-color .16s,transform .16s}
+.home-shortcuts>button:hover{background:#f7faf5;border-color:#cbd9c8;transform:translateY(-1px)}
+.home-shortcut-icon{width:32px;height:32px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px;background:#edf4eb;color:#54745b}
+.home-shortcut-icon.recipes{background:#f0ebfa;color:#7b63a7}
+.home-shortcuts>button>span:nth-child(2){display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.home-shortcuts strong{font-size:11px;color:#46584c}
+.home-shortcuts small{font-size:10px;color:#8a958d;line-height:1.35}
+.home-shortcuts>button>svg{flex:0 0 auto;color:#9aa59c}
+@media(max-width:600px){
+  .home-overview{padding:14px;margin-bottom:20px}
+  .home-overview-heading>span{max-width:112px;text-align:right;font-size:9px}
+  .home-stat-grid{gap:7px}
+  .home-stat{flex-direction:column;align-items:flex-start;gap:8px;padding:11px 9px}
+  .home-stat strong{font-size:21px}
+  .home-stat>div>span{font-size:9px}
+  .home-shortcuts{grid-template-columns:1fr}
+  .home-shortcuts>button{padding:10px 11px}
+}
+
+.expiry-panel{margin:0 0 25px;padding:17px;background:#fffdf9;border:1px solid #e1e8de;border-radius:17px}
 .smart-panel-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
 .smart-panel-heading h3{margin:0 0 4px;color:#405146;font-size:16px}
 .smart-panel-heading p:not(.eyebrow){margin:0;color:#89958d;font-size:11px;line-height:1.45}
