@@ -33,7 +33,7 @@ function afroditeSections(recipe: Record<string, unknown>) {
 }
 
 function cleanAfroditeIngredient(raw: string) {
-  return raw.replace(/^\\s*(?:[-•]\\s*)?(?:\\d+(?:[.,]\\d+)?\\s*(?:g|kg|mg|ml|l|litros?|xícaras?|xic\.?|colheres?|c\.?s\.?|c\.?chá|unidades?|dentes?)\\b\\s*(?:de\\s+)?)?/i, "").replace(/^\\s*\\d+\\s+/, "").replace(/\\s+/g, " ").trim().replace(/[.,;:]$/, "");
+  return raw.replace(/^\s*(?:[-•]\s*)?(?:\d+(?:[.,]\d+)?\s*(?:g|kg|mg|ml|l|litros?|xícaras?|xic\.?|colheres?|c\.?s\.?|c\.?chá|unidades?|dentes?)\b\s*(?:de\s+)?)?/i, "").replace(/^\s*\d+\s+/, "").replace(/\s+/g, " ").trim().replace(/[.,;:]$/, "");
 }
 
 function parseAfroditeRecipe(raw: Record<string, unknown>, index: number, matched: string[]) {
@@ -51,7 +51,7 @@ function parseAfroditeRecipe(raw: Record<string, unknown>, index: number, matche
   });
   const instructions = (Array.isArray(preparationSection?.conteudo) ? preparationSection.conteudo : [])
     .map((step) => String(step ?? "").trim())
-    .filter((step) => step && !/^\\d+\\s*(?:porções?|rendimento)/i.test(step));
+    .filter((step) => step && !/^\d+\s*(?:porções?|rendimento)/i.test(step));
   const id = String(raw._id ?? raw.id ?? index);
   const name = String(raw.nome ?? "").trim();
   if (!name || !ingredients.length || !instructions.length) return null;
@@ -77,7 +77,7 @@ async function searchAfrodite(input: string[]) {
     const sections = afroditeSections(raw);
     const section = sections.find((item) => normalize(String(item.nome ?? "")).includes("ingrediente"));
     const lines = Array.isArray(section?.conteudo) ? section.conteudo.map((line) => normalize(String(line ?? ""))).filter(Boolean) : [];
-    const matched = pantryTerms.filter((term) => lines.some((line) => line.includes(term) || term.split(/\\s+/).filter(part => part.length >= 4).some(part => line.includes(part))));
+    const matched = pantryTerms.filter((term) => lines.some((line) => line.includes(term) || term.split(/\s+/).filter(part => part.length >= 4).some(part => line.includes(part))));
     return { raw, index, score: matched.length, matched };
   }).filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score || String(a.raw.nome ?? "").localeCompare(String(b.raw.nome ?? ""), "pt-BR"))
