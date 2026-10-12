@@ -61,6 +61,8 @@
 .home-add span:not(.home-add-icon){display:flex;flex-direction:column;gap:2px;flex:1}
 .home-add strong{font-size:13px}
 .home-add small{font-size:11px;color:#728178}
+.food-destination-note{display:flex;align-items:center;gap:6px;margin:0 0 14px;padding:10px 12px;border-radius:10px;background:#edf4eb;color:#56745b;font-size:12px}
+.food-destination-note strong{font-weight:700}
 .destination-fields{background:#f3f7f1;border:1px solid #e0e9dd;border-radius:14px;padding:12px 12px 2px;margin:-3px 0 16px}
 .destination-title{display:flex;flex-direction:column;gap:2px;margin-bottom:10px}
 .destination-title span{font-size:12px;font-weight:700;color:#506158}
