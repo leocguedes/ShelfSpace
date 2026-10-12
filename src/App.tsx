@@ -1957,7 +1957,6 @@ function App(){
                             <button className="card-edit" title="Renomear local" aria-label={'Renomear '+p.name} onClick={e=>{e.stopPropagation();setPlaceToEdit(p.id);setPlaceModal(true)}}>
                               <Edit3 size={16}/>
                             </button>
-                            <MoreHorizontal size={19}/>
                           </div>
                         </div>
                         <h3>{p.name}</h3>
