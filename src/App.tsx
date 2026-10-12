@@ -67,20 +67,6 @@ function locationPhotoClass(name:string){
   if(/gaveta|drawer/.test(normalized))return 'photo-drawer';
   return 'photo-generic';
 }
-function locationEmoji(name:string){
-  const normalized=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  if(/geladeira|refrigerador|fridge/.test(normalized))return '🧊';
-  if(/freezer|congelador/.test(normalized))return '❄️';
-  if(/armario|cabinet/.test(normalized))return '🗄️';
-  if(/despensa|pantry/.test(normalized))return '🥫';
-  if(/gaveta|drawer/.test(normalized))return '🗃️';
-  if(/prateleira|estante|shelf/.test(normalized))return '🪵';
-  if(/cozinha|kitchen/.test(normalized))return '🍳';
-  if(/lavanderia|lavandaria|laundry/.test(normalized))return '🧺';
-  if(/banheiro|casa de banho|bathroom/.test(normalized))return '🧴';
-  if(/quarto|bedroom/.test(normalized))return '🛏️';
-  return '📦';
-}
 const authRedirectUrl=()=>new URL(import.meta.env.BASE_URL,window.location.origin).toString();
 const makeSub=(name:string,foods:Food[]=[]):Sub=>({id:uid(),name,foods});
 const initial:Place[]=[
@@ -1652,7 +1638,7 @@ function App(){
 
             <div className="location-hero">
               <div className="location-identity">
-                <div className="location-icon" aria-hidden="true">{locationEmoji(current?.name||'')}</div>
+                <div className="location-icon" aria-hidden="true"><Box size={20}/></div>
                 <div>
                   <p className="eyebrow">LOCAL</p>
                   <h2>{current?.name}</h2>
@@ -1806,7 +1792,7 @@ function App(){
                   <thead><tr><th>Alimento</th><th>Onde está</th><th>Quantidade</th><th>Validade</th></tr></thead>
                   <tbody>{reportFoods.map(food=><tr key={food.id}>
                     <td data-label="Alimento"><strong>{food.name}</strong></td>
-                    <td data-label="Onde está"><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{locationEmoji(food.placeName)} {food.placeName}<ChevronRight size={14}/></button></td>
+                    <td data-label="Onde está"><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={14}/></button></td>
                     <td data-label="Quantidade"><span className="report-quantity">{formatQuantity(food.quantity,food.unit)}</span>{food.quantity===0&&<small className="report-out">Sem estoque</small>}</td>
                     <td data-label="Validade">{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on)}</small></span>:<span className="report-no-expiry">Não informada</span>}</td>
                   </tr>)}</tbody>
@@ -1952,7 +1938,6 @@ function App(){
                         onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPlace(p.id)}}}
                       >
                         <div className={'place-photo '+locationPhotoClass(p.name)} aria-hidden="true">
-                          <div className="place-photo-icon">{locationEmoji(p.name)}</div>
                           <div className="place-card-actions">
                             <button className="card-edit" title="Renomear local" aria-label={'Renomear '+p.name} onClick={e=>{e.stopPropagation();setPlaceToEdit(p.id);setPlaceModal(true)}}>
                               <Edit3 size={16}/>
