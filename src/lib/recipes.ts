@@ -16,7 +16,7 @@ export type Recipe = {
   servings: number;
   ingredients: RecipeIngredient[];
   instructions: string[];
-  source?: 'themealdb';
+  source?: 'themealdb' | 'afrodite';
   sourceUrl?: string;
   imageUrl?: string;
   presenceOnly?: boolean;
