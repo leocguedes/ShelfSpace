@@ -1968,6 +1968,30 @@ function App(){
                     ))}
                   </div>
                 )}
+
+                {recentFoods.length>0&&places.length>0&&(
+                  <section className="home-recent" aria-label="Alimentos recentes">
+                    <div className="section-title home-recent-heading">
+                      <div><h3>Adicionados recentemente</h3><p className="section-caption">Continue de onde você parou</p></div>
+                      <button onClick={()=>{setWorkspace('report');setSelected(null);setSelectedSub(null)}}>Ver estoque <ChevronRight size={16}/></button>
+                    </div>
+                    <div className="home-recent-grid">
+                      {recentFoods.slice(0,4).map((recent,index)=>{
+                        const match=places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods.map(food=>({food,place,subdivision})))).find(item=>searchKey(item.food.name)===searchKey(recent.name));
+                        return (
+                          <button type="button" className="home-recent-item" key={searchKey(recent.name)} onClick={()=>{
+                            if(match)openSearchResult(match.place.id,match.subdivision.id);
+                            else{setSearch(recent.name);setWorkspace('inventory');setSelected(null);setSelectedSub(null);}
+                          }}>
+                            <span className={'home-recent-thumb thumb-'+(index%4)}><Apple size={21}/></span>
+                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:'Adicionado recentemente'}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit):recent.unit}</small></span>
+                            <ChevronRight size={17}/>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+                )}
               </>
             )}
           </section>
