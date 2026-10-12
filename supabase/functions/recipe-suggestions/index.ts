@@ -9,6 +9,83 @@ const ALLOWED_ORIGINS = new Set([
 const API_BASE = "https://www.themealdb.com/api/json/v1";
 const API_KEY = Deno.env.get("THEMEALDB_API_KEY") || "1";
 
+const AFRODITE_URL = "https://raw.githubusercontent.com/adrianosferreira/afrodite.json/master/afrodite.json";
+let afroditeCache: Promise<Record<string, unknown>[]> | null = null;
+
+async function fetchAfrodite() {
+  if (!afroditeCache) {
+    afroditeCache = (async () => {
+      const response = await fetch(AFRODITE_URL, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) });
+      if (!response.ok) throw new Error(`Afrodite returned ${response.status}`);
+      const data = await response.json();
+      if (!Array.isArray(data)) throw new Error("Unexpected Afrodite data format");
+      return data as Record<string, unknown>[];
+    })().catch((error) => {
+      afroditeCache = null;
+      throw error;
+    });
+  }
+  return await afroditeCache;
+}
+
+function afroditeSections(recipe: Record<string, unknown>) {
+  return Array.isArray(recipe.secao) ? recipe.secao as Array<Record<string, unknown>> : [];
+}
+
+function cleanAfroditeIngredient(raw: string) {
+  return raw.replace(/^\\s*(?:[-•]\\s*)?(?:\\d+(?:[.,]\\d+)?\\s*(?:g|kg|mg|ml|l|litros?|xícaras?|xic\.?|colheres?|c\.?s\.?|c\.?chá|unidades?|dentes?)\\b\\s*(?:de\\s+)?)?/i, "").replace(/^\\s*\\d+\\s+/, "").replace(/\\s+/g, " ").trim().replace(/[.,;:]$/, "");
+}
+
+function parseAfroditeRecipe(raw: Record<string, unknown>, index: number, matched: string[]) {
+  const sections = afroditeSections(raw);
+  const sectionContent = (needle: string) => sections.find((section) => normalize(String(section.nome ?? "")).includes(needle));
+  const ingredientsSection = sectionContent("ingrediente");
+  const preparationSection = sections.find((section) => {
+    const name = normalize(String(section.nome ?? ""));
+    return name.includes("preparo") || name.includes("modo de fazer") || name.includes("como fazer");
+  });
+  const lines = Array.isArray(ingredientsSection?.conteudo) ? ingredientsSection.conteudo : [];
+  const ingredients = lines.map((line) => String(line ?? "").trim()).filter((line) => line && line.length > 1).map((line) => {
+    const name = cleanAfroditeIngredient(line) || line;
+    return { name, aliases: [...new Set([name, line])], quantity: 1, unit: "unidades", measureText: line };
+  });
+  const instructions = (Array.isArray(preparationSection?.conteudo) ? preparationSection.conteudo : [])
+    .map((step) => String(step ?? "").trim())
+    .filter((step) => step && !/^\\d+\\s*(?:porções?|rendimento)/i.test(step));
+  const id = String(raw._id ?? raw.id ?? index);
+  const name = String(raw.nome ?? "").trim();
+  if (!name || !ingredients.length || !instructions.length) return null;
+  return {
+    id: `afrodite-${id}`,
+    name,
+    description: "Receita em português da base Afrodite. Confira as medidas originais antes de preparar.",
+    minutes: 0,
+    servings: 0,
+    ingredients,
+    instructions,
+    source: "afrodite",
+    sourceUrl: "https://github.com/adrianosferreira/afrodite.json",
+    presenceOnly: true,
+    matchedPantryIngredients: matched,
+  };
+}
+
+async function searchAfrodite(input: string[]) {
+  const data = await fetchAfrodite();
+  const pantryTerms = [...new Set(input.map(normalize).filter((value) => value.length >= 3))];
+  const scored = data.map((raw, index) => {
+    const sections = afroditeSections(raw);
+    const section = sections.find((item) => normalize(String(item.nome ?? "")).includes("ingrediente"));
+    const lines = Array.isArray(section?.conteudo) ? section.conteudo.map((line) => normalize(String(line ?? ""))).filter(Boolean) : [];
+    const matched = pantryTerms.filter((term) => lines.some((line) => line.includes(term) || term.split(/\\s+/).filter(part => part.length >= 4).some(part => line.includes(part))));
+    return { raw, index, score: matched.length, matched };
+  }).filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || String(a.raw.nome ?? "").localeCompare(String(b.raw.nome ?? ""), "pt-BR"))
+    .slice(0, 8);
+  return scored.map((item) => parseAfroditeRecipe(item.raw, item.index, item.matched)).filter(Boolean);
+}
+
+
 const normalize = (value: string) =>
   value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
@@ -188,6 +265,17 @@ Deno.serve(async (req: Request) => {
   const input = Array.isArray(body.ingredients)
     ? body.ingredients.filter((item): item is string => typeof item === "string").slice(0, 40)
     : [];
+  if (!input.length) return jsonResponse({ recipes: [] }, 200, origin);
+
+  // Prefer the larger Portuguese-language Afrodite collection. TheMealDB remains a fallback
+  // if the source is unavailable or has no recipes matching the pantry.
+  try {
+    const afroditeRecipes = await searchAfrodite(input);
+    if (afroditeRecipes.length) return jsonResponse({ recipes: afroditeRecipes, source: "afrodite" }, 200, origin);
+  } catch {
+    // Fall through to TheMealDB if Afrodite cannot be reached.
+  }
+
   const searchIngredients = [...new Set(input.map(mapSearchIngredient).filter((value): value is string => Boolean(value)))].slice(0, 3);
   if (!searchIngredients.length) return jsonResponse({ recipes: [] }, 200, origin);
 
@@ -225,5 +313,5 @@ Deno.serve(async (req: Request) => {
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  return jsonResponse({ recipes }, 200, origin);
+  return jsonResponse({ recipes, source: "themealdb" }, 200, origin);
 });
