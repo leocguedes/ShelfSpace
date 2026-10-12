@@ -1,6 +1,6 @@
-export type Unit='unidades'|'pacotes'|'latas'|'garrafas'|'kg'|'g'|'L'|'ml';
+export type Unit='unidades'|'pacotes'|'latas'|'garrafas'|'caixas'|'potes'|'bandejas'|'kg'|'g'|'L'|'ml';
 
-export const units:Unit[]=['unidades','pacotes','latas','garrafas','kg','g','L','ml'];
+export const units:Unit[]=['unidades','pacotes','latas','garrafas','caixas','potes','bandejas','kg','g','L','ml'];
 
 export const searchKey=(value:string)=>value.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
 
