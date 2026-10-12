@@ -1800,6 +1800,41 @@ function App(){
               )}
             </div>
 
+            {!search&&places.length>0&&(
+              <section className="home-overview" aria-label="Resumo da casa">
+                <div className="home-overview-heading">
+                  <div><p className="eyebrow">VISÃO GERAL</p><h3>Resumo da casa</h3></div>
+                  <span>Atualizado com seu estoque</span>
+                </div>
+                <div className="home-stat-grid">
+                  <article className="home-stat">
+                    <span className="home-stat-icon stock"><Box size={17}/></span>
+                    <div><strong>{total}</strong><span>{total===1?'alimento cadastrado':'alimentos cadastrados'}</span></div>
+                  </article>
+                  <article className="home-stat">
+                    <span className="home-stat-icon places"><Home size={17}/></span>
+                    <div><strong>{places.length}</strong><span>{places.length===1?'local organizado':'locais organizados'}</span></div>
+                  </article>
+                  <article className="home-stat">
+                    <span className="home-stat-icon expiry"><CalendarClock size={17}/></span>
+                    <div><strong>{expiringFoods.filter(({food})=>food.quantity>0).length}</strong><span>itens perto da validade</span></div>
+                  </article>
+                </div>
+                <div className="home-shortcuts" aria-label="Acessos rápidos">
+                  <button type="button" onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}}>
+                    <span className="home-shortcut-icon"><ShoppingCart size={17}/></span>
+                    <span><strong>Lista de compras</strong><small>{shoppingItems.filter(item=>!item.is_purchased).length} {shoppingItems.filter(item=>!item.is_purchased).length===1?'item pendente':'itens pendentes'}</small></span>
+                    <ChevronRight size={17}/>
+                  </button>
+                  <button type="button" onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}}>
+                    <span className="home-shortcut-icon recipes"><BookOpen size={17}/></span>
+                    <span><strong>Encontrar receitas</strong><small>Ideias com o que você tem em casa</small></span>
+                    <ChevronRight size={17}/>
+                  </button>
+                </div>
+              </section>
+            )}
+
             {!search&&expiringFoods.length>0&&<section className="expiry-panel">
               <div className="smart-panel-heading"><div><p className="eyebrow">REDUZA O DESPERDÍCIO</p><h3>Validade próxima</h3><p>Itens vencidos ou que vencem nos próximos 7 dias.</p></div><span>{expiringFoods.length}</span></div>
               <div className="expiry-items">
