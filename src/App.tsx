@@ -1681,6 +1681,7 @@ function App(){
                           <span>{f.quantity===0?'Sem estoque · ':''}{f.unit}</span>
                           {f.expires_on&&<small className={'expiry-label '+(daysUntilExpiry(f.expires_on)<0?'expired':daysUntilExpiry(f.expires_on)<=3?'urgent':'')}>{expiryCaption(f.expires_on)}</small>}
                         </div>
+                        {f.quantity===0&&<button className="restock-shortcut" onClick={()=>setShoppingAddFood(f)} title={'Adicionar '+f.name+' à lista de compras'}><ShoppingCart size={15}/><span>Comprar</span></button>}
                         <div className="qty">
                           <button disabled={f.quantity===0} onClick={()=>changeQty(selected,selectedSub,f.id,-1)} aria-label={'Diminuir '+f.name}>
                             <Minus size={15}/>
