@@ -1913,7 +1913,8 @@ function App(){
         }
         setImportModal(false);
         setAuthMessage(imported.length+' '+(imported.length===1?'produto importado':'produtos importados')+' para '+place.name+'.');
-      }}/>}\n      {foodModal&&(
+      }}/>} 
+      {foodModal&&(
         <FoodModal
           data={foodModal.food}
           placeId={foodModal.place}
