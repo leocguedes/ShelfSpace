@@ -2341,7 +2341,7 @@ function ImportInventoryModal({places,onClose,onImport}:{places:Place[];onClose:
       const quantityText=rawQuantity.replace(',','.');
       const quantity=rawQuantity&&Number.isFinite(Number(quantityText))?Math.max(0,Number(quantityText)):1;
       const rawUnit=get(['unidade','unit'],2).toLowerCase();
-      const unitMap:Record<string,Unit>={'unidade':'unidades','unidades':'unidades','unit':'unidades','units':'unidades','un':'unidades','pacote':'pacotes','pacotes':'pacotes','lata':'latas','latas':'latas','garrafa':'garrafas','garrafas':'garrafas','kg':'kg','quilo':'kg','quilos':'kg','g':'g','gramas':'g','l':'L','litro':'L','litros':'L','ml':'ml'};
+      const unitMap:Record<string,Unit>={'unidade':'unidades','unidades':'unidades','unit':'unidades','units':'unidades','un':'unidades','pacote':'pacotes','pacotes':'pacotes','lata':'latas','latas':'latas','garrafa':'garrafas','garrafas':'garrafas','caixa':'caixas','caixas':'caixas','pote':'potes','potes':'potes','bandeja':'bandejas','bandejas':'bandejas','kg':'kg','quilo':'kg','quilos':'kg','g':'g','gramas':'g','l':'L','litro':'L','litros':'L','ml':'ml'};
       const unit=unitMap[rawUnit]||'unidades';
       const rawExpiry=get(['validade','vencimento','expires_on','expiry','expiry date'],3);
       let expires_on:string|null=null;
