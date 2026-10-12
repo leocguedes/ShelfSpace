@@ -1400,7 +1400,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#718
 .place-photo.photo-generic{background-image:url('https://images.unsplash.com/photo-1606787366850-de6330128bfc?auto=format&fit=crop&w=900&q=82')}
 .place-photo-icon{width:42px;height:42px;display:grid;place-items:center;background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.8);border-radius:13px;font-size:21px;box-shadow:0 3px 10px #29352e12}
 .place-photo .place-card-actions{display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,.94);border-radius:50%;box-shadow:0 3px 10px #29352e12}
-.place-photo .card-edit{display:none}
+.place-photo .card-edit{display:grid;background:transparent;color:#4b594c;width:34px;height:34px}
 .place-photo .place-card-actions>svg{color:#4b594c}
 .place-card h3{margin:14px 16px 5px;font-size:17px;letter-spacing:-.025em}
 .place-card>.place-card-summary{margin:0 16px}
