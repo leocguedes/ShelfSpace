@@ -2524,11 +2524,28 @@ function PlaceModal({places,initialEditId,onClose,onSave,onDelete}:{places:Place
   const[name,setName]=useState(initialEdit?.name||'');
   const[edit,setEdit]=useState<Place|null>(initialEdit);
   const[adding,setAdding]=useState(!places.length&&!initialEdit);
+  const[deleteCandidate,setDeleteCandidate]=useState<Place|null>(null);
+  const[deleting,setDeleting]=useState(false);
   const startAdd=()=>{setEdit(null);setName('');setAdding(true)};
-  const goBack=()=>{setEdit(null);setName('');setAdding(false)};
+  const goBack=()=>{setEdit(null);setName('');setAdding(false);setDeleteCandidate(null)};
   const save=async()=>{if(await onSave(name,edit?.id))goBack()};
-  return <Modal title={edit?'Editar local':adding?'Novo local':'Seus locais'} onClose={onClose}>
-    {!edit&&!adding?(
+  const confirmDelete=async()=>{
+    if(!deleteCandidate||deleting)return;
+    setDeleting(true);
+    try{await onDelete(deleteCandidate.id)}finally{setDeleting(false);setDeleteCandidate(null)}
+  };
+  return <Modal title={deleteCandidate?'Confirmar exclusão':edit?'Editar local':adding?'Novo local':'Seus locais'} onClose={onClose}>
+    {deleteCandidate?(
+      <div className="delete-confirm">
+        <div className="delete-confirm-icon"><Trash2 size={22}/></div>
+        <h3>Excluir “{deleteCandidate.name}”?</h3>
+        <p>Os alimentos cadastrados nesse local também serão removidos do seu estoque. Quer continuar?</p>
+        <div className="delete-confirm-actions">
+          <button className="secondary" disabled={deleting} onClick={()=>setDeleteCandidate(null)}>Cancelar</button>
+          <button className="danger" disabled={deleting} onClick={()=>void confirmDelete()}>{deleting?'Excluindo…':'Sim, excluir local'}</button>
+        </div>
+      </div>
+    ):!edit&&!adding?(
       <>
         <p className="modal-help">Organize sua casa por locais como geladeira, freezer, despensa ou armário.</p>
         {places.length?(
@@ -2540,7 +2557,7 @@ function PlaceModal({places,initialEditId,onClose,onSave,onDelete}:{places:Place
                 </span>
                 <div>
                   <button onClick={()=>{setEdit(p);setName(p.name)}} title={'Renomear '+p.name} aria-label={'Renomear '+p.name}><Edit3 size={16}/></button>
-                  <button className="danger" onClick={()=>onDelete(p.id)} title={'Excluir '+p.name} aria-label={'Excluir '+p.name}><Trash2 size={16}/></button>
+                  <button className="danger" onClick={()=>setDeleteCandidate(p)} title={'Excluir '+p.name} aria-label={'Excluir '+p.name}><Trash2 size={16}/></button>
                 </div>
               </div>
             ))}
