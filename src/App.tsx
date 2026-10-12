@@ -62,7 +62,9 @@ function locationPhotoClass(name:string){
   const normalized=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   if(/geladeira|refrigerador|fridge/.test(normalized))return 'photo-fridge';
   if(/freezer|congelador/.test(normalized))return 'photo-freezer';
-  if(/despensa|pantry|armario|cabinet/.test(normalized))return 'photo-pantry';
+  if(/despensa|pantry/.test(normalized))return 'photo-pantry';
+  if(/armario|cabinet|cupboard/.test(normalized))return 'photo-cabinet';
+  if(/gaveta|drawer/.test(normalized))return 'photo-drawer';
   return 'photo-generic';
 }
 function locationEmoji(name:string){
