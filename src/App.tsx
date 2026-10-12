@@ -2365,8 +2365,8 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
   </Modal>
 }
 
-function Empty({title,text,action}:{title:string;text:string;action?:()=>void}){
-  return <div className="empty"><PackagePlus size={30}/><h3>{title}</h3><p>{text}</p>{action&&<button className="primary" onClick={action}><Plus size={18}/> Adicionar alimento</button>}</div>
+function Empty({title,text,action,actionLabel}:{title:string;text:string;action?:()=>void;actionLabel?:string}){
+  return <div className="empty"><PackagePlus size={30}/><h3>{title}</h3><p>{text}</p>{action&&<button className={actionLabel==='Limpar busca'?'secondary':'primary'} onClick={action}>{actionLabel==='Limpar busca'?<X size={18}/>:<Plus size={18}/>} {actionLabel||'Adicionar alimento'}</button>}</div>
 }
 
 type ImportRow={name:string;quantity:number;unit:Unit;expires_on:string|null};
