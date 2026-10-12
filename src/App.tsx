@@ -1643,9 +1643,6 @@ function App(){
         </section>}
         {authMessage&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
 
-        {!selected&&workspace==='inventory'&&<div className="inventory-import-action"><button className="secondary" onClick={()=>setImportModal(true)}><Copy size={17}/> Importar lista</button></div>}
-
-
 
         {selected?(
           <section>
@@ -1825,6 +1822,7 @@ function App(){
                 <input aria-label="Buscar alimento" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Onde está o seu alimento?"/>
                 {search&&<button onClick={()=>setSearch('')} aria-label="Limpar busca"><X size={17}/></button>}
               </div>
+              {!search&&<button className="secondary home-import-inline" onClick={()=>setImportModal(true)}><Copy size={17}/> Importar lista</button>}
               {!search&&(
                 <button className="home-add" onClick={openAddFoodFromHome}>
                   <span className="home-add-icon"><Plus size={20}/></span>
