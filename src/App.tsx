@@ -1916,7 +1916,11 @@ function App(){
                           </div>
                         </div>
                         <h3>{p.name}</h3>
-                        <p>{p.subdivisions.reduce((n,s)=>n+s.foods.length,0)} {p.subdivisions.reduce((n,s)=>n+s.foods.length,0)===1?'alimento':'alimentos'}</p>
+                        <div className="place-card-summary">
+                          <p>{p.subdivisions.reduce((n,s)=>n+s.foods.length,0)} {p.subdivisions.reduce((n,s)=>n+s.foods.length,0)===1?'alimento':'alimentos'}</p>
+                          <span>{p.subdivisions.length} {p.subdivisions.length===1?'espaço':'espaços'}</span>
+                        </div>
+                        {p.subdivisions.some(s=>s.foods.some(food=>food.quantity===0))&&<div className="place-stock-note"><span/>{p.subdivisions.reduce((n,s)=>n+s.foods.filter(food=>food.quantity===0).length,0)} {p.subdivisions.reduce((n,s)=>n+s.foods.filter(food=>food.quantity===0).length,0)===1?'item sem estoque':'itens sem estoque'}</div>}
                       </div>
                     ))}
                   </div>
