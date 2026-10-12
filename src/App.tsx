@@ -373,7 +373,7 @@ function App(){
   const[householdJoinCode,setHouseholdJoinCode]=useState('');
   const[householdInvite,setHouseholdInvite]=useState<{code:string;expiresAt:string}|null>(null);
   const[householdCopied,setHouseholdCopied]=useState(false);
-  const[workspace,setWorkspace]=useState<'inventory'|'shopping'|'recipes'|'report'>('inventory');
+  const[workspace,setWorkspace]=useState<'inventory'|'shopping'|'recipes'|'report'|'settings'>('inventory');
   const[reportSearch,setReportSearch]=useState('');
   const[reportLocation,setReportLocation]=useState('all');
   const[foodSort,setFoodSort]=useState<'name'|'expiry'|'quantity-asc'|'quantity-desc'>('name');
@@ -1594,14 +1594,6 @@ function App(){
           <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title="Notificações">
             <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
           </button>
-          {user&&!user.is_anonymous&&<button className="sync-btn family-btn" onClick={()=>setHouseholdModal(true)} disabled={householdBusy} title="Compartilhar esta casa com a família">
-            <Users size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Família'}</span>
-          </button>}
-          <button className="sync-btn" onClick={user&&!user.is_anonymous?signOut:()=>setAuthModal(true)} disabled={authBusy}>
-            <span className="auth-label">{user&&!user.is_anonymous?'Sair':(authBusy?'Aguarde...':'Criar conta / Entrar')}</span>
-            <span className="auth-short">{user&&!user.is_anonymous?'Sair':'Entrar'}</span>
-          </button>
-          <button className="icon-btn" onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}} title="Gerenciar locais"><Settings size={20}/></button>
         </div>
       </header>
 
@@ -1617,12 +1609,7 @@ function App(){
 
         {!selected&&workspace==='inventory'&&<div className="inventory-import-action"><button className="secondary" onClick={()=>setImportModal(true)}><Copy size={17}/> Importar lista</button></div>}
 
-        {!selected&&<nav className="workspace-nav" aria-label="Áreas do OrganizaApp">
-          <button className={workspace==='inventory'?'active':''} onClick={()=>setWorkspace('inventory')}><Box size={17}/> Estoque</button>
-          <button className={workspace==='shopping'?'active':''} onClick={()=>setWorkspace('shopping')}><ShoppingCart size={17}/> Compras{shoppingItems.filter(item=>!item.is_purchased).length>0&&<span>{shoppingItems.filter(item=>!item.is_purchased).length}</span>}</button>
-          <button className={workspace==='recipes'?'active':''} onClick={()=>setWorkspace('recipes')}><BookOpen size={17}/> Receitas</button>
-          <button className={workspace==='report'?'active':''} onClick={()=>setWorkspace('report')}><ClipboardList size={17}/> Relatório</button>
-        </nav>}
+
 
         {selected?(
           <section>
@@ -1722,6 +1709,35 @@ function App(){
             onToggleRecurring={toggleRecurringRule}
             onDeleteRecurring={deleteRecurringRule}
           />
+        ):workspace==='settings'?(
+          <section className="settings-page">
+            <div className="hero settings-hero">
+              <div className="hero-copy">
+                <p className="eyebrow">PREFERÊNCIAS</p>
+                <h2>Configurações</h2>
+                <p>Gerencie sua conta, sua casa e a organização do OrganizaApp.</p>
+              </div>
+            </div>
+            <div className="settings-account-card">
+              <div className="settings-avatar"><Home size={22}/></div>
+              <div className="settings-account-copy">
+                <strong>{user&&!user.is_anonymous?(user.email||'Sua conta'):'Use o OrganizaApp em todos os seus dispositivos'}</strong>
+                <span>{user&&!user.is_anonymous?'Conta conectada':'Entre ou crie uma conta para sincronizar seus dados'}</span>
+              </div>
+              <button className="settings-action-button" onClick={user&&!user.is_anonymous?signOut:()=>setAuthModal(true)} disabled={authBusy}>{user&&!user.is_anonymous?'Sair':'Entrar'} <ChevronRight size={16}/></button>
+            </div>
+            <div className="settings-group">
+              <p className="settings-group-label">SUA CASA</p>
+              <button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>
+              <button className="settings-row" onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>Gerencie geladeira, freezer, despensa e outros locais</small></span><ChevronRight size={17}/></button>
+              <button className="settings-row" onClick={()=>setImportModal(true)}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>Adicione uma lista ao seu estoque</small></span><ChevronRight size={17}/></button>
+            </div>
+            <div className="settings-group">
+              <p className="settings-group-label">APLICATIVO</p>
+              <button className="settings-row" onClick={()=>{setNotificationCenterOpen(true);setWorkspace('inventory');setSelected(null);setSelectedSub(null)}}><span className="settings-row-icon"><Bell size={19}/></span><span className="settings-row-copy"><strong>Notificações</strong><small>{notificationCount?notificationCount+' alertas precisam da sua atenção':'Alertas de validade e consumo'}</small></span><ChevronRight size={17}/></button>
+            </div>
+            <p className="settings-footer">OrganizaApp · Sua casa, organizada.</p>
+          </section>
         ):workspace==='recipes'?(
           <RecipePage places={places} onAddMissing={addRecipeMissing} onCook={recipe=>setCookConfirmRecipe(recipe)}/>
         ):workspace==='report'?(
@@ -1875,6 +1891,14 @@ function App(){
         )}
 
       </main>
+
+      <nav className="bottom-nav" aria-label="Navegação principal">
+        <button className={!selected&&workspace==='inventory'?'active':''} onClick={()=>{setWorkspace('inventory');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='inventory'?'page':undefined}><Home size={20}/><span>Início</span></button>
+        <button className={!selected&&workspace==='shopping'?'active':''} onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='shopping'?'page':undefined}><ShoppingCart size={20}/><span>Compras</span>{shoppingItems.filter(item=>!item.is_purchased).length>0&&<i>{shoppingItems.filter(item=>!item.is_purchased).length>99?'99+':shoppingItems.filter(item=>!item.is_purchased).length}</i>}</button>
+        <button className={!selected&&workspace==='recipes'?'active':''} onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='recipes'?'page':undefined}><BookOpen size={20}/><span>Receitas</span></button>
+        <button className={!selected&&workspace==='report'?'active':''} onClick={()=>{setWorkspace('report');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='report'?'page':undefined}><ClipboardList size={20}/><span>Lista geral</span></button>
+        <button className={!selected&&workspace==='settings'?'active':''} onClick={()=>{setWorkspace('settings');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='settings'?'page':undefined}><Settings size={20}/><span>Ajustes</span></button>
+      </nav>
 
       {importModal&&<ImportInventoryModal places={places} onClose={()=>setImportModal(false)} onImport={async(placeId,rows)=>{
         const place=places.find(item=>item.id===placeId);
