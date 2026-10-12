@@ -940,3 +940,107 @@ header{background:#fff;border-color:#e8e9ee}
   .workspace-nav button{gap:4px;padding:9px 5px}
   .shopping-row-actions button:not(.shopping-delete){max-width:92px}
 }
+
+
+/* Premium, quiet bottom navigation and account settings */
+:root{
+  --premium-ink:#30394b;
+  --premium-muted:#7c8598;
+  --premium-line:#e9e8ef;
+  --premium-paper:rgba(255,255,255,.94);
+  --premium-lilac:#f2edff;
+  --premium-violet:#8056dc;
+}
+html{scroll-padding-bottom:110px}
+body{background:#f8f8fa;color:var(--premium-ink)}
+.app{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+header{background:rgba(255,255,255,.92);border-bottom:1px solid rgba(231,230,237,.8);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+header .brand h1{letter-spacing:-.045em}
+header .brand span{color:#8b91a1}
+header .logo{background:#f2edff;color:#8056dc}
+.header-actions{gap:8px}
+.notification-bell{width:40px;height:40px;display:grid;place-items:center;border:1px solid #efedf4;background:#fff;color:#657086}
+.notification-bell:hover,.notification-bell.active{background:#f4efff;border-color:#e4d8ff;color:#7044ca}
+main{padding-bottom:30px}
+.bottom-nav{
+  position:fixed;z-index:50;left:0;right:0;bottom:0;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;
+  padding:9px max(12px,calc((100vw - 720px)/2)) calc(9px + env(safe-area-inset-bottom,0px));
+  border-top:1px solid rgba(230,228,237,.9);
+  background:var(--premium-paper);
+  backdrop-filter:blur(22px) saturate(1.35);-webkit-backdrop-filter:blur(22px) saturate(1.35);
+  box-shadow:0 -8px 28px rgba(41,38,60,.045);
+}
+.bottom-nav button{
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  min-width:0;min-height:54px;padding:7px 3px;border:0;border-radius:13px;
+  background:transparent;color:#8a91a2;cursor:pointer;
+  font:500 10px 'DM Sans',sans-serif;letter-spacing:.005em;
+  transition:background .18s,color .18s,transform .18s;
+}
+.bottom-nav button svg{stroke-width:1.8;transition:transform .18s}
+.bottom-nav button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.bottom-nav button:hover{background:#faf8ff;color:#7750ca}
+.bottom-nav button.active{background:#f3eeff;color:#7548cf;font-weight:700}
+.bottom-nav button.active svg{stroke-width:2.15}
+.bottom-nav button.active:before{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:22px;height:2px;border-radius:0 0 3px 3px;background:#8b63e2;
+}
+.bottom-nav button i{
+  position:absolute;top:2px;left:calc(50% + 8px);min-width:16px;height:16px;padding:0 4px;
+  display:grid;place-items:center;border:2px solid #fff;border-radius:20px;background:#8056dc;
+  color:#fff;font:700 8px 'DM Sans',sans-serif;font-style:normal;
+}
+.settings-page{max-width:700px;margin:0 auto;padding-bottom:20px}
+.settings-hero{margin-bottom:22px}
+.settings-hero h2{font-size:32px;letter-spacing:-.045em}
+.settings-hero .hero-copy>p:last-child{max-width:420px;color:var(--premium-muted);font-size:12px;line-height:1.65}
+.settings-account-card{
+  display:flex;align-items:center;gap:13px;margin-bottom:24px;padding:17px;
+  background:linear-gradient(135deg,#fff 0%,#fbf9ff 100%);
+  border:1px solid #e9e4f4;border-radius:17px;box-shadow:0 4px 18px rgba(42,35,69,.035);
+}
+.settings-avatar{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;border-radius:14px;background:#f0e9ff;color:#8056dc}
+.settings-account-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.settings-account-copy strong{font-size:12px;color:#333d51;overflow-wrap:anywhere}
+.settings-account-copy span{font-size:10px;color:#858da0;line-height:1.5}
+.settings-action-button{display:flex;align-items:center;gap:4px;border:0;background:transparent;color:#7750ca;font:600 11px 'DM Sans',sans-serif;white-space:nowrap;cursor:pointer}
+.settings-group{margin-bottom:20px;padding:5px 15px 4px;border:1px solid #eae9ef;border-radius:16px;background:#fff;box-shadow:0 3px 14px rgba(41,38,60,.025)}
+.settings-group-label{margin:12px 0 7px;color:#969bad;font-size:9px;font-weight:700;letter-spacing:.12em}
+.settings-row{width:100%;display:flex;align-items:center;gap:12px;padding:13px 0;border:0;border-bottom:1px solid #f0eff4;background:transparent;text-align:left;cursor:pointer}
+.settings-row:last-child{border-bottom:0}
+.settings-row>svg{flex:0 0 auto;color:#a0a5b3}
+.settings-row-icon{width:35px;height:35px;flex:0 0 35px;display:grid;place-items:center;border-radius:11px;background:#f5f1ff;color:#8056dc}
+.settings-row-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.settings-row-copy strong{font-size:12px;font-weight:600;color:#394357}
+.settings-row-copy small{font-size:10px;line-height:1.5;color:#8991a2}
+.settings-row:hover .settings-row-copy strong{color:#7044ca}
+.settings-row:hover .settings-row-icon{background:#eee5ff}
+.settings-footer{text-align:center;color:#a0a5b2;font-size:10px;padding:6px 0 10px}
+.notification-center{z-index:60}
+@media(min-width:900px){
+  .bottom-nav{grid-template-columns:repeat(5,minmax(96px,132px));justify-content:center;padding-left:24px;padding-right:24px}
+  .bottom-nav button{min-height:58px;font-size:11px}
+  .app{padding-bottom:112px}
+}
+@media(max-width:600px){
+  .app{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  header{height:66px}
+  header .brand h1{font-size:18px}
+  header .brand span{font-size:10px}
+  .bottom-nav{gap:0;padding-left:7px;padding-right:7px;padding-top:7px}
+  .bottom-nav button{min-height:52px;gap:4px;font-size:9px;border-radius:11px}
+  .bottom-nav button svg{width:19px;height:19px}
+  .settings-account-card{padding:14px;gap:10px}
+  .settings-avatar{width:38px;height:38px;flex-basis:38px}
+  .settings-account-copy strong{font-size:11px}
+  .settings-action-button{font-size:10px}
+  .settings-group{padding-left:12px;padding-right:12px}
+}
+@media(max-width:360px){
+  .bottom-nav button{font-size:8px}
+  .bottom-nav button svg{width:18px;height:18px}
+  .settings-row{gap:9px}
+  .settings-row-copy strong{font-size:11px}
+}
