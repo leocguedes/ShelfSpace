@@ -408,6 +408,8 @@ function App(){
   const[placeToEdit,setPlaceToEdit]=useState<string|null>(null);
   const[subModal,setSubModal]=useState<{place:string;sub?:Sub}|null>(null);
   const[undo,setUndo]=useState<UndoState|null>(null);
+  const[actionFeedback,setActionFeedback]=useState<string|null>(null);
+  const feedbackTimer=useRef<number|null>(null);
   const undoTimer=useRef<number|null>(null);
   const authRequest=useRef(0);
   const realtimeRefreshTimer=useRef<number|null>(null);
@@ -835,6 +837,12 @@ function App(){
     undo.action();
     setUndo(null);
     if(undoTimer.current)window.clearTimeout(undoTimer.current);
+  }
+
+  function showActionFeedback(message:string){
+    if(feedbackTimer.current)window.clearTimeout(feedbackTimer.current);
+    setActionFeedback(message);
+    feedbackTimer.current=window.setTimeout(()=>setActionFeedback(null),2200);
   }
 
   function syncError(message='Não foi possível sincronizar esta alteração.'){
@@ -1444,6 +1452,7 @@ function App(){
     const snapshot=places;
     const next=places.map(p=>p.id!==placeId?p:{...p,subdivisions:p.subdivisions.map(s=>s.id!==subId?s:{...s,foods:s.foods.map(f=>f.id===id?{...f,quantity:nextQty}:f)})});
     setPlaces(next);
+    showActionFeedback(`${food.name}: quantidade atualizada`);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:id,data:{quantity:nextQty}});
       if(!ok)syncError('Quantidade salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
@@ -2028,6 +2037,7 @@ function App(){
       />}
       {passwordRecovery&&<PasswordRecoveryModal busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
       {undo&&<div className="undo-toast" role="status" aria-live="polite"><span>{undo.label}</span><button onClick={consumeUndo}>Desfazer</button></div>}
+      {actionFeedback&&<div className="action-feedback" role="status" aria-live="polite">✓ {actionFeedback}</div>}
     </div>
   );
 }
