@@ -2120,7 +2120,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     </div>
     <div className="recipe-online-controls">
       <button className="secondary-action" onClick={()=>void loadOnlineRecipes()} disabled={onlineLoading}><BookOpen size={16}/>{onlineLoading?'Buscando receitas...':onlineLoaded?'Atualizar sugestões online':'Buscar mais receitas online'}</button>
-      <span>Novas ideias do TheMealDB, combinadas com seu estoque.</span>
+      <span>Busca na base Afrodite em português, com TheMealDB como alternativa.</span>
     </div>
     {onlineError&&<p className="recipe-online-message" role="status">{onlineError}</p>}
     <div className="recipe-search search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar receita ou ingrediente" aria-label="Buscar receita ou ingrediente"/>{query&&<button onClick={()=>setQuery('')} aria-label="Limpar busca"><X size={16}/></button>}</div>
@@ -2134,9 +2134,9 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
         const isExpanded=expanded===recipe.id;
         const missingItems=missing.map(status=>({name:status.ingredient.name,quantity:Number(status.missingQuantity.toFixed(3)),unit:status.ingredient.unit,...(status.ingredient.measureText?{measureText:status.ingredient.measureText}:{})}));
         return <article className="recipe-card" key={recipe.id}>
-          <div className="recipe-card-top"><div><p className="eyebrow">{recipe.source?'RECEITA DO THEMEALDB':ready?'PRONTO PARA PREPARAR':expiring?'USE O QUE VENCE PRIMEIRO':'IDEIA PARA HOJE'}</p><h3>{recipe.name}</h3></div><span className={'recipe-status '+(ready?'ready':'')}>{ready?'Você tem tudo':available+'/'+recipe.ingredients.length+' itens'}</span></div>
+          <div className="recipe-card-top"><div><p className="eyebrow">{recipe.source==='afrodite'?'BASE AFRODITE':recipe.source==='themealdb'?'THEMEALDB':ready?'PRONTO PARA PREPARAR':expiring?'USE O QUE VENCE PRIMEIRO':'IDEIA PARA HOJE'}</p><h3>{recipe.name}</h3></div><span className={'recipe-status '+(ready?'ready':'')}>{ready?'Você tem tudo':available+'/'+recipe.ingredients.length+' itens'}</span></div>
           <p className="recipe-description">{recipe.description}</p>
-          {recipe.sourceUrl&&<p className="recipe-source"><a href={recipe.sourceUrl} target="_blank" rel="noreferrer">Ver receita original no TheMealDB <MoveRight size={13}/></a></p>}
+          {recipe.sourceUrl&&<p className="recipe-source"><a href={recipe.sourceUrl} target="_blank" rel="noreferrer">{recipe.source==='afrodite'?'Conhecer a base Afrodite':'Ver receita original no TheMealDB'} <MoveRight size={13}/></a></p>}
           <div className="recipe-meta"><span>{recipe.minutes>0?recipe.minutes+' min':'Tempo não informado'}</span><span>{recipe.servings>0?recipe.servings+' '+(recipe.servings===1?'porção':'porções'):'Porções não informadas'}</span><span>{available} de {recipe.ingredients.length} ingredientes encontrados</span></div>
           <div className="recipe-progress"><span style={{width:Math.round(available/recipe.ingredients.length*100)+'%'}}/></div>
           {unknown>0&&<p className="recipe-hint">{unknown} ingrediente(s) existe(m), mas usa(m) outra unidade. Confira a quantidade antes de cozinhar.</p>}
