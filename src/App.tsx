@@ -2274,15 +2274,15 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
     let current=true;
     if(!active?.id){setMembers([]);setMembersError('');return()=>{current=false};}
     setMembersLoading(true);setMembersError('');
-    void supabase.rpc('get_household_members',{target_household_id:active.id}).then(({data,error})=>{
+    void (async()=>{try{
+      const{data,error}=await supabase.rpc('get_household_members',{target_household_id:active.id});
       if(!current)return;
       if(error){setMembers([]);setMembersError('Não foi possível carregar os membros agora. Tente novamente.');}
       else setMembers((data||[]) as HouseholdMember[]);
-      setMembersLoading(false);
-    }).catch(()=>{
+    }catch{
       if(!current)return;
-      setMembers([]);setMembersError('Não foi possível carregar os membros agora. Tente novamente.');setMembersLoading(false);
-    });
+      setMembers([]);setMembersError('Não foi possível carregar os membros agora. Tente novamente.');
+    }finally{if(current)setMembersLoading(false);}})();
     return()=>{current=false};
   },[active?.id]);
   const roleLabel=(role:HouseholdMember['role'])=>role==='owner'?'Responsável':role==='admin'?'Administrador':'Membro';
@@ -2294,7 +2294,7 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
       <p>{active?.is_personal?'Esta é sua casa pessoal. Você pode convidar familiares para compartilhar o mesmo estoque.':'Você está vendo o estoque compartilhado desta casa.'}</p>
       <div className="household-members">
         <div className="household-members-heading"><strong>Quem está nesta casa</strong><span>{membersLoading?'Carregando…':members.length+' '+(members.length===1?'pessoa':'pessoas')}</span></div>
-        {membersLoading?<div className="household-members-state">Buscando os membros da família…</div>:membersError?<div className="household-members-state error">{membersError}<button type="button" onClick={()=>{setMembersError('');setMembersLoading(true);void supabase.rpc('get_household_members',{target_household_id:active?.id}).then(({data,error})=>{if(error){setMembersError('Não foi possível carregar os membros.');setMembers([]);}else{setMembers((data||[]) as HouseholdMember[]);setMembersError('');}setMembersLoading(false);}).catch(()=>{setMembersError('Não foi possível carregar os membros.');setMembersLoading(false);});}}>Tentar novamente</button></div>:members.length===0?<div className="household-members-state">Ainda não há outros membros. Gere um convite para adicionar familiares.</div>:members.map(member=><div className="household-member" key={member.user_id}><span className="household-member-avatar">{(member.display_name||member.email||'M').trim().charAt(0).toLocaleUpperCase('pt-BR')}</span><span className="household-member-details"><strong>{member.display_name||'Membro da família'}</strong><small>{member.email||'E-mail não disponível'}</small></span><span className={'household-member-role '+member.role}>{roleLabel(member.role)}</span></div>)}
+        {membersLoading?<div className="household-members-state">Buscando os membros da família…</div>:membersError?<div className="household-members-state error">{membersError}<button type="button" onClick={()=>{setMembersError('');setMembersLoading(true);void (async()=>{try{const{data,error}=await supabase.rpc('get_household_members',{target_household_id:active?.id});if(error){setMembersError('Não foi possível carregar os membros.');setMembers([]);}else{setMembers((data||[]) as HouseholdMember[]);setMembersError('');}}catch{setMembersError('Não foi possível carregar os membros.');setMembers([]);}finally{setMembersLoading(false);}})();}}>Tentar novamente</button></div>:members.length===0?<div className="household-members-state">Ainda não há outros membros. Gere um convite para adicionar familiares.</div>:members.map(member=><div className="household-member" key={member.user_id}><span className="household-member-avatar">{(member.display_name||member.email||'M').trim().charAt(0).toLocaleUpperCase('pt-BR')}</span><span className="household-member-details"><strong>{member.display_name||'Membro da família'}</strong><small>{member.email||'E-mail não disponível'}</small></span><span className={'household-member-role '+member.role}>{roleLabel(member.role)}</span></div>)}
       </div>
       {canInvite?<>
         <button className="primary full" disabled={busy} onClick={onCreateInvite}><Users size={16}/> {busy?'Aguarde...':'Gerar convite para familiares'}</button>
