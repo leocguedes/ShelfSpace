@@ -1922,7 +1922,7 @@ function App(){
           places={places}
           recentFoods={recentFoods}
           onClose={()=>setFoodModal(null)}
-          onSave={(placeId,subId,d)=>saveFood(placeId,subId,d,foodModal.food?.id)}
+          onSave={(placeId,subId,d,daysPerUnit)=>{void (async()=>{const newFoodId=await saveFood(placeId,subId,d,foodModal.food?.id);if(newFoodId&&daysPerUnit)saveConsumptionRule(newFoodId,daysPerUnit);})();}}
           onAddToExisting={(placeId,subId,existingId,amount,unit)=>addToExistingFood(placeId,subId,existingId,amount,unit)}
         />
       )}
@@ -2373,11 +2373,13 @@ function ImportInventoryModal({places,onClose,onImport}:{places:Place[];onClose:
   </Modal>;
 }
 
-function FoodModal({data,placeId,subId,places,recentFoods,onClose,onSave,onAddToExisting}:{data?:Food;placeId:string;subId:string;places:Place[];recentFoods:RecentFood[];onClose:()=>void;onSave:(placeId:string,subId:string,d:Omit<Food,'id'>)=>void;onAddToExisting:(placeId:string,subId:string,existingId:string,amount:number,unit:Unit)=>void}){
+function FoodModal({data,placeId,subId,places,recentFoods,onClose,onSave,onAddToExisting}:{data?:Food;placeId:string;subId:string;places:Place[];recentFoods:RecentFood[];onClose:()=>void;onSave:(placeId:string,subId:string,d:Omit<Food,'id'>,daysPerUnit?:number)=>void;onAddToExisting:(placeId:string,subId:string,existingId:string,amount:number,unit:Unit)=>void}){
   const[name,setName]=useState(data?.name||'');
   const[quantity,setQuantity]=useState(data?.quantity ?? 1);
   const[unit,setUnit]=useState<Unit>(data?.unit||'unidades');
   const[expiresOn,setExpiresOn]=useState(data?.expires_on||'');
+  const[programConsumption,setProgramConsumption]=useState(false);
+  const[daysPerUnit,setDaysPerUnit]=useState(7);
   const[chosenPlace,setChosenPlace]=useState(placeId);
   const[chosenSub,setChosenSub]=useState(subId||places.find(p=>p.id===placeId)?.subdivisions[0]?.id||'');
   const currentPlace=places.find(p=>p.id===chosenPlace);
@@ -2403,7 +2405,8 @@ function FoodModal({data,placeId,subId,places,recentFoods,onClose,onSave,onAddTo
       <label>Quantidade<div className="number"><button type="button" aria-label="Diminuir quantidade" onClick={()=>setQuantity(Math.max(0,Number((quantity-quantityStep).toFixed(3))))}><Minus/></button><input type="number" min="0" step={quantityStep} value={quantity} onChange={e=>{const value=Number(e.target.value);setQuantity(Number.isFinite(value)?Math.max(0,value):0)}} aria-label="Quantidade" /><button type="button" aria-label="Aumentar quantidade" onClick={()=>setQuantity(Number((quantity+quantityStep).toFixed(3)))}><Plus/></button></div></label>
       <label>Unidade<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(u=><option key={u}>{u}</option>)}</select></label>
     </div>
-    <button className="primary full" disabled={!canSave} onClick={()=>onSave(chosenPlace,currentPlace?.subdivisions[0]?.id||chosenSub,{name:name.trim(),quantity,unit,expires_on:expiresOn||null})}>{data?'Salvar alterações':'Adicionar alimento'}</button>
+    {!data&&<div className="destination-fields consumption-setup"><label className="consumption-toggle"><input type="checkbox" checked={programConsumption} onChange={e=>setProgramConsumption(e.target.checked)}/> Programar consumo esperado</label>{programConsumption&&<><p className="modal-help">Informe quantos dias uma unidade costuma durar. Com {quantity} {unit}, a duração estimada será de {Math.round(quantity*daysPerUnit)} dias.</p><label>Quantos dias dura uma unidade?<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>{!userId&&<small className="field-help">Você precisará entrar na sua conta para ativar essa programação.</small>}</>}</div>}
+    <button className="primary full" disabled={!canSave||(programConsumption&&(!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365))} onClick={()=>onSave(chosenPlace,currentPlace?.subdivisions[0]?.id||chosenSub,{name:name.trim(),quantity,unit,expires_on:expiresOn||null},programConsumption?daysPerUnit:undefined)}>{data?'Salvar alterações':'Adicionar alimento'}</button>
   </Modal>
 }
 
