@@ -1264,3 +1264,94 @@ main{padding-bottom:30px}
   .home-stat>div span { font-size: 9px; }
   .home-shortcuts { grid-template-columns: 1fr; }
 }
+
+
+/* OrganizaApp design system — Warm Minimalism */
+:root{
+  color-scheme:light;
+  --oa-canvas:#f7f6f1;
+  --oa-surface:#ffffff;
+  --oa-ink:#29352e;
+  --oa-muted:#788278;
+  --oa-brand:#526b50;
+  --oa-brand-hover:#435a42;
+  --oa-soft:#e5e9df;
+  --oa-line:#e7e8e0;
+  --oa-radius-card:20px;
+  --oa-radius-control:14px;
+}
+body{background:var(--oa-canvas);color:var(--oa-ink)}
+header{background:rgba(255,255,255,.94);border-bottom-color:var(--oa-line)}
+.brand h1{color:var(--oa-ink);letter-spacing:-.035em}
+.brand span{color:#858b80}
+.logo{background:#edf0e8;color:var(--oa-brand);border:1px solid #e1e7dc}
+.icon-btn{color:#687568}
+.icon-btn:hover{background:#f3f4ef;color:var(--oa-brand)}
+main{padding-top:38px}
+.eyebrow{color:var(--oa-brand);letter-spacing:.14em;font-size:10px}
+.hero h2,.hero h2,h2{color:var(--oa-ink);letter-spacing:-.045em}
+.hero-copy p:not(.eyebrow){color:#788278;line-height:1.65}
+.search{border-color:#e5e7df;background:var(--oa-surface);border-radius:15px;box-shadow:0 2px 8px #29352e06}
+.search:focus-within{border-color:#9aaa94;box-shadow:0 0 0 3px #e5e9df}
+.search input::placeholder{color:#a0a69d}
+.home-add{background:var(--oa-brand);border-color:var(--oa-brand);color:#fff;border-radius:15px;box-shadow:0 5px 14px #29352e12}
+.home-add:hover{background:var(--oa-brand-hover);border-color:var(--oa-brand-hover);box-shadow:0 7px 18px #29352e17}
+.home-add-icon{background:#ffffff20;color:#fff;border-radius:11px}
+.home-add small{color:#e2e9df}
+.home-overview{background:linear-gradient(145deg,#fff 0%,#fbfbf7 100%);border:1px solid #e5e7de;border-radius:22px;box-shadow:0 5px 20px #29352e05}
+.home-overview-heading h3{color:#354238;letter-spacing:-.025em}
+.home-overview-heading>span{color:#92988e}
+.home-stat-grid{gap:12px}
+.home-stat{background:#fff;border-color:#e8eae3;border-radius:17px;box-shadow:0 1px 2px #29352e03}
+.home-stat>div>strong{color:var(--oa-ink);letter-spacing:-.045em}
+.home-stat>div>span{color:#858d82}
+.home-stat-icon{border-radius:12px!important}
+.home-stat-icon.stock,.home-shortcut-icon{background:#edf1e9!important;color:var(--oa-brand)!important}
+.home-stat-icon.places{background:#f0f1eb!important;color:#697962!important}
+.home-stat-icon.expiry{background:#f5eee2!important;color:#9b7442!important}
+.home-shortcuts{gap:12px}
+.home-shortcuts button{background:#fff;border-color:#e8eae3;border-radius:16px;transition:background .16s,border-color .16s,transform .16s}
+.home-shortcuts button:hover{background:#fbfcf8;border-color:#d7dfd2;transform:translateY(-1px)}
+.home-shortcuts button>span strong{color:#465348}
+.home-shortcuts button>span small{color:#8b9388}
+.home-shortcuts button>svg{color:#9ba397}
+.home-shortcut-icon{border-radius:11px!important}
+.section-title h3,.section-head h2{color:#354238;letter-spacing:-.035em}
+.section-title button,.sub-head button,.back{color:var(--oa-brand)}
+.places{gap:16px}
+.place-card{background:#fff;border-color:#e5e7df;border-radius:20px;box-shadow:0 2px 7px #29352e04}
+.place-card:hover{border-color:#d4ddcf;box-shadow:0 9px 24px #29352e0b;transform:translateY(-2px)}
+.place-icon{background:#edf1e9;color:var(--oa-brand);border-radius:13px}
+.place-card h3{color:#354238;letter-spacing:-.025em}
+.place-card p{color:#858e83}
+.card-edit,.sub-edit{color:#8c968b}
+.card-edit:hover,.sub-edit:hover{background:#f0f2ec;color:var(--oa-brand)}
+.progress{background:#eef0e9}
+.progress span{background:#8a9b80}
+.primary{background:var(--oa-brand);color:#fff;border-radius:12px}
+.primary:hover{background:var(--oa-brand-hover)}
+.bottom-nav{background:rgba(255,255,255,.96);border-top-color:#e7e8e0;backdrop-filter:blur(16px)}
+.bottom-nav button{color:#858d82;transition:color .16s,background .16s}
+.bottom-nav button.active{background:#edf1e9;color:var(--oa-brand)}
+.bottom-nav button.active:before{background:var(--oa-brand)}
+.bottom-nav button i{background:var(--oa-brand)}
+.food,.result,.sub-card{border-color:#e7e9e2}
+.food{border-radius:15px}
+.food-icon{background:#edf1e9;color:var(--oa-brand)}
+.sub-card.active{border-color:#b7c5b0;background:#f4f6f0}
+.sub-card.active{box-shadow:inset 3px 0 0 var(--oa-brand)}
+.selected-sub-head{background:#f0f2eb;border-color:#e2e6dc}
+.modal{background:#fff;border:1px solid #eeefe9;box-shadow:0 24px 70px #29352e24}
+.modal input:focus,.modal select:focus{border-color:#91a48b;box-shadow:0 0 0 3px #e9eee4}
+.overlay{background:#29352e55;backdrop-filter:blur(5px)}
+.undo-toast{background:#29352e}
+.undo-toast button{background:#e5e9df;color:#3f5a3d}
+button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#71876b}
+@media(max-width:700px){
+  main{padding-top:27px}
+  .home-overview{border-radius:19px}
+  .place-card{border-radius:17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .place-card,.home-shortcuts button,.home-add,.primary{transition:none}
+}
