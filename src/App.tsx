@@ -399,6 +399,7 @@ function App(){
   const[selected,setSelected]=useState<string|null>(null);
   const[selectedSub,setSelectedSub]=useState<string|null>(null);
   const[search,setSearch]=useState('');
+  const[localFoodSearch,setLocalFoodSearch]=useState('');
   const[foodModal,setFoodModal]=useState<{place:string;sub:string;food?:Food}|null>(null);
   const[importModal,setImportModal]=useState(false);
   const[moveModal,setMoveModal]=useState<{place:string;sub:string;food:Food}|null>(null);
@@ -1299,7 +1300,8 @@ function App(){
   const sub=current?.subdivisions.find(s=>s.id===selectedSub);
   const total=places.reduce((n,p)=>n+p.subdivisions.reduce((m,s)=>m+s.foods.length,0),0);
   const sortedLocalFoods=useMemo(()=>{
-    const items=[...(sub?.foods||[])];
+    const query=searchKey(localFoodSearch.trim());
+    const items=[...(sub?.foods||[])].filter(food=>!query||searchKey(food.name).includes(query));
     return items.sort((a,b)=>{
       if(foodSort==='expiry'){
         if(!a.expires_on&&!b.expires_on)return a.name.localeCompare(b.name,'pt-BR');
@@ -1311,7 +1313,7 @@ function App(){
       if(foodSort==='quantity-desc')return b.quantity-a.quantity||a.name.localeCompare(b.name,'pt-BR');
       return a.name.localeCompare(b.name,'pt-BR');
     });
-  },[sub,foodSort]);
+  },[sub,foodSort,localFoodSearch]);
   const reportFoods=useMemo(()=>{
     const query=searchKey(reportSearch.trim());
     const items=places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods.map(food=>({
@@ -1571,6 +1573,7 @@ function App(){
   }
 
   function openPlace(id:string){
+    setLocalFoodSearch('');
     setSelected(id);
     const p=places.find(x=>x.id===id);
     setSelectedSub(p?.subdivisions[0]?.id||null);
@@ -1578,6 +1581,7 @@ function App(){
 
   function openSearchResult(placeId:string,subId:string){
     setSearch('');
+    setLocalFoodSearch('');
     setSelected(placeId);
     setSelectedSub(subId);
   }
@@ -1636,16 +1640,23 @@ function App(){
 
             {selectedSub&&sub?(
               <>
-                <div className="inventory-sort-bar">
-                  <span><ArrowDownUp size={15}/> Ordenar alimentos</span>
-                  <select aria-label="Ordenar alimentos deste local" value={foodSort} onChange={e=>setFoodSort(e.target.value as typeof foodSort)}>
-                    <option value="name">Alfabética (A–Z)</option>
-                    <option value="expiry">Validade (mais próxima)</option>
-                    <option value="quantity-asc">Quantidade (menor primeiro)</option>
-                    <option value="quantity-desc">Quantidade (maior primeiro)</option>
-                  </select>
+                <div className="local-inventory-tools">
+                  <div className="local-food-search">
+                    <Search size={17}/>
+                    <input aria-label="Buscar alimento neste local" value={localFoodSearch} onChange={e=>setLocalFoodSearch(e.target.value)} placeholder="Buscar neste local..."/>
+                    {localFoodSearch&&<button type="button" onClick={()=>setLocalFoodSearch('')} aria-label="Limpar busca local"><X size={16}/></button>}
+                  </div>
+                  <div className="inventory-sort-bar">
+                    <span><ArrowDownUp size={15}/> Ordenar alimentos</span>
+                    <select aria-label="Ordenar alimentos deste local" value={foodSort} onChange={e=>setFoodSort(e.target.value as typeof foodSort)}>
+                      <option value="name">Alfabética (A–Z)</option>
+                      <option value="expiry">Validade (mais próxima)</option>
+                      <option value="quantity-asc">Quantidade (menor primeiro)</option>
+                      <option value="quantity-desc">Quantidade (maior primeiro)</option>
+                    </select>
+                  </div>
                 </div>
-                {sub.foods.length?(
+                {sortedLocalFoods.length?(
                   <div className="food-list">
                     {sortedLocalFoods.map(f=>(
                       <div className={'food '+(f.quantity===0?'out-of-stock':'')+(foodHasAlert(f)?' has-notification':'')} key={f.id}>
@@ -1685,9 +1696,10 @@ function App(){
                   </div>
                 ):(
                   <Empty
-                    title={'Nenhum alimento na '+(current?.name||'local')}
-                    text="Adicione os alimentos que ficam neste local."
-                    action={()=>setFoodModal({place:selected,sub:selectedSub})}
+                    title={localFoodSearch?'Nenhum alimento encontrado':'Nenhum alimento na '+(current?.name||'local')}
+                    text={localFoodSearch?'Tente outro nome ou limpe a busca para ver todos os alimentos deste local.':'Adicione os alimentos que ficam neste local.'}
+                    action={localFoodSearch?()=>setLocalFoodSearch(''):()=>setFoodModal({place:selected,sub:selectedSub})}
+                    actionLabel={localFoodSearch?'Limpar busca':'Adicionar alimento'}
                   />
                 )}
               </>
