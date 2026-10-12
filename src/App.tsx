@@ -58,6 +58,13 @@ function expiryCaption(dateText:string){
   if(days===1)return 'Vence amanhã';
   return 'Vence em '+days+' dias';
 }
+function locationPhotoClass(name:string){
+  const normalized=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(/geladeira|refrigerador|fridge/.test(normalized))return 'photo-fridge';
+  if(/freezer|congelador/.test(normalized))return 'photo-freezer';
+  if(/despensa|pantry|armario|cabinet/.test(normalized))return 'photo-pantry';
+  return 'photo-generic';
+}
 function locationEmoji(name:string){
   const normalized=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   if(/geladeira|refrigerador|fridge/.test(normalized))return '🧊';
@@ -1812,14 +1819,6 @@ function App(){
           </section>
         ):(
           <section>
-            <div className="hero">
-              <div className="hero-copy">
-                <p className="eyebrow">SUA CASA</p>
-                <h2>Encontre o que precisa.</h2>
-                <p>Veja onde cada alimento está e mantenha sua casa organizada sem esforço.</p>
-              </div>
-            </div>
-
             <div className="home-tools">
               <div className="search">
                 <Search size={19}/>
@@ -1840,11 +1839,17 @@ function App(){
 
             {!search&&places.length>0&&(
               <section className="home-overview" aria-label="Resumo da casa">
-                <div className="home-overview-heading">
-                  <div><p className="eyebrow">VISÃO GERAL</p><h3>Resumo da casa</h3></div>
-                  <span>Atualizado com seu estoque</span>
-                </div>
-                <div className="home-stat-grid">
+                <div className="home-overview-editorial">
+                  <div className="home-overview-photo" role="img" aria-label="Cozinha clara com alimentos frescos">
+                    <div className="home-overview-copy">
+                      <p className="eyebrow">VISÃO GERAL</p>
+                      <h3>Resumo da casa</h3>
+                      <p>Tudo organizado em um só lugar.</p>
+                    </div>
+                  </div>
+                  <div className="home-overview-content">
+                    <div className="home-overview-heading"><span>Seu estoque em um olhar</span><span>Atualizado com seu estoque</span></div>
+                    <div className="home-stat-grid">
                   <article className="home-stat">
                     <span className="home-stat-icon stock"><Box size={17}/></span>
                     <div><strong>{total}</strong><span>{total===1?'alimento cadastrado':'alimentos cadastrados'}</span></div>
@@ -1858,17 +1863,19 @@ function App(){
                     <div><strong>{expiringFoods.filter(({food})=>food.quantity>0).length}</strong><span>itens perto da validade</span></div>
                   </article>
                 </div>
-                <div className="home-shortcuts" aria-label="Acessos rápidos">
-                  <button type="button" onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}}>
-                    <span className="home-shortcut-icon"><ShoppingCart size={17}/></span>
-                    <span><strong>Lista de compras</strong><small>{shoppingItems.filter(item=>!item.is_purchased).length} {shoppingItems.filter(item=>!item.is_purchased).length===1?'item pendente':'itens pendentes'}</small></span>
-                    <ChevronRight size={17}/>
-                  </button>
-                  <button type="button" onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}}>
-                    <span className="home-shortcut-icon recipes"><BookOpen size={17}/></span>
-                    <span><strong>Encontrar receitas</strong><small>Ideias com o que você tem em casa</small></span>
-                    <ChevronRight size={17}/>
-                  </button>
+                    <div className="home-shortcuts" aria-label="Acessos rápidos">
+                      <button type="button" onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}}>
+                        <span className="home-shortcut-icon"><ShoppingCart size={17}/></span>
+                        <span><strong>Lista de compras</strong><small>{shoppingItems.filter(item=>!item.is_purchased).length} {shoppingItems.filter(item=>!item.is_purchased).length===1?'item pendente':'itens pendentes'}</small></span>
+                        <ChevronRight size={17}/>
+                      </button>
+                      <button type="button" onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}}>
+                        <span className="home-shortcut-icon recipes"><BookOpen size={17}/></span>
+                        <span><strong>Encontrar receitas</strong><small>Ideias com o que você tem em casa</small></span>
+                        <ChevronRight size={17}/>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </section>
             )}
@@ -1944,13 +1951,13 @@ function App(){
                         onClick={()=>openPlace(p.id)}
                         onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPlace(p.id)}}}
                       >
-                        <div className="place-top">
-                          <div className="place-icon" aria-hidden="true">{locationEmoji(p.name)}</div>
+                        <div className={'place-photo '+locationPhotoClass(p.name)} aria-hidden="true">
+                          <div className="place-photo-icon">{locationEmoji(p.name)}</div>
                           <div className="place-card-actions">
                             <button className="card-edit" title="Renomear local" aria-label={'Renomear '+p.name} onClick={e=>{e.stopPropagation();setPlaceToEdit(p.id);setPlaceModal(true)}}>
                               <Edit3 size={16}/>
                             </button>
-                            <div className="arrow">→</div>
+                            <MoreHorizontal size={19}/>
                           </div>
                         </div>
                         <h3>{p.name}</h3>
