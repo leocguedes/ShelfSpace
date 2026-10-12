@@ -1625,7 +1625,7 @@ function App(){
                   <p>
                     {current?.subdivisions.reduce((n,s)=>n+s.foods.length,0)||0}{' '}
                     {current?.subdivisions.reduce((n,s)=>n+s.foods.length,0)===1?'alimento':'alimentos'}{' '}
-                    <span className="sync-status">{!online?'Sem internet · dados locais':synced?'Sincronizado':'Somente neste dispositivo'}</span>
+                    <span className="sync-status">{!online?'Sem internet · dados locais':synced?'Sincronizado':userId?'Sincronização pendente':'Somente neste dispositivo'}</span>{userId&&online&&!synced&&<button className="sync-retry" type="button" onClick={()=>{void refreshCloud(userId);void refreshShoppingList(userId,householdId);void refreshRecurringRules(userId,householdId);void refreshConsumptionRules(userId,householdId)}}>Tentar sincronizar</button>}
                   </p>
                 </div>
               </div>
