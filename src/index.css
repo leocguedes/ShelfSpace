@@ -1524,13 +1524,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#718
 }
 
 
-/* Fixed, bundled illustrations for each standard storage location */
-.place-photo.photo-fridge{background-image:url('/images/locations/geladeira.svg')!important;background-size:cover;background-position:center}
-.place-photo.photo-cabinet{background-image:url('/images/locations/armario.svg')!important;background-size:cover;background-position:center}
-.place-photo.photo-freezer{background-image:url('/images/locations/freezer.svg')!important;background-size:cover;background-position:center}
-.place-photo.photo-pantry{background-image:url('/images/locations/despensa.svg')!important;background-size:cover;background-position:center}
-.place-photo.photo-drawer{background-image:url('/images/locations/gaveta.svg')!important;background-size:cover;background-position:center}
-.place-photo.photo-generic{background-image:linear-gradient(135deg,#e9ede5,#dfe5da)!important}
+/* Standard storage cards use the real-photo backgrounds defined below.
+   Keep the old SVG files in the repository, but do not use them as card imagery. */
 
 /* Real photography for location cards — distinct image per storage type */
 .place-photo.photo-fridge{background-image:linear-gradient(180deg,rgba(30,40,32,.02),rgba(30,40,32,.08)),url('https://images.squarespace-cdn.com/content/v1/63cae41a333ef829d79269a0/a158c6cf-8e30-489f-bb0d-1cd0f63e21b4/Meal%2Blabelling');background-size:cover;background-position:center 48%}
