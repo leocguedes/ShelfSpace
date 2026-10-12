@@ -13,6 +13,7 @@ type ConsumptionRule={id:string;household_id:string;food_id:string;amount:number
 type Sub={id:string;name:string;foods:Food[]};
 type Place={id:string;name:string;subdivisions:Sub[]};
 type Household={id:string;name:string;created_by:string;is_personal:boolean;role:'owner'|'admin'|'member'};
+type HouseholdMember={user_id:string;email:string;display_name:string;role:'owner'|'admin'|'member';joined_at:string};
 type ShoppingItem={id:string;household_id:string;name:string;quantity:number;unit:string;category?:string|null;is_purchased:boolean;source:string;linked_food_id?:string|null;notes?:string|null;created_by:string;purchased_by?:string|null;purchased_at?:string|null;created_at?:string;recurring_rule_id?:string|null;recurring_occurrence?:string|null};
 type RecurringShoppingRule={id:string;household_id:string;name:string;quantity:number;unit:string;frequency_days:number;next_due_on:string;is_active:boolean;created_by:string;created_at?:string;};
 type UndoState={label:string;action:()=>void};
@@ -2266,12 +2267,35 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
 function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onCreateInvite,onJoin,onJoinCodeChange,onCopy}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void}){
   const active=households.find(h=>h.id===activeHouseholdId);
   const canInvite=active?.role==='owner'||active?.role==='admin';
-  return <Modal title="Casa compartilhada" onClose={onClose}>
-    <p className="modal-help">Compartilhe estoque e organização com quem mora com você. Cada casa mantém seus próprios alimentos.</p>
+  const[members,setMembers]=useState<HouseholdMember[]>([]);
+  const[membersLoading,setMembersLoading]=useState(false);
+  const[membersError,setMembersError]=useState('');
+  useEffect(()=>{
+    let current=true;
+    if(!active?.id){setMembers([]);setMembersError('');return()=>{current=false};}
+    setMembersLoading(true);setMembersError('');
+    void supabase.rpc('get_household_members',{target_household_id:active.id}).then(({data,error})=>{
+      if(!current)return;
+      if(error){setMembers([]);setMembersError('Não foi possível carregar os membros agora. Tente novamente.');}
+      else setMembers((data||[]) as HouseholdMember[]);
+      setMembersLoading(false);
+    }).catch(()=>{
+      if(!current)return;
+      setMembers([]);setMembersError('Não foi possível carregar os membros agora. Tente novamente.');setMembersLoading(false);
+    });
+    return()=>{current=false};
+  },[active?.id]);
+  const roleLabel=(role:HouseholdMember['role'])=>role==='owner'?'Responsável':role==='admin'?'Administrador':'Membro';
+  return <Modal title="Família e compartilhamento" onClose={onClose}>
+    <p className="modal-help">Veja quem participa desta casa e compartilhe o estoque com as pessoas que moram com você.</p>
     {households.length>1&&<label>Casa ativa<select value={activeHouseholdId||''} disabled={busy} onChange={e=>onSwitch(e.target.value)}>{households.map(h=><option key={h.id} value={h.id}>{h.name}{h.is_personal?' · pessoal':''}</option>)}</select></label>}
     <div className="household-panel">
       <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||'Sua casa'}</strong></div>
       <p>{active?.is_personal?'Esta é sua casa pessoal. Você pode convidar familiares para compartilhar o mesmo estoque.':'Você está vendo o estoque compartilhado desta casa.'}</p>
+      <div className="household-members">
+        <div className="household-members-heading"><strong>Quem está nesta casa</strong><span>{membersLoading?'Carregando…':members.length+' '+(members.length===1?'pessoa':'pessoas')}</span></div>
+        {membersLoading?<div className="household-members-state">Buscando os membros da família…</div>:membersError?<div className="household-members-state error">{membersError}<button type="button" onClick={()=>{setMembersError('');setMembersLoading(true);void supabase.rpc('get_household_members',{target_household_id:active?.id}).then(({data,error})=>{if(error){setMembersError('Não foi possível carregar os membros.');setMembers([]);}else{setMembers((data||[]) as HouseholdMember[]);setMembersError('');}setMembersLoading(false);}).catch(()=>{setMembersError('Não foi possível carregar os membros.');setMembersLoading(false);});}}>Tentar novamente</button></div>:members.length===0?<div className="household-members-state">Ainda não há outros membros. Gere um convite para adicionar familiares.</div>:members.map(member=><div className="household-member" key={member.user_id}><span className="household-member-avatar">{(member.display_name||member.email||'M').trim().charAt(0).toLocaleUpperCase('pt-BR')}</span><span className="household-member-details"><strong>{member.display_name||'Membro da família'}</strong><small>{member.email||'E-mail não disponível'}</small></span><span className={'household-member-role '+member.role}>{roleLabel(member.role)}</span></div>)}
+      </div>
       {canInvite?<>
         <button className="primary full" disabled={busy} onClick={onCreateInvite}><Users size={16}/> {busy?'Aguarde...':'Gerar convite para familiares'}</button>
         {invite&&<div className="household-invite">
