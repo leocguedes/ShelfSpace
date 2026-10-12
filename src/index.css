@@ -1044,3 +1044,21 @@ main{padding-bottom:30px}
   .settings-row{gap:9px}
   .settings-row-copy strong{font-size:11px}
 }
+
+
+/* Household member directory */
+.household-members{margin:17px 0 16px;padding:13px 12px 7px;border:1px solid #eae8f1;border-radius:13px;background:#fff}
+.household-members-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.household-members-heading strong{font-size:12px;color:#354056}
+.household-members-heading>span{font-size:10px;color:#8a91a2;white-space:nowrap}
+.household-members-state{padding:13px 2px 10px;font-size:11px;line-height:1.6;color:#858da0}
+.household-members-state.error{color:#a65c57}
+.household-members-state button{display:block;margin-top:8px;border:0;background:#f2edff;color:#7044ca;border-radius:8px;padding:7px 10px;font:600 10px 'DM Sans',sans-serif;cursor:pointer}
+.household-member{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid #f0eef5;min-width:0}
+.household-member-avatar{display:grid;place-items:center;flex:0 0 35px;width:35px;height:35px;border-radius:12px;background:#f1eaff;color:#8056dc;font-size:13px;font-weight:700}
+.household-member-details{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.household-member-details strong{font-size:11px;font-weight:600;color:#394357;overflow-wrap:anywhere}
+.household-member-details small{font-size:10px;color:#858da0;overflow-wrap:anywhere}
+.household-member-role{flex:0 0 auto;padding:5px 7px;border-radius:7px;background:#f5f4f8;color:#747b8c;font-size:9px;font-weight:600}
+.household-member-role.owner{background:#f1eaff;color:#7044ca}
+.household-member-role.admin{background:#edf4ff;color:#5070a4}
