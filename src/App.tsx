@@ -1938,11 +1938,6 @@ function App(){
                         onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPlace(p.id)}}}
                       >
                         <div className={'place-photo '+locationPhotoClass(p.name)} aria-hidden="true">
-                          <div className="place-card-actions">
-                            <button className="card-edit" title="Renomear local" aria-label={'Renomear '+p.name} onClick={e=>{e.stopPropagation();setPlaceToEdit(p.id);setPlaceModal(true)}}>
-                              <Edit3 size={16}/>
-                            </button>
-                          </div>
                         </div>
                         <h3>{p.name}</h3>
                         <div className="place-card-summary">
