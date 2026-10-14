@@ -1278,7 +1278,7 @@ main{padding-bottom:30px}
 }
 
 
-/* OrganizaApp design system — Warm Minimalism */
+/* ShelfSpace design system — Warm Minimalism */
 :root{
   color-scheme:light;
   --oa-canvas:#f7f6f1;
@@ -1369,7 +1369,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#718
 }
 
 
-/* Editorial Home — inspired by the approved OrganizaApp reference */
+/* Editorial Home — inspired by the approved ShelfSpace reference */
 .home-tools{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px;align-items:stretch;margin-bottom:18px}
 .home-tools .search{margin:0;min-width:0;height:58px}
 .home-tools .home-add{margin:0;min-height:58px;padding:10px 15px;gap:12px}
