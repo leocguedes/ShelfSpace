@@ -1,4 +1,4 @@
-name: Deploy OrganizaApp to GitHub Pages
+name: Deploy ShelfSpace to GitHub Pages
 
 on:
   push:
