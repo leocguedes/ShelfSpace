@@ -1,4 +1,4 @@
-const CACHE='organizapp-pwa-v1';
+const CACHE='shelfspace-pwa-v2';
 const BASE='/organizapp/';
 
 self.addEventListener('install',event=>{
