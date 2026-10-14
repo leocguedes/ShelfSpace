@@ -65,6 +65,11 @@ function locationPhotoClass(name:string){
   if(/despensa|pantry/.test(normalized))return 'photo-pantry';
   if(/armario|cabinet|cupboard/.test(normalized))return 'photo-cabinet';
   if(/gaveta|drawer/.test(normalized))return 'photo-drawer';
+  if(/bancada|countertop|counter/.test(normalized))return 'photo-counter';
+  if(/prateleira|shelf|shelving/.test(normalized))return 'photo-shelf';
+  if(/estoque|stockroom|bulk storage/.test(normalized))return 'photo-stockroom';
+  if(/deposito|storeroom|storage room/.test(normalized))return 'photo-storage';
+  if(/frigobar|mini fridge|beverage fridge/.test(normalized))return 'photo-minifridge';
   return 'photo-generic';
 }
 const authRedirectUrl=()=>new URL(import.meta.env.BASE_URL,window.location.origin).toString();
