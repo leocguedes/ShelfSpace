@@ -2058,3 +2058,20 @@ h3{letter-spacing:-.018em}
 .household-rename-actions button:disabled{opacity:.5;cursor:not-allowed}
 .household-rename>small{color:var(--ss-olive);font-size:12px}
 @media(max-width:430px){.household-rename-actions{flex-direction:column-reverse}.household-rename-actions button{width:100%}}
+
+/* Keep native select controls aligned with the ShelfSpace palette */
+select{
+  -webkit-appearance:none;
+  appearance:none;
+  border:1px solid #DCCEB9;
+  border-radius:10px;
+  background-color:#F6F3EB;
+  color:#292C27;
+  box-shadow:none;
+}
+select:focus{
+  border-color:#A7B29A;
+  box-shadow:0 0 0 3px #A7B29A33;
+  outline:0;
+}
+select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
