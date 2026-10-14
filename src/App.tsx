@@ -1626,7 +1626,7 @@ function App(){
     <div className="app">
       <header>
         <div className="brand">
-          <div className="logo" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M10 13.5C10 8.8 13.8 6 19 6h18c-1.5 5.5-5.5 8-11 8H10v-.5Z"/><path d="M10 18h19c5.5 0 9 3.1 9 7.5S34.5 33 29 33H10v-7h19c1.2 0 2-.3 2-1s-.8-1-2-1H10v-6Z"/><path d="M10 30h28v4.5C38 40 33.8 42 28 42H10v-7h18c1.8 0 2.5-.3 2.5-1H10v-4Z"/></svg></div>
+          <div className="logo" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M10 13.5C10 8.8 14.2 6 20 6h18c-2.4 6.1-7.2 9-14 9H10v-1.5Z"/><path d="M10 18h19c5.8 0 9 2.8 9 7s-3.2 7-9 7H10v-7h19c1.4 0 2-.3 2-.8s-.6-.8-2-.8H10V18Z"/><path d="M10 30h28c-2.1 6.8-6.8 10-14 10H10v-7h18c1.7 0 2.8-.4 3.4-1H10v-2Z"/></svg></div>
           <div><h1>ShelfSpace</h1><span>Sua casa, organizada.</span></div>
         </div>
         <div className="header-actions">
