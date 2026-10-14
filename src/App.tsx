@@ -920,6 +920,22 @@ function App(){
     }
   }
 
+  async function renameHousehold(targetId:string,name:string){
+    const clean=name.trim();
+    const target=households.find(h=>h.id===targetId);
+    if(!userId||!target||!clean||clean.length>60||!(target.role==='owner'||target.role==='admin'))return false;
+    setHouseholdBusy(true);
+    try{
+      const{error}=await supabase.from('households').update({name:clean}).eq('id',targetId);
+      if(error)throw error;
+      setHouseholds(current=>current.map(h=>h.id===targetId?{...h,name:clean}:h));
+      return true;
+    }catch{
+      setAuthMessage('Não foi possível alterar o nome desta casa. Verifique suas permissões e tente novamente.');
+      return false;
+    }finally{setHouseholdBusy(false)}
+  }
+
   async function createHouseholdInvite(){
     if(!userId||!householdId)return;
     setHouseholdBusy(true);
@@ -2076,6 +2092,7 @@ function App(){
         copied={householdCopied}
         onClose={()=>setHouseholdModal(false)}
         onSwitch={id=>void activateHousehold(id,userId,true)}
+        onRename={renameHousehold}
         onCreateInvite={createHouseholdInvite}
         onJoin={joinHousehold}
         onJoinCodeChange={setHouseholdJoinCode}
@@ -2426,9 +2443,13 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
   </Modal>
 }
 
-function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onCreateInvite,onJoin,onJoinCodeChange,onCopy}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void}){
+function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void}){
   const active=households.find(h=>h.id===activeHouseholdId);
   const canInvite=active?.role==='owner'||active?.role==='admin';
+  const[houseName,setHouseName]=useState(active?.name||'');
+  const[nameEditing,setNameEditing]=useState(false);
+  const[nameMessage,setNameMessage]=useState('');
+  useEffect(()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');},[active?.id,active?.name]);
   const[members,setMembers]=useState<HouseholdMember[]>([]);
   const[membersLoading,setMembersLoading]=useState(false);
   const[membersError,setMembersError]=useState('');
@@ -2453,6 +2474,11 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
     {households.length>1&&<label>Casa ativa<select value={activeHouseholdId||''} disabled={busy} onChange={e=>onSwitch(e.target.value)}>{households.map(h=><option key={h.id} value={h.id}>{h.name}{h.is_personal?' · pessoal':''}</option>)}</select></label>}
     <div className="household-panel">
       <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||'Sua casa'}</strong></div>
+      {canInvite&&(nameEditing?<div className="household-rename">
+        <label>Nome da casa<input value={houseName} maxLength={60} onChange={event=>{setHouseName(event.target.value);setNameMessage('');}} placeholder="Ex.: Minha casa"/></label>
+        <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage('Nome atualizado para todos os membros.');}});}}>Salvar nome</button></div>
+        {nameMessage&&<small>{nameMessage}</small>}
+      </div>:<button type="button" className="household-rename-trigger" onClick={()=>setNameEditing(true)}>Editar nome da casa</button>)}
       <p>{active?.is_personal?'Esta é sua casa pessoal. Você pode convidar familiares para compartilhar o mesmo estoque.':'Você está vendo o estoque compartilhado desta casa.'}</p>
       <div className="household-members">
         <div className="household-members-heading"><strong>Quem está nesta casa</strong><span>{membersLoading?'Carregando…':members.length+' '+(members.length===1?'pessoa':'pessoas')}</span></div>
