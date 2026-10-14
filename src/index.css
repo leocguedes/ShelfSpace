@@ -1281,14 +1281,19 @@ main{padding-bottom:30px}
 /* ShelfSpace design system — Warm Minimalism */
 :root{
   color-scheme:light;
-  --oa-canvas:#f7f6f1;
-  --oa-surface:#ffffff;
-  --oa-ink:#29352e;
-  --oa-muted:#788278;
-  --oa-brand:#526b50;
-  --oa-brand-hover:#435a42;
-  --oa-soft:#e5e9df;
-  --oa-line:#e7e8e0;
+  --oa-canvas:#F6F3EB;
+  --oa-surface:#FFFEFB;
+  --oa-ink:#292C27;
+  --oa-muted:#74786F;
+  --oa-brand:#59694B;
+  --oa-brand-hover:#48573C;
+  --oa-soft:#E7E9DF;
+  --oa-line:#E7E1D5;
+  --ss-olive:#59694B;
+  --ss-ivory:#F6F3EB;
+  --ss-charcoal:#292C27;
+  --ss-sage:#A7B29A;
+  --ss-sand:#DCCEB9;
   --oa-radius-card:20px;
   --oa-radius-control:14px;
 }
@@ -1560,3 +1565,78 @@ header .logo svg{width:34px;height:34px}
 
 /* Use the original supplied ShelfSpace vector proportions in the header. */
 header .logo svg{width:29px;height:29px;overflow:visible}
+
+
+/* ShelfSpace palette unification — olive, ivory, charcoal, sage and sand */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap');
+body,.app{background:var(--ss-ivory);color:var(--ss-charcoal);font-family:Inter,'DM Sans',sans-serif}
+header,.bottom-nav{background:rgba(255,254,251,.96);border-color:#E7E1D5}
+.brand h1,.hero h2,h2,.section-title h3,.section-head h2,.place-card h3{color:var(--ss-charcoal)}
+.brand span,.hero-copy p:not(.eyebrow),.section-head p,.place-card p{color:#74786F}
+.logo{background:var(--ss-olive);color:var(--ss-ivory);border-color:transparent}
+.eyebrow,.section-title button,.sub-head button,.back,.auth-link{color:var(--ss-olive)}
+.icon-btn:hover,.small:hover,.card-edit:hover,.sub-edit:hover,.action-trigger:hover,.modal-head button:hover{background:#E7E9DF;color:var(--ss-olive)}
+.search,.place-card,.food,.result,.sub-card,.home-stat,.home-shortcuts button,.home-recent-item,.no-places,.modal{border-color:#E7E1D5}
+.search,.place-card,.food,.result,.sub-card,.home-stat,.home-shortcuts button,.home-recent-item,.modal{background:#FFFEFB}
+.search:focus-within{border-color:var(--ss-sage);box-shadow:0 0 0 3px #A7B29A44}
+.primary{background:var(--ss-olive);color:#fff}
+.primary:hover{background:#48573C}
+.home-add{background:var(--ss-olive);border-color:var(--ss-olive);color:#fff}
+.home-add:hover{background:#48573C;border-color:#48573C}
+.home-add-icon{background:#ffffff22}
+.place-icon,.food-icon,.home-stat-icon.stock,.home-shortcut-icon,.home-shortcut-icon.stock,.home-recent-thumb{background:#E7E9DF;color:var(--ss-olive)}
+.home-stat-icon.places{background:#EEF0E8!important;color:var(--ss-olive)!important}
+.home-shortcut-icon.recipes,.home-recent-thumb.thumb-2{background:#F0EEE8;color:#68785E}
+.home-stat-icon.expiry,.place-card>.place-stock-note{background:#F3E8D8!important;color:#896B43}
+.place-card>.place-stock-note{border:1px solid #E8D8C0}
+.place-stock-note>span{background:#B58A52}
+.home-overview{background:#F1EEE5;border-color:#E7E1D5;box-shadow:0 4px 18px #292C2708}
+.home-overview-photo{background-color:#F1EEE5}
+.home-overview-heading h3,.home-overview-copy h3{color:var(--ss-charcoal)}
+.home-overview-copy .eyebrow{color:var(--ss-olive)}
+.home-stat{box-shadow:0 1px 2px #292C2705}
+.home-shortcuts button:hover,.home-recent-item:hover{background:#FBF8F1;border-color:#DCCEB9}
+.home-shortcuts button>span strong,.home-recent-copy strong{color:#41463D}
+.home-shortcuts button>span small,.home-recent-copy small{color:#74786F}
+.home-shortcuts button>svg,.home-recent-item>svg{color:#8D9187}
+.bottom-nav button.active{background:#E7E9DF;color:var(--ss-olive)}
+.bottom-nav button.active:before,.bottom-nav button i{background:var(--ss-olive)}
+.place-card:hover,.food:hover,.result:hover{border-color:#DCCEB9}
+.sub-card:hover,.sub-card.active{border-color:#A7B29A;background:#F0F1E9}
+.sub-card.active{box-shadow:inset 3px 0 0 var(--ss-olive)}
+.selected-sub-head,.move-current{background:#F0EEE5;border-color:#E7E1D5}
+.selected-sub-head h3,.move-current strong,.move-place-head strong{color:#41463D}
+.progress{background:#E7E1D5}
+.progress span{background:var(--ss-sage)}
+.food-destination-note,.destination-fields{background:#F0F1E9;border-color:#DDE2D5;color:#526348}
+.destination-title span{color:#41463D}
+.recent-foods button{border-color:#DCCEB9;background:#F3EEE4;color:#59694B}
+.recent-foods button:hover{background:#EAE1D2;border-color:#CDBB9E}
+.duplicate-note{background:#F3E8D8;border-color:#E8D8C0;color:#806A4A}
+.duplicate-note strong{color:#665238}
+.duplicate-note span{color:#8A7659}
+.no-places{background:#FFFEFB;border-color:#DCCEB9}
+.no-places-icon{background:#E7E9DF;color:var(--ss-olive)}
+.no-places h3{color:#41463D}
+.sync-btn,.sync-status{background:#E7E9DF;border-color:#D6DDCF;color:var(--ss-olive)}
+.auth-note{background:#EEF0E8;border-color:#DDE2D5;color:#59694B}
+.modal input,.modal select{border-color:#E0DACE;background:#FFFEFB;color:var(--ss-charcoal)}
+.modal input:focus,.modal select:focus{border-color:var(--ss-sage);box-shadow:0 0 0 3px #A7B29A44}
+.modal-head{background:#FFFEFB}
+.modal label{color:#596157}
+.manage-list>div,.move-place-head{background:#F1EEE5}
+.move-place{border-color:#E7E1D5;background:#FFFEFB}
+.move-sub-list button{background:#FFFEFB;color:#596157;border-color:#EEE8DD}
+.move-sub-list button:hover:not(:disabled){background:#F0F1E9;color:var(--ss-olive)}
+.action-menu{background:#FFFEFB;border-color:#E7E1D5}
+.action-menu button{color:#596157}
+.action-menu button:hover{background:#F0F1E9}
+.undo-toast{background:var(--ss-charcoal)}
+.undo-toast button{background:var(--ss-sand);color:#41463D}
+.delete-confirm-actions .secondary{border-color:#E0DACE;background:#FFFEFB;color:#596157}
+button:focus-visible,input:focus-visible,select:focus-visible{outline-color:var(--ss-sage)}
+/* Sand is an accent for secondary actions and warm notices, not a competing brand color. */
+.home-tools .home-import-inline,.inventory-import-action .secondary{background:#F3EEE4;border-color:#DCCEB9;color:#59694B}
+.home-tools .home-import-inline:hover,.inventory-import-action .secondary:hover{background:#EAE1D2;border-color:#CDBB9E}
+.home-recent-thumb.thumb-1,.home-recent-thumb.thumb-3{background:#F3EEE4;color:#896B43}
+.place-photo{background-color:#E7E9DF}
