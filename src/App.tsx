@@ -1626,7 +1626,7 @@ function App(){
     <div className="app">
       <header>
         <div className="brand">
-          <div className="logo"><Home size={20}/></div>
+          <div className="logo" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path d="M10 13.5C10 8.8 13.8 6 19 6h18c-1.5 5.5-5.5 8-11 8H10v-.5Z"/><path d="M10 18h19c5.5 0 9 3.1 9 7.5S34.5 33 29 33H10v-7h19c1.2 0 2-.3 2-1s-.8-1-2-1H10v-6Z"/><path d="M10 30h28v4.5C38 40 33.8 42 28 42H10v-7h18c1.8 0 2.5-.3 2.5-1H10v-4Z"/></svg></div>
           <div><h1>ShelfSpace</h1><span>Sua casa, organizada.</span></div>
         </div>
         <div className="header-actions">
