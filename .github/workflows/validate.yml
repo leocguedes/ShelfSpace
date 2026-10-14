@@ -1,4 +1,4 @@
-name: Validate OrganizaApp
+name: Validate ShelfSpace
 
 on:
   push:
