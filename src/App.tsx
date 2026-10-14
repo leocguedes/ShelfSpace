@@ -1206,6 +1206,14 @@ function App(){
     if(isPurchased)setShoppingStockItem(updated);
   }
 
+  async function updateShoppingItem(item:ShoppingItem,quantity:number,unit:Unit){
+    if(!userId||!householdId||item.household_id!==householdId||!Number.isFinite(quantity)||quantity<=0)return;
+    const updated={...item,quantity:Number(quantity.toFixed(3)),unit};
+    persistShopping(shoppingItemsRef.current.map(row=>row.id===item.id?updated:row));
+    const ok=await writeOrQueue(userId,{userId,table:'shopping_items',action:'update',rowId:item.id,data:{quantity:updated.quantity,unit:updated.unit}});
+    if(!ok)syncError('Quantidade e unidade atualizadas neste dispositivo; serão sincronizadas quando a conexão voltar.');
+  }
+
   async function deleteShoppingItem(item:ShoppingItem){
     if(!userId||!householdId||item.household_id!==householdId)return;
     persistShopping(shoppingItemsRef.current.filter(row=>row.id!==item.id));
@@ -1756,6 +1764,7 @@ function App(){
             onAdd={addShoppingItem}
             onToggle={toggleShoppingItem}
             onDelete={deleteShoppingItem}
+            onEdit={updateShoppingItem}
             onStock={item=>setShoppingStockItem(item)}
             onSignIn={()=>setAuthModal(true)}
             onSaveRecurring={saveRecurringRule}
@@ -2247,7 +2256,7 @@ function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;ru
     {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> Remover programação</button>}
   </Modal>
 }
-function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{places:Place[];items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
+function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onEdit,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{places:Place[];items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onEdit:(item:ShoppingItem,quantity:number,unit:Unit)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
   const[name,setName]=useState('');
   const[quantity,setQuantity]=useState(1);
   const[unit,setUnit]=useState<Unit>('unidades');
@@ -2257,6 +2266,7 @@ function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBus
   const[recurringFrequency,setRecurringFrequency]=useState(7);
   const[recurringNextDue,setRecurringNextDue]=useState(localDateString());
   const[editingRecurringId,setEditingRecurringId]=useState<string|undefined>();
+  const[editingShoppingItem,setEditingShoppingItem]=useState<ShoppingItem|null>(null);
   const pending=items.filter(item=>!item.is_purchased);
   const purchased=items.filter(item=>item.is_purchased);
   const submit=(event:{preventDefault:()=>void})=>{
@@ -2349,27 +2359,40 @@ function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBus
         {loading&&<span className="shopping-loading">Sincronizando…</span>}
       </div>
       {pending.length? <div className="shopping-items">
-        {pending.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onStock={onStock}/>)}
+        {pending.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}
       </div>:<div className="shopping-empty"><ShoppingCart size={25}/><strong>Sua lista está vazia</strong><span>Adicione um item ou aproveite as sugestões de reposição quando estiverem disponíveis.</span></div>}
       {purchased.length>0&&<details className="shopping-purchased">
         <summary>Comprados ({purchased.length})</summary>
         <div className="shopping-items">{purchased.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onStock={onStock}/>)}</div>
       </details>}
     </>}
+    {editingShoppingItem&&<EditShoppingItemModal item={editingShoppingItem} onClose={()=>setEditingShoppingItem(null)} onSave={(quantity,unit)=>{onEdit(editingShoppingItem,quantity,unit);setEditingShoppingItem(null);}}/>}
   </section>
 }
 
-function ShoppingRow({item,onToggle,onDelete,onStock}:{item:ShoppingItem;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void}){
+function ShoppingRow({item,onToggle,onDelete,onEdit,onStock}:{item:ShoppingItem;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onEdit:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void}){
   const unit=units.includes(item.unit as Unit)?item.unit as Unit:'unidades';
   return <div className={'shopping-row '+(item.is_purchased?'purchased':'')}>
     <label className="shopping-check"><input type="checkbox" checked={item.is_purchased} onChange={()=>onToggle(item)} aria-label={(item.is_purchased?'Desmarcar ':'Marcar como comprado ')+item.name}/><span className="shopping-checkmark"/></label>
     <div className="shopping-row-name"><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}{item.category?' · '+item.category:''}{item.source!=='manual'?' · sugestão automática':''}</small></div>
     <div className="shopping-row-actions">
-      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title="Adicionar ao estoque">Adicionar ao estoque</button>}
+      <button type="button" className="shopping-edit" onClick={()=>onEdit(item)} aria-label={'Editar '+item.name} title="Editar quantidade e unidade"><Edit3 size={16}/></button>
+      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title="Adicionar ao estoque">Adicionar ao estoque</button>
       {item.linked_food_id&&<span className="shopping-stock-linked">No estoque</span>}
       <button type="button" className="shopping-delete" onClick={()=>onDelete(item)} aria-label={'Excluir '+item.name} title="Excluir item"><Trash2 size={16}/></button>
     </div>
   </div>
+}
+
+function EditShoppingItemModal({item,onClose,onSave}:{item:ShoppingItem;onClose:()=>void;onSave:(quantity:number,unit:Unit)=>void}){
+  const[quantity,setQuantity]=useState(String(item.quantity));
+  const[unit,setUnit]=useState<Unit>(units.includes(item.unit as Unit)?item.unit as Unit:'unidades');
+  const valid=quantity.trim()!==''&&Number.isFinite(Number(quantity))&&Number(quantity)>0;
+  return <Modal title={'Editar '+item.name} onClose={onClose}>
+    <label>Quantidade<input type="number" min="0.001" step="any" value={quantity} onChange={event=>setQuantity(event.target.value)}/></label>
+    <label>Unidade<select value={unit} onChange={event=>setUnit(event.target.value as Unit)}>{units.map(option=><option key={option} value={option}>{option[0].toUpperCase()+option.slice(1)}</option>)}</select></label>
+    <button type="button" className="primary full" disabled={!valid} onClick={()=>onSave(Number(quantity),unit)}>Salvar alterações</button>
+  </Modal>
 }
 
 function AddFoodToShoppingModal({food,onClose,onConfirm}:{food:Food;onClose:()=>void;onConfirm:(quantity:number)=>void}){
