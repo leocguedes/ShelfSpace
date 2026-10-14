@@ -2046,3 +2046,15 @@ h3{letter-spacing:-.018em}
   .zero-stock-actions{flex-direction:column-reverse}
   .zero-stock-actions button{width:100%}
 }
+
+/* Household name editing */
+.household-rename-trigger{display:inline-flex;align-items:center;margin:0 0 16px;padding:7px 0;border:0;background:transparent;color:var(--ss-olive);font-size:12px;font-weight:600;cursor:pointer}
+.household-rename{display:grid;gap:10px;margin:0 0 16px;padding:14px;border:1px solid var(--ss-border);border-radius:12px;background:var(--ss-ivory)}
+.household-rename label{display:grid;gap:6px;font-size:12px;font-weight:600;color:var(--ss-charcoal)}
+.household-rename input{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--ss-border);border-radius:9px;background:var(--ss-paper);color:var(--ss-charcoal);font:inherit}
+.household-rename-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.household-rename-actions button{min-height:38px;padding:8px 12px;border:1px solid var(--ss-border);border-radius:9px;background:var(--ss-paper);color:var(--ss-charcoal);font-size:12px;font-weight:600}
+.household-rename-actions button.primary{border-color:var(--ss-olive);background:var(--ss-olive);color:white}
+.household-rename-actions button:disabled{opacity:.5;cursor:not-allowed}
+.household-rename>small{color:var(--ss-olive);font-size:12px}
+@media(max-width:430px){.household-rename-actions{flex-direction:column-reverse}.household-rename-actions button{width:100%}}
