@@ -1943,3 +1943,91 @@ h3{letter-spacing:-.018em}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+
+/* Focused palette correction — Shopping and Recipes must use the same olive/ivory system */
+.shopping-page .shopping-hero .eyebrow,
+.recipe-page .eyebrow{color:var(--ss-olive)!important}
+.shopping-page .hero-copy>p:last-child,
+.recipe-page .hero-copy>p:last-child{color:var(--ss-muted)!important}
+.shopping-page .shopping-summary,
+.recipe-page .shopping-summary{background:#F3EEE4!important;border:1px solid var(--ss-sand)!important;color:var(--ss-olive)!important}
+.shopping-page .shopping-summary strong,
+.recipe-page .shopping-summary strong{color:var(--ss-olive)!important}
+.shopping-page .shopping-summary span,
+.recipe-page .shopping-summary span{color:#74786F!important}
+.shopping-page .shopping-add-form,
+.shopping-page .recurring-panel{background:var(--ss-paper)!important;border-color:var(--ss-border)!important;box-shadow:var(--ss-shadow-card)!important}
+.shopping-page .shopping-form-heading strong,
+.shopping-page .recurring-panel>summary strong,
+.shopping-page .recurring-form>strong,
+.shopping-page .shopping-section-heading h3,
+.shopping-page .shopping-row-name strong,
+.shopping-page .shopping-empty strong,
+.recipe-page .recipe-card h3,
+.recipe-page .recipe-ingredient>div strong,
+.recipe-page .recipe-cook-list strong{color:var(--ss-charcoal)!important}
+.shopping-page .shopping-form-heading span,
+.shopping-page .shopping-add-form label,
+.shopping-page .recurring-form label,
+.shopping-page .shopping-section-heading p,
+.shopping-page .shopping-row-name small,
+.shopping-page .shopping-empty span,
+.shopping-page .recurring-note,
+.shopping-page .recurring-empty,
+.shopping-page .recurring-rule-copy small,
+.recipe-page .recipe-description,
+.recipe-page .recipe-meta,
+.recipe-page .recipe-online-controls>span,
+.recipe-page .recipe-online-message,
+.recipe-page .recipe-ingredient>div small,
+.recipe-page .recipe-steps ol,
+.recipe-page .recipe-actions small,
+.recipe-page .recipe-disclaimer{color:var(--ss-muted)!important}
+.shopping-page .shopping-row{border-color:var(--ss-border)!important;background:var(--ss-paper)!important;box-shadow:var(--ss-shadow-card)!important}
+.shopping-page .shopping-row:hover{border-color:var(--ss-sage)!important;box-shadow:var(--ss-shadow-hover)!important}
+.shopping-page .shopping-row.purchased{background:var(--ss-ivory)!important;border-color:var(--ss-sand)!important}
+.shopping-page .shopping-row.purchased .shopping-row-name strong{color:var(--ss-muted)!important}
+.shopping-page .shopping-checkmark{border-color:#C9CEC3!important;background:var(--ss-paper)!important}
+.shopping-page .shopping-check input:checked+.shopping-checkmark{background:var(--ss-olive)!important;border-color:var(--ss-olive)!important}
+.shopping-page .shopping-check input:focus-visible+.shopping-checkmark{outline:3px solid #A7B29A55!important;outline-offset:2px}
+.shopping-page .shopping-row-actions button:not(.shopping-delete){border-color:var(--ss-sand)!important;background:#F3EEE4!important;color:var(--ss-olive)!important}
+.shopping-page .shopping-row-actions button:not(.shopping-delete):hover{background:#EAE1D2!important}
+.shopping-page .shopping-row-actions button.shopping-delete{color:var(--ss-muted)!important}
+.shopping-page .shopping-stock-linked,
+.shopping-page .recurring-panel>summary>b{background:var(--ss-soft)!important;color:var(--ss-olive)!important}
+.shopping-page .shopping-empty{border-color:#C9D0C2!important;background:var(--ss-paper)!important}
+.shopping-page .shopping-empty>svg{color:var(--ss-olive)!important}
+.shopping-page .shopping-purchased{border-color:var(--ss-border)!important}
+.shopping-page .shopping-purchased summary{color:var(--ss-muted)!important}
+.shopping-page .shopping-signin{background:var(--ss-paper)!important;border-color:var(--ss-border)!important}
+.shopping-page .recurring-panel[open]>summary,
+.shopping-page .recurring-form,
+.shopping-page .recurring-rule{border-color:var(--ss-border)!important;background:var(--ss-paper)!important}
+.shopping-page .recurring-rule-actions button{border-color:var(--ss-border)!important;background:var(--ss-paper)!important;color:var(--ss-olive)!important}
+.shopping-page .recurring-rule-actions button:hover{background:var(--ss-soft)!important}
+.shopping-page .recurring-rule-actions button:last-child{color:var(--ss-muted)!important}
+.recipe-page .recipe-search{border-color:var(--ss-border)!important;background:var(--ss-paper)!important}
+.recipe-page .recipe-filters button{border-color:var(--ss-border)!important;background:var(--ss-paper)!important;color:var(--ss-muted)!important}
+.recipe-page .recipe-filters button:hover{border-color:var(--ss-sage)!important;background:var(--ss-ivory)!important}
+.recipe-page .recipe-filters button.active{border-color:#C9D0C2!important;background:var(--ss-soft)!important;color:var(--ss-olive)!important}
+.recipe-page .recipe-card{border-color:var(--ss-border)!important;background:var(--ss-paper)!important;box-shadow:var(--ss-shadow-card)!important}
+.recipe-page .recipe-card:hover{border-color:var(--ss-sage)!important;box-shadow:var(--ss-shadow-hover)!important}
+.recipe-page .recipe-status{background:#F3EEE4!important;color:#796548!important}
+.recipe-page .recipe-status.ready{background:var(--ss-soft)!important;color:var(--ss-olive)!important}
+.recipe-page .recipe-progress{background:#E9E8DF!important}
+.recipe-page .recipe-progress span{background:var(--ss-olive)!important}
+.recipe-page .recipe-hint{border:1px solid var(--ss-sand)!important;background:#F8F3E9!important;color:#796548!important}
+.recipe-page .recipe-detail-toggle,
+.recipe-page .recipe-source a{color:var(--ss-olive)!important}
+.recipe-page .recipe-detail{border-color:var(--ss-border)!important}
+.recipe-page .recipe-ingredients>strong,
+.recipe-page .recipe-steps>strong{color:var(--ss-muted)!important}
+.recipe-page .recipe-ingredient-icon.available{background:var(--ss-soft)!important;color:var(--ss-olive)!important}
+.recipe-page .recipe-ingredient-icon.missing{background:#F3EEE4!important;color:#796548!important}
+.recipe-page .recipe-ingredient-icon.unknown{background:#F0F0EA!important;color:var(--ss-muted)!important}
+.recipe-page .recipe-cook-list{background:#F6F5EF!important}
+.recipe-page .recipe-online-message{border-color:var(--ss-border)!important;background:var(--ss-paper)!important}
+.recipe-page .shopping-empty{border-color:#C9D0C2!important;background:var(--ss-paper)!important}
+.recipe-page .shopping-empty>svg{color:var(--ss-olive)!important}
+.manage-list>div{background:#F6F5EF!important}
