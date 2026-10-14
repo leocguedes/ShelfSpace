@@ -244,6 +244,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 }
 
 .password-mismatch{margin:-5px 0 12px;color:#b45b55;font-size:11px}
+.password-form-error{margin:-4px 0 12px;color:#b45b55;font-size:12px;line-height:1.5}
+.modal label.password-show-option{display:flex;flex-direction:row;align-items:center;gap:8px;margin:-2px 0 14px;font-size:12px;font-weight:500;color:#69776b;cursor:pointer}
+.modal label.password-show-option input[type="checkbox"]{width:16px;height:16px;flex:0 0 16px;margin:0;accent-color:#56745b}
+.settings-group .settings-row-icon:has(svg.lucide-lock-keyhole){background:#edf1e9;color:#56745b}
+
 
 .qty button:disabled{opacity:.35;cursor:not-allowed;background:#f2f4f0}
 .qty button:disabled:hover{background:#f2f4f0;border-color:#dde4db;color:#607067}
