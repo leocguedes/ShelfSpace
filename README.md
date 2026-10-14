@@ -1,6 +1,6 @@
-# OrganizaApp
+# ShelfSpace
 
-App simples para organizar alimentos por local de armazenamento.
+Organize o que você tem em casa, acompanhe seus itens por local e mantenha seu inventário doméstico em ordem.
 
 ## MVP
 - Locais personalizáveis: geladeira, freezer, armário, gavetas, despensa etc.
