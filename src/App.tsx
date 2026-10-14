@@ -4,7 +4,7 @@ import{formatQuantity,quantityStep,searchKey,units}from'./lib/domain';
 import type{Unit}from'./lib/domain';
 import{convertRecipeQuantity,getRecipeIngredientStatuses,matchesRecipeIngredient,recipes}from'./lib/recipes';
 import type{Recipe,RecipeIngredient,RecipePantryItem}from'./lib/recipes';
-import{Apple,ArrowDownUp,Bell,BookOpen,Box,CalendarClock,Check,ChevronRight,ClipboardList,Copy,Edit3,Home,Minus,MoreHorizontal,MoveRight,PackagePlus,Plus,Search,Settings,ShoppingCart,Trash2,Users,X}from'lucide-react';
+import{Apple,ArrowDownUp,Bell,BookOpen,Box,CalendarClock,Check,ChevronRight,ClipboardList,Copy,Edit3,Home,LockKeyhole,Minus,MoreHorizontal,MoveRight,PackagePlus,Plus,Search,Settings,ShoppingCart,Trash2,Users,X}from'lucide-react';
 import{supabase}from'./lib/supabase';
 
 type RecentFood={name:string;unit:Unit};
@@ -391,6 +391,7 @@ function App(){
   const[authMessage,setAuthMessage]=useState<string|null>(null);
   const[authModal,setAuthModal]=useState(false);
   const[passwordRecovery,setPasswordRecovery]=useState(false);
+  const[passwordChangeModal,setPasswordChangeModal]=useState(false);
   const[selected,setSelected]=useState<string|null>(null);
   const[selectedSub,setSelectedSub]=useState<string|null>(null);
   const[search,setSearch]=useState('');
@@ -1288,6 +1289,20 @@ function App(){
     }finally{setAuthBusy(false)}
   }
 
+  async function changeAccountPassword(password:string):Promise<string|null>{
+    setAuthBusy(true);
+    setAuthMessage(null);
+    try{
+      const{error}=await supabase.auth.updateUser({password});
+      if(error)return 'Não foi possível alterar a senha. '+(error.message||'Tente novamente.');
+      setPasswordChangeModal(false);
+      setActionFeedback('Senha alterada com sucesso.');
+      return null;
+    }catch{
+      return 'Não foi possível alterar a senha agora. Confira sua conexão e tente novamente.';
+    }finally{setAuthBusy(false)}
+  }
+
   async function updatePassword(password:string){
     setAuthBusy(true);
     setAuthMessage(null);
@@ -1757,6 +1772,10 @@ function App(){
               </div>
               <button className="settings-action-button" onClick={user&&!user.is_anonymous?signOut:()=>setAuthModal(true)} disabled={authBusy}>{user&&!user.is_anonymous?'Sair':'Entrar'} <ChevronRight size={16}/></button>
             </div>
+            {user&&!user.is_anonymous&&<div className="settings-group">
+              <p className="settings-group-label">SEGURANÇA DA CONTA</p>
+              <button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no OrganizaApp</small></span><ChevronRight size={17}/></button>
+            </div>}
             <div className="settings-group">
               <p className="settings-group-label">SUA CASA</p>
               <button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>
@@ -2046,10 +2065,34 @@ function App(){
         onCopy={async code=>{try{await navigator.clipboard.writeText(code);setHouseholdCopied(true)}catch{setAuthMessage('Não foi possível copiar automaticamente. Selecione o código para copiá-lo.')}}}
       />}
       {passwordRecovery&&<PasswordRecoveryModal busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
+      {passwordChangeModal&&<AccountPasswordModal busy={authBusy} onClose={()=>setPasswordChangeModal(false)} onSubmit={changeAccountPassword}/>}
       {undo&&<div className="undo-toast" role="status" aria-live="polite"><span>{undo.label}</span><button onClick={consumeUndo}>Desfazer</button></div>}
       {actionFeedback&&<div className="action-feedback" role="status" aria-live="polite">✓ {actionFeedback}</div>}
     </div>
   );
+}
+
+function AccountPasswordModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
+  const[password,setPassword]=useState('');
+  const[confirm,setConfirm]=useState('');
+  const[error,setError]=useState<string|null>(null);
+  const[showPassword,setShowPassword]=useState(false);
+  const canSave=password.length>=8&&password===confirm&&!busy;
+  const submit=async()=>{
+    if(!canSave)return;
+    setError(null);
+    const result=await onSubmit(password);
+    if(result)setError(result);
+  };
+  return <Modal title="Alterar senha" onClose={onClose}>
+    <p className="modal-help">Crie uma nova senha com pelo menos 8 caracteres. Sua sessão atual será mantida.</p>
+    <label>Nova senha<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder="Mínimo de 8 caracteres" autoComplete="new-password"/></label>
+    <label>Confirmar nova senha<input type={showPassword?'text':'password'} value={confirm} onChange={e=>{setConfirm(e.target.value);setError(null)}} placeholder="Digite a nova senha novamente" autoComplete="new-password"/></label>
+    <label className="password-show-option"><input type="checkbox" checked={showPassword} onChange={e=>setShowPassword(e.target.checked)}/> Mostrar senhas</label>
+    {confirm&&password!==confirm&&<p className="password-mismatch" role="status">As senhas não coincidem.</p>}
+    {error&&<p className="password-form-error" role="alert">{error}</p>}
+    <button className="primary full" disabled={!canSave} onClick={()=>void submit()}>{busy?'Salvando…':'Salvar nova senha'}</button>
+  </Modal>
 }
 
 function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>void}){
