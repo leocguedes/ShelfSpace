@@ -2363,7 +2363,7 @@ function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBus
       </div>:<div className="shopping-empty"><ShoppingCart size={25}/><strong>Sua lista está vazia</strong><span>Adicione um item ou aproveite as sugestões de reposição quando estiverem disponíveis.</span></div>}
       {purchased.length>0&&<details className="shopping-purchased">
         <summary>Comprados ({purchased.length})</summary>
-        <div className="shopping-items">{purchased.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onStock={onStock}/>)}</div>
+        <div className="shopping-items">{purchased.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}</div>
       </details>}
     </>}
     {editingShoppingItem&&<EditShoppingItemModal item={editingShoppingItem} onClose={()=>setEditingShoppingItem(null)} onSave={(quantity,unit)=>{onEdit(editingShoppingItem,quantity,unit);setEditingShoppingItem(null);}}/>}
@@ -2377,7 +2377,7 @@ function ShoppingRow({item,onToggle,onDelete,onEdit,onStock}:{item:ShoppingItem;
     <div className="shopping-row-name"><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}{item.category?' · '+item.category:''}{item.source!=='manual'?' · sugestão automática':''}</small></div>
     <div className="shopping-row-actions">
       <button type="button" className="shopping-edit" onClick={()=>onEdit(item)} aria-label={'Editar '+item.name} title="Editar quantidade e unidade"><Edit3 size={16}/></button>
-      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title="Adicionar ao estoque">Adicionar ao estoque</button>
+      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title="Adicionar ao estoque">Adicionar ao estoque</button>}
       {item.linked_food_id&&<span className="shopping-stock-linked">No estoque</span>}
       <button type="button" className="shopping-delete" onClick={()=>onDelete(item)} aria-label={'Excluir '+item.name} title="Excluir item"><Trash2 size={16}/></button>
     </div>
