@@ -2031,3 +2031,18 @@ h3{letter-spacing:-.018em}
 .recipe-page .shopping-empty{border-color:#C9D0C2!important;background:var(--ss-paper)!important}
 .recipe-page .shopping-empty>svg{color:var(--ss-olive)!important}
 .manage-list>div{background:#F6F5EF!important}
+
+
+/* Zero-stock confirmation dialog */
+.zero-stock-modal .modal-help{font-size:13px;line-height:1.65;color:var(--ss-muted)}
+.zero-stock-modal .modal-help strong{color:var(--ss-charcoal);font-weight:600}
+.zero-stock-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:24px}
+.zero-stock-actions button{min-height:42px;padding:10px 14px;border-radius:11px;font-size:12px;font-weight:600}
+.zero-stock-actions .secondary-action{border:1px solid var(--ss-border);background:var(--ss-paper);color:var(--ss-charcoal)}
+.zero-stock-actions .secondary-action:hover{background:var(--ss-ivory);border-color:var(--ss-sage)}
+.zero-stock-actions .primary{background:var(--ss-olive);border-color:var(--ss-olive);color:#fff}
+.zero-stock-actions .primary:hover{background:var(--ss-olive-deep)}
+@media(max-width:430px){
+  .zero-stock-actions{flex-direction:column-reverse}
+  .zero-stock-actions button{width:100%}
+}
