@@ -386,6 +386,7 @@ function App(){
   const[shoppingLoading,setShoppingLoading]=useState(false);
   const[shoppingStockItem,setShoppingStockItem]=useState<ShoppingItem|null>(null);
   const[shoppingAddFood,setShoppingAddFood]=useState<Food|null>(null);
+  const[zeroQtyConfirm,setZeroQtyConfirm]=useState<{placeId:string;subId:string;food:Food}|null>(null);
   const[consumptionRules,setConsumptionRules]=useState<ConsumptionRule[]>([]);
   const[notificationCenterOpen,setNotificationCenterOpen]=useState(false);
   const[handledNotifications,setHandledNotifications]=useState<string[]>([]);
@@ -1464,6 +1465,7 @@ function App(){
     const step=quantityStep(food.unit);
     const nextQty=Math.max(0,Number((food.quantity+(delta*step)).toFixed(3)));
     if(nextQty===food.quantity)return;
+    if(nextQty===0){setZeroQtyConfirm({placeId,subId,food});return;}
     const snapshot=places;
     const next=places.map(p=>p.id!==placeId?p:{...p,subdivisions:p.subdivisions.map(s=>s.id!==subId?s:{...s,foods:s.foods.map(f=>f.id===id?{...f,quantity:nextQty}:f)})});
     setPlaces(next);
@@ -2032,11 +2034,12 @@ function App(){
           places={places}
           recentFoods={recentFoods}
           onClose={()=>setFoodModal(null)}
-          onSave={(placeId,subId,d,daysPerUnit)=>{void (async()=>{const newFoodId=await saveFood(placeId,subId,d,foodModal.food?.id);if(newFoodId&&daysPerUnit)saveConsumptionRule(newFoodId,daysPerUnit);})();}}
+          onSave={(placeId,subId,d,daysPerUnit)=>{if(foodModal.food&&d.quantity===0){setZeroQtyConfirm({placeId,subId,food:foodModal.food});setFoodModal(null);return;}void (async()=>{const newFoodId=await saveFood(placeId,subId,d,foodModal.food?.id);if(newFoodId&&daysPerUnit)saveConsumptionRule(newFoodId,daysPerUnit);})();}}
           onAddToExisting={(placeId,subId,existingId,amount,unit)=>addToExistingFood(placeId,subId,existingId,amount,unit)}
         />
       )}
-      {moveModal&&<MoveModal data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>}
+      {zeroQtyConfirm&&<div className="overlay" role="presentation"><section className="modal zero-stock-modal" role="alertdialog" aria-modal="true" aria-labelledby="zero-stock-title" aria-describedby="zero-stock-description"><div className="modal-head"><h2 id="zero-stock-title">Excluir alimento do estoque?</h2><button type="button" onClick={()=>setZeroQtyConfirm(null)} aria-label="Fechar"><X size={18}/></button></div><p id="zero-stock-description" className="modal-help">A quantidade de <strong>{zeroQtyConfirm.food.name}</strong> chegou a zero. Deseja removê-lo deste local? Assim, ele não ficará na lista como um alimento sem estoque.</p><div className="zero-stock-actions"><button type="button" className="secondary-action" onClick={()=>setZeroQtyConfirm(null)}>Manter no estoque</button><button type="button" className="primary" onClick={()=>{const target=zeroQtyConfirm;setZeroQtyConfirm(null);void removeFood(target.placeId,target.subId,target.food.id);}}>Excluir alimento</button></div></section></div>}
+      {moveModal&&<MoveModal data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/
       {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
       {authModal&&<AuthModal busy={authBusy} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
