@@ -1627,7 +1627,7 @@ function App(){
       <header>
         <div className="brand">
           <div className="logo"><Home size={20}/></div>
-          <div><h1>OrganizaApp</h1><span>Sua casa, organizada.</span></div>
+          <div><h1>ShelfSpace</h1><span>Sua casa, organizada.</span></div>
         </div>
         <div className="header-actions">
           <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title="Notificações">
@@ -1761,20 +1761,20 @@ function App(){
               <div className="hero-copy">
                 <p className="eyebrow">PREFERÊNCIAS</p>
                 <h2>Configurações</h2>
-                <p>Gerencie sua conta, sua casa e a organização do OrganizaApp.</p>
+                <p>Gerencie sua conta, sua casa e a organização do ShelfSpace.</p>
               </div>
             </div>
             <div className="settings-account-card">
               <div className="settings-avatar"><Home size={22}/></div>
               <div className="settings-account-copy">
-                <strong>{user&&!user.is_anonymous?(user.email||'Sua conta'):'Use o OrganizaApp em todos os seus dispositivos'}</strong>
+                <strong>{user&&!user.is_anonymous?(user.email||'Sua conta'):'Use o ShelfSpace em todos os seus dispositivos'}</strong>
                 <span>{user&&!user.is_anonymous?'Conta conectada':'Entre ou crie uma conta para sincronizar seus dados'}</span>
               </div>
               <button className="settings-action-button" onClick={user&&!user.is_anonymous?signOut:()=>setAuthModal(true)} disabled={authBusy}>{user&&!user.is_anonymous?'Sair':'Entrar'} <ChevronRight size={16}/></button>
             </div>
             {user&&!user.is_anonymous&&<div className="settings-group">
               <p className="settings-group-label">SEGURANÇA DA CONTA</p>
-              <button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no OrganizaApp</small></span><ChevronRight size={17}/></button>
+              <button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no ShelfSpace</small></span><ChevronRight size={17}/></button>
             </div>}
             <div className="settings-group">
               <p className="settings-group-label">SUA CASA</p>
@@ -1786,7 +1786,7 @@ function App(){
               <p className="settings-group-label">APLICATIVO</p>
               <button className="settings-row" onClick={()=>{setNotificationCenterOpen(true);setWorkspace('inventory');setSelected(null);setSelectedSub(null)}}><span className="settings-row-icon"><Bell size={19}/></span><span className="settings-row-copy"><strong>Notificações</strong><small>{notificationCount?notificationCount+' alertas precisam da sua atenção':'Alertas de validade e consumo'}</small></span><ChevronRight size={17}/></button>
             </div>
-            <p className="settings-footer">OrganizaApp · Sua casa, organizada.</p>
+            <p className="settings-footer">ShelfSpace · Sua casa, organizada.</p>
           </section>
         ):workspace==='recipes'?(
           <RecipePage places={places} onAddMissing={addRecipeMissing} onCook={recipe=>setCookConfirmRecipe(recipe)}/>
@@ -2112,7 +2112,7 @@ function AuthModal({busy,onClose,onSubmit,onReset}:{busy:boolean;onClose:()=>voi
   const[mode,setMode]=useState<'signin'|'signup'>('signin');
   const[email,setEmail]=useState('');
   const[password,setPassword]=useState('');
-  return <Modal title={mode==='signin'?'Entrar no OrganizaApp':'Criar sua conta'} onClose={onClose}>
+  return <Modal title={mode==='signin'?'Entrar no ShelfSpace':'Criar sua conta'} onClose={onClose}>
     <p className="modal-help">{mode==='signin'?'Entre para acessar seus alimentos em qualquer dispositivo.':'Crie uma conta para manter seu histórico sincronizado no celular, PC e outros navegadores.'}</p>
     <label>E-mail<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email"/></label>
     <label>Senha<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
@@ -2219,7 +2219,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
 function RecipeCookModal({recipe,onClose,onConfirm}:{recipe:Recipe;onClose:()=>void;onConfirm:()=>void}){
   return <Modal title="Marcar receita como preparada" onClose={onClose}>
     <div className="move-current"><span>Receita</span><strong>{recipe.name}</strong><small>{recipe.servings} {recipe.servings===1?'porção':'porções'} · {recipe.minutes} min</small></div>
-    <p className="modal-help">O OrganizaApp vai descontar as quantidades previstas do estoque, priorizando os alimentos com validade mais próxima. Nada será descontado se faltar ingrediente ou não for possível comparar as unidades.</p>
+    <p className="modal-help">O ShelfSpace vai descontar as quantidades previstas do estoque, priorizando os alimentos com validade mais próxima. Nada será descontado se faltar ingrediente ou não for possível comparar as unidades.</p>
     <div className="recipe-cook-list">{recipe.ingredients.map(ingredient=><div key={ingredient.name}><span>{ingredient.name}</span><strong>{formatQuantity(ingredient.quantity,ingredient.unit)}</strong></div>)}</div>
     <button className="primary full" onClick={onConfirm}>Confirmar preparo e atualizar estoque</button>
   </Modal>
