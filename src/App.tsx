@@ -923,7 +923,7 @@ function App(){
   async function renameHousehold(targetId:string,name:string){
     const clean=name.trim();
     const target=households.find(h=>h.id===targetId);
-    if(!userId||!target||!clean||clean.length>60||!(target.role==='owner'||target.role==='admin'))return false;
+    if(!userId||!target||!clean||clean.length>15||!(target.role==='owner'||target.role==='admin'))return false;
     setHouseholdBusy(true);
     try{
       const{error}=await supabase.from('households').update({name:clean}).eq('id',targetId);
@@ -2475,7 +2475,7 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
     <div className="household-panel">
       <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||'Sua casa'}</strong></div>
       {canInvite&&(nameEditing?<div className="household-rename">
-        <label>Nome da casa<input value={houseName} maxLength={60} onChange={event=>{setHouseName(event.target.value);setNameMessage('');}} placeholder="Ex.: Minha casa"/></label>
+        <label>Nome da casa<input value={houseName} maxLength={15} onChange={event=>{setHouseName(event.target.value);setNameMessage('');}} placeholder="Ex.: Minha casa"/></label>
         <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage('Nome atualizado para todos os membros.');}});}}>Salvar nome</button></div>
         {nameMessage&&<small>{nameMessage}</small>}
       </div>:<button type="button" className="household-rename-trigger" onClick={()=>setNameEditing(true)}>Editar nome da casa</button>)}
