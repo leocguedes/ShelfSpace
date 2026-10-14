@@ -1,4 +1,4 @@
-# OrganizaApp — plano de produto e funcionalidades
+# ShelfSpace — plano de produto e funcionalidades
 
 ## Objetivo
 
@@ -10,7 +10,7 @@ Referências funcionais analisadas:
 
 A ideia é aprender com esses padrões e criar fluxos próprios e mais claros, não copiar literalmente identidade visual, textos ou implementação proprietária.
 
-## Princípios do OrganizaApp
+## Princípios do ShelfSpace
 
 1. **Inventário é a fonte da verdade.** Lista de compras, previsão de consumo e receitas devem consultar o estoque real.
 2. **Nada de diminuir estoque silenciosamente.** O app sugere uma baixa de consumo prevista; a pessoa confirma, edita ou adia.
