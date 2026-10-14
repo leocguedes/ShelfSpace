@@ -1557,3 +1557,6 @@ header .brand span{font-size:11px;letter-spacing:.015em;color:#7c8277}
 /* Refined ShelfSpace symbol proportions */
 header .logo svg{width:34px;height:34px}
 @media(max-width:460px){header .logo svg{width:30px;height:30px}}
+
+/* Use the original supplied ShelfSpace vector proportions in the header. */
+header .logo svg{width:29px;height:29px;overflow:visible}
