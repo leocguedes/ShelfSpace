@@ -2329,3 +2329,116 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
   .home-tools>.home-add small,
   .home-tools .home-add small{font-size:12px;line-height:1.4;color:#F6F3EB!important}
 }
+
+
+/* ShelfSpace home — editorial, low-chrome layout inspired by the approved mockup */
+.home-overview{
+  display:block;
+  margin:24px 0 30px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+}
+.home-overview-content{gap:22px;padding:0}
+.home-overview-heading{margin:0}
+.home-overview-heading h3{
+  display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+  margin:0;color:#292C27;font-size:22px;line-height:1.2;
+  font-weight:700;letter-spacing:-.035em
+}
+.home-household-name{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:34px;padding:5px 13px;border-radius:12px;
+  background:#E9E9DD;color:#59694B;font-size:16px;
+  font-weight:650;letter-spacing:0
+}
+.home-stat-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;padding:6px 0 22px;border-bottom:1px solid #E3DDCF
+}
+.home-stat{
+  display:flex;flex-direction:row;align-items:center;gap:12px;
+  min-width:0;padding:8px 12px;border:0;border-radius:0;
+  background:transparent;box-shadow:none
+}
+.home-stat+.home-stat{border-left:1px solid #E3DDCF}
+.home-stat-icon{
+  display:grid;place-items:center;flex:0 0 48px;
+  width:48px;height:48px;border-radius:50%;
+  background:#E9EDE2;color:#59694B
+}
+.home-stat-icon.expiry{background:#F5E9D9;color:#B96D2F}
+.home-stat>div{gap:4px}
+.home-stat>div>strong{font-size:30px;line-height:1;color:#292C27;letter-spacing:-.045em}
+.home-stat>div>span{font-size:12px;line-height:1.35;color:#6F716A}
+.home-shortcuts{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.home-shortcuts button{
+  display:flex;align-items:center;gap:16px;min-width:0;
+  min-height:78px;padding:14px 8px;border:0;border-bottom:1px solid #E3DDCF;
+  border-radius:0;background:transparent;box-shadow:none;text-align:left
+}
+.home-shortcuts button:last-child{border-bottom:0}
+.home-shortcuts button:hover{background:rgba(89,105,75,.045)}
+.home-shortcut-icon{
+  display:grid;place-items:center;flex:0 0 56px;
+  width:56px;height:56px;border-radius:50%;
+  background:#E9EDE2;color:#59694B
+}
+.home-shortcut-icon.recipes{background:#E9EDE2;color:#59694B}
+.home-shortcuts button>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+.home-shortcuts button>span strong{font-size:16px;line-height:1.3;color:#292C27}
+.home-shortcuts button>span small{font-size:13px;line-height:1.4;color:#74766F}
+.home-shortcuts button>svg:last-child{flex:0 0 auto;color:#85877E}
+.places{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.place-card{
+  min-width:0;padding:0;overflow:hidden;border:1px solid #E7E1D5;
+  border-radius:18px;background:#FFFEFB;box-shadow:0 2px 7px #292C2705;
+  transition:border-color .18s ease,box-shadow .18s ease
+}
+.place-card:hover{transform:none;border-color:#D8D1C2;box-shadow:0 5px 16px #292C270B}
+.place-photo{height:124px;margin:0;border-radius:0;background-size:cover;background-position:center}
+.place-card h3{margin:13px 14px 5px;font-size:16px;line-height:1.25;color:#292C27}
+.place-card>.place-card-summary{margin:0 14px 15px}
+.place-card-summary p{font-size:13px;line-height:1.4;color:#74766F}
+.place-stock-note{margin:0 14px 14px;font-size:11px}
+@media(max-width:760px){
+  .home-overview{margin:23px 0 30px}
+  .home-overview-content{gap:19px}
+  .home-overview-heading h3{font-size:21px}
+  .home-stat{gap:9px;padding:8px 10px}
+  .home-stat-icon{flex-basis:42px;width:42px;height:42px}
+  .home-stat>div>strong{font-size:27px}
+  .home-stat>div>span{font-size:11px}
+  .home-shortcut-icon{flex-basis:48px;width:48px;height:48px}
+  .home-shortcuts button{min-height:76px;padding:12px 8px}
+  .places{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .place-photo{height:110px}
+  .place-card h3{margin:12px 12px 5px;font-size:15px}
+  .place-card>.place-card-summary{margin:0 12px 13px}
+}
+@media(max-width:430px){
+  .home-stat-grid{padding-bottom:18px}
+  .home-stat{flex-direction:column;align-items:flex-start;gap:8px;padding:7px 9px}
+  .home-stat-icon{flex-basis:38px;width:38px;height:38px}
+  .home-stat>div>strong{font-size:25px}
+  .home-stat>div>span{font-size:10px}
+  .home-shortcut-icon{flex-basis:44px;width:44px;height:44px}
+  .home-shortcuts button{gap:12px;min-height:72px}
+  .home-shortcuts button>span strong{font-size:15px}
+  .home-shortcuts button>span small{font-size:12px}
+  .places{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .place-photo{height:94px}
+  .place-card h3{margin:10px 10px 4px;font-size:14px}
+  .place-card>.place-card-summary{margin:0 10px 12px}
+}
+@media(max-width:360px){
+  .home-stat{padding:6px}
+  .home-stat>div>span{font-size:9px}
+  .home-stat-icon{width:34px;height:34px;flex-basis:34px}
+  .place-photo{height:82px}
+}
+@media(prefers-reduced-motion:reduce){
+  .place-card{transition:none!important}
+}
