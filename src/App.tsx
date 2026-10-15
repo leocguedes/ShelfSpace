@@ -374,10 +374,7 @@ function App(){
   const[householdJoinCode,setHouseholdJoinCode]=useState('');
   const[householdInvite,setHouseholdInvite]=useState<{code:string;expiresAt:string}|null>(null);
   const[householdCopied,setHouseholdCopied]=useState(false);
-  const[homeActionsOpen,setHomeActionsOpen]=useState(false);
-  const homeActionsRef=useRef<HTMLDivElement|null>(null);
   const[workspace,setWorkspace]=useState<'inventory'|'shopping'|'recipes'|'report'|'settings'>('inventory');
-  useEffect(()=>{if(!homeActionsOpen)return;const close=(event:PointerEvent)=>{if(!homeActionsRef.current?.contains(event.target as Node))setHomeActionsOpen(false)};const key=(event:KeyboardEvent)=>{if(event.key==='Escape')setHomeActionsOpen(false)};document.addEventListener('pointerdown',close);document.addEventListener('keydown',key);return()=>{document.removeEventListener('pointerdown',close);document.removeEventListener('keydown',key)}},[homeActionsOpen]);
   const[reportSearch,setReportSearch]=useState('');
   const[reportLocation,setReportLocation]=useState('all');
   const[foodSort,setFoodSort]=useState<'name'|'expiry'|'quantity-asc'|'quantity-desc'>('name');
@@ -1865,25 +1862,20 @@ function App(){
                 {search&&<button onClick={()=>setSearch('')} aria-label="Limpar busca"><X size={17}/></button>}
               </div>
               {!search&&(
-                <div className="home-add-menu-wrap" ref={homeActionsRef}>
-                  <div className="home-add-split">
-                    <button type="button" className="home-add" onClick={()=>{setHomeActionsOpen(false);openAddFoodFromHome()}}>
-                      <span className="home-add-icon"><Plus size={20}/></span>
-                      <span>
-                        <strong>{places.length?'Adicionar alimento':'Criar primeiro local'}</strong>
-                        <small>{places.length?'Registre algo novo na sua casa':'Escolha onde seus alimentos ficam'}</small>
-                      </span>
-                    </button>
-                    <button type="button" className="home-add-menu-toggle" aria-label="Mais opções para adicionar" aria-haspopup="menu" aria-expanded={homeActionsOpen} onClick={()=>setHomeActionsOpen(open=>!open)}>
-                      <ChevronDown size={17}/>
-                    </button>
-                  </div>
-                  {homeActionsOpen&&<div className="home-add-menu" role="menu">
-                    <button type="button" role="menuitem" onClick={()=>{setHomeActionsOpen(false);setImportModal(true)}}>
-                      <span className="home-add-menu-icon"><Copy size={17}/></span>
-                      <span><strong>Importar lista</strong><small>Adicione vários alimentos de uma vez</small></span>
-                    </button>
-                  </div>}
+                <div className="home-add-actions">
+                  <button type="button" className="home-add" onClick={openAddFoodFromHome}>
+                    <span className="home-add-icon"><Plus size={20}/></span>
+                    <span>
+                      <strong>{places.length?'Adicionar alimento':'Criar primeiro local'}</strong>
+                      <small>{places.length?'Registre algo novo na sua casa':'Escolha onde seus alimentos ficam'}</small>
+                    </span>
+                    <ChevronRight size={18}/>
+                  </button>
+                  <button type="button" className="home-import-action" onClick={()=>setImportModal(true)}>
+                    <span className="home-import-icon"><ClipboardList size={18}/></span>
+                    <span><strong>Importar lista</strong><small>Adicione vários alimentos de uma vez</small></span>
+                    <ChevronRight size={16}/>
+                  </button>
                 </div>
               )}
             </div>
