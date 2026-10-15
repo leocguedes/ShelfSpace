@@ -2244,3 +2244,74 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 .add-action-choice small{font-size:11px;line-height:1.45;color:#74786F}
 .add-action-choice>svg{flex:0 0 auto;color:#8D9187}
 @media(max-width:430px){.add-action-choice{padding:12px;gap:10px}.add-action-choice-icon{width:38px;height:38px;flex-basis:38px}}
+
+/* Mobile usability pass: touch targets, safe-area spacing and compact navigation */
+.nav-label-compact{display:none}
+@media(max-width:600px){
+  .bottom-nav{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    align-items:stretch;
+    width:calc(100vw - 20px);
+    max-width:440px;
+    gap:3px;
+    padding:5px;
+    bottom:calc(8px + env(safe-area-inset-bottom,0px));
+  }
+  .bottom-nav button{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+    min-height:56px;
+    width:100%;
+    padding:7px 2px;
+    gap:4px;
+    border-radius:15px;
+    font-size:10px;
+    line-height:1.15;
+    white-space:nowrap;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .bottom-nav button svg{width:20px;height:20px;flex:0 0 auto}
+  .bottom-nav button span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .bottom-nav .nav-label-full{display:none}
+  .bottom-nav .nav-label-compact{display:block}
+  .bottom-nav button i{top:2px;right:calc(50% - 22px)}
+  .app{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+  main{min-width:0;overflow-wrap:anywhere}
+  .home-tools,.home-overview,.home-stat-grid,.home-shortcuts,.places,.home-recent-grid,
+  .shopping-page,.recipe-page,.inventory-report,.settings-page{min-width:0}
+  .home-overview-heading h3{overflow-wrap:anywhere}
+  .home-stat{min-width:0}
+  .home-stat>div>span{overflow-wrap:anywhere}
+  .home-shortcuts button{min-height:58px}
+  .home-add,.primary,.secondary,.shopping-row-actions button,.section-head button{min-height:44px}
+  .modal input,.modal select,.modal textarea{font-size:16px}
+  .modal{width:100%;max-width:560px;overflow-y:auto;overscroll-behavior:contain}
+  .overlay{overflow-y:auto;overscroll-behavior:contain}
+}
+@media(max-width:380px){
+  .bottom-nav{width:calc(100vw - 12px);gap:1px;padding:4px}
+  .bottom-nav button{font-size:9px;padding-left:1px;padding-right:1px}
+  .bottom-nav button svg{width:19px;height:19px}
+  .bottom-nav button.active{border-radius:13px}
+  .home-stat-grid{gap:5px}
+  .home-stat{padding:8px}
+  .home-stat>div>strong{font-size:20px}
+  .home-stat>div>span{font-size:9px}
+  .home-shortcuts button{padding:8px;gap:6px}
+  .home-shortcut-icon{display:none}
+  .place-card{min-width:0}
+  .place-card h3{overflow-wrap:anywhere}
+}
+@media(min-width:601px) and (max-width:900px){
+  .bottom-nav{max-width:calc(100vw - 32px)}
+  .bottom-nav button{min-width:68px;padding-left:8px;padding-right:8px}
+  .home-tools{grid-template-columns:minmax(0,1fr) minmax(220px,260px)}
+  .home-add{max-width:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-add,.home-import-action,.add-action-choice,.place-card{transition:none!important}
+}
