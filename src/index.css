@@ -2460,3 +2460,12 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
   vertical-align:baseline;
   overflow-wrap:anywhere
 }
+
+
+/* Center the household summary metrics for a calmer, balanced layout */
+.home-stat-grid .home-stat{justify-content:center;text-align:center}
+.home-stat-grid .home-stat>div{align-items:center;width:100%;text-align:center}
+.home-stat-grid .home-stat>div>span{max-width:100%;text-align:center}
+@media(max-width:430px){
+  .home-stat-grid .home-stat{align-items:center}
+}
