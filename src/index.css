@@ -2230,3 +2230,17 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
  .home-add-actions>.home-add{min-height:48px;padding:8px 12px}
  .home-import-action{min-height:44px;padding:7px 12px}
 }
+
+/* Add-flow chooser: two clear options inside a compact premium modal */
+.add-action-choices{display:grid;gap:10px;margin-top:16px}
+.add-action-choice{display:flex;align-items:center;gap:12px;width:100%;min-width:0;padding:14px;border:1px solid #E7E1D5;border-radius:14px;background:#FFFEFB;color:#292C27;text-align:left;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+.add-action-choice:hover{background:#F8F6F0;border-color:#DCCEB9;transform:translateY(-1px)}
+.add-action-choice:focus-visible{outline:3px solid #A7B29A66;outline-offset:2px}
+.add-action-choice-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border-radius:12px}
+.add-action-choice-icon.individual{background:#E7E9DF;color:#59694B}
+.add-action-choice-icon.import{background:#F3EEE4;color:#896B43}
+.add-action-choice>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
+.add-action-choice strong{font-size:13px;line-height:1.35;font-weight:650;color:#292C27}
+.add-action-choice small{font-size:11px;line-height:1.45;color:#74786F}
+.add-action-choice>svg{flex:0 0 auto;color:#8D9187}
+@media(max-width:430px){.add-action-choice{padding:12px;gap:10px}.add-action-choice-icon{width:38px;height:38px;flex-basis:38px}}
