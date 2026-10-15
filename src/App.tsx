@@ -1882,15 +1882,12 @@ function App(){
                   </div>
                   <div className="home-stat-grid">
                     <article className="home-stat">
-                      <span className="home-stat-icon stock"><Box size={17}/></span>
                       <div><strong>{total}</strong><span>{total===1?'alimento cadastrado':'alimentos cadastrados'}</span></div>
                     </article>
                     <article className="home-stat">
-                      <span className="home-stat-icon places"><Home size={17}/></span>
                       <div><strong>{places.length}</strong><span>{places.length===1?'local organizado':'locais organizados'}</span></div>
                     </article>
                     <article className="home-stat">
-                      <span className="home-stat-icon expiry"><CalendarClock size={17}/></span>
                       <div><strong>{expiringFoods.filter(({food})=>food.quantity>0).length}</strong><span>itens perto da validade</span></div>
                     </article>
                   </div>
