@@ -404,6 +404,7 @@ function App(){
   const[localFoodSearch,setLocalFoodSearch]=useState('');
   const[foodModal,setFoodModal]=useState<{place:string;sub:string;food?:Food}|null>(null);
   const[importModal,setImportModal]=useState(false);
+  const[addActionModal,setAddActionModal]=useState(false);
   const[moveModal,setMoveModal]=useState<{place:string;sub:string;food:Food}|null>(null);
   const[foodMenu,setFoodMenu]=useState<string|null>(null);
   const[placeModal,setPlaceModal]=useState(false);
@@ -1862,21 +1863,14 @@ function App(){
                 {search&&<button onClick={()=>setSearch('')} aria-label="Limpar busca"><X size={17}/></button>}
               </div>
               {!search&&(
-                <div className="home-add-actions">
-                  <button type="button" className="home-add" onClick={openAddFoodFromHome}>
-                    <span className="home-add-icon"><Plus size={20}/></span>
-                    <span>
-                      <strong>{places.length?'Adicionar alimento':'Criar primeiro local'}</strong>
-                      <small>{places.length?'Registre algo novo na sua casa':'Escolha onde seus alimentos ficam'}</small>
-                    </span>
-                    <ChevronRight size={18}/>
-                  </button>
-                  <button type="button" className="home-import-action" onClick={()=>setImportModal(true)}>
-                    <span className="home-import-icon"><ClipboardList size={18}/></span>
-                    <span><strong>Importar lista</strong><small>Adicione vários alimentos de uma vez</small></span>
-                    <ChevronRight size={16}/>
-                  </button>
-                </div>
+                <button type="button" className="home-add" onClick={()=>setAddActionModal(true)}>
+                  <span className="home-add-icon"><Plus size={20}/></span>
+                  <span>
+                    <strong>{places.length?'Adicionar alimento':'Criar primeiro local'}</strong>
+                    <small>{places.length?'Registre algo novo na sua casa':'Escolha onde seus alimentos ficam'}</small>
+                  </span>
+                  <ChevronRight size={18}/>
+                </button>
               )}
             </div>
 
@@ -2038,6 +2032,21 @@ function App(){
         <button className={!selected&&workspace==='settings'?'active':''} onClick={()=>{setWorkspace('settings');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='settings'?'page':undefined}><Settings size={20}/><span>Ajustes</span></button>
       </nav>
 
+      {addActionModal&&<Modal title="Adicionar à sua casa" onClose={()=>setAddActionModal(false)}>
+        <p className="modal-help">Como você gostaria de adicionar seus alimentos?</p>
+        <div className="add-action-choices">
+          <button type="button" className="add-action-choice" onClick={()=>{setAddActionModal(false);openAddFoodFromHome()}}>
+            <span className="add-action-choice-icon individual"><Plus size={19}/></span>
+            <span><strong>Adicionar um alimento</strong><small>Cadastre nome, quantidade, unidade e local.</small></span>
+            <ChevronRight size={17}/>
+          </button>
+          <button type="button" className="add-action-choice" onClick={()=>{setAddActionModal(false);setImportModal(true)}}>
+            <span className="add-action-choice-icon import"><ClipboardList size={19}/></span>
+            <span><strong>Importar lista</strong><small>Adicione vários alimentos de uma só vez.</small></span>
+            <ChevronRight size={17}/>
+          </button>
+        </div>
+      </Modal>}
       {importModal&&<ImportInventoryModal places={places} onClose={()=>setImportModal(false)} onImport={async(placeId,rows)=>{
         const place=places.find(item=>item.id===placeId);
         const destination=place?.subdivisions[0];
