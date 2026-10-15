@@ -2203,3 +2203,30 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
  .home-add-menu{width:100%}
 }
 @media(prefers-reduced-motion:reduce){.home-add-menu{animation:none}}
+
+/* Visible, grouped home actions: primary add + secondary import */
+.home-add-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;align-content:stretch;min-width:230px;width:clamp(230px,23vw,290px)}
+.home-add-actions>.home-add{display:flex;align-items:center;gap:11px;width:100%;min-width:0;min-height:56px;margin:0;padding:10px 13px;border:1px solid #59694B;border-radius:13px;background:#59694B;color:#fff;text-align:left;box-shadow:0 3px 10px #292C2708}
+.home-add-actions>.home-add:hover{background:#48573C;border-color:#48573C}
+.home-add-actions>.home-add>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:2px;min-width:0}
+.home-add-actions>.home-add strong{font-size:13px;line-height:1.3}
+.home-add-actions>.home-add small{font-size:10px;line-height:1.35;color:#E4E9DF}
+.home-add-actions>.home-add .home-add-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#FFFFFF20}
+.home-add-actions>.home-add>svg{flex:0 0 auto;color:#FFFFFFD9}
+.home-import-action{display:flex;align-items:center;gap:10px;width:100%;min-width:0;min-height:44px;padding:8px 12px;border:1px solid #DCCEB9;border-radius:12px;background:#F3EEE4;color:#59694B;text-align:left;cursor:pointer;transition:background .15s,border-color .15s}
+.home-import-action:hover{background:#EAE1D2;border-color:#CDBB9E}
+.home-import-icon{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:9px;background:#E7E9DF;color:#59694B}
+.home-import-action>span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:2px;min-width:0}
+.home-import-action strong{font-size:12px;line-height:1.3;font-weight:650;color:#41463D}
+.home-import-action small{font-size:10px;line-height:1.35;color:#74786F}
+.home-import-action>svg{flex:0 0 auto;color:#8D9187}
+@media(max-width:900px){
+ .home-add-actions{width:clamp(220px,29vw,260px);min-width:220px}
+ .home-add-actions>.home-add{padding:9px 10px;gap:8px}
+ .home-add-actions>.home-add .home-add-icon{width:32px;height:32px;flex-basis:32px}
+}
+@media(max-width:600px){
+ .home-add-actions{width:100%;min-width:0;gap:7px}
+ .home-add-actions>.home-add{min-height:48px;padding:8px 12px}
+ .home-import-action{min-height:44px;padding:7px 12px}
+}
