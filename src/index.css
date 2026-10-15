@@ -2315,3 +2315,17 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 @media(prefers-reduced-motion:reduce){
   .home-add,.home-import-action,.add-action-choice,.place-card{transition:none!important}
 }
+
+/* Improve contrast of the Home primary action text */
+.home-tools>.home-add strong,
+.home-tools .home-add strong{color:#FFFFFF!important;font-weight:650}
+.home-tools>.home-add small,
+.home-tools .home-add small{color:#F6F3EB!important;opacity:1;font-weight:500}
+@media(max-width:600px){
+  .home-tools>.home-add,
+  .home-tools .home-add{color:#FFFFFF}
+  .home-tools>.home-add strong,
+  .home-tools .home-add strong{font-size:14px;line-height:1.35;color:#FFFFFF!important}
+  .home-tools>.home-add small,
+  .home-tools .home-add small{font-size:12px;line-height:1.4;color:#F6F3EB!important}
+}
