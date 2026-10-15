@@ -2442,3 +2442,21 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 @media(prefers-reduced-motion:reduce){
   .place-card{transition:none!important}
 }
+
+
+/* Keep the household name typographically continuous with the summary title */
+.home-overview-heading h3{display:block}
+.home-household-name{
+  display:inline;
+  min-height:0;
+  padding:0;
+  border-radius:0;
+  background:transparent;
+  color:inherit;
+  font-size:inherit;
+  font-weight:inherit;
+  letter-spacing:inherit;
+  line-height:inherit;
+  vertical-align:baseline;
+  overflow-wrap:anywhere
+}
