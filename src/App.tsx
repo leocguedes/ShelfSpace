@@ -1878,8 +1878,8 @@ function App(){
               <section className="home-overview" aria-label="Resumo da casa">
                 <div className="home-overview-content">
                   <div className="home-overview-heading">
-                    <div><h3>Resumo da casa{households.find(h=>h.id===householdId)?.name?` ${households.find(h=>h.id===householdId)!.name}`:''}</h3><p>Tudo organizado em um só lugar.</p></div>
-                    <span>Seu estoque em um olhar</span>
+                    <div><h3>Resumo da casa{households.find(h=>h.id===householdId)?.name?` ${households.find(h=>h.id===householdId)!.name}`:''}</h3></div>
+                    
                   </div>
                   <div className="home-stat-grid">
                     <article className="home-stat">
