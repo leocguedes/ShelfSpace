@@ -42,6 +42,20 @@ Deno.serve(async (request: Request) => {
     const { data: { user }, error: userError } = await userClient.auth.getUser();
     if (userError || !user || user.is_anonymous) return new Response(JSON.stringify({ error: "A signed-in account is required." }), { status: 401, headers });
 
+    const token = authorization.slice("Bearer ".length);
+    const tokenPayload = token.split(".")[1];
+    let authTime = Number.NaN;
+    try {
+      const normalizedPayload = tokenPayload.replace(/-/g, "+").replace(/_/g, "/");
+      const claims = JSON.parse(atob(normalizedPayload.padEnd(Math.ceil(normalizedPayload.length / 4) * 4, "=")));
+      authTime = Number(claims.auth_time);
+    } catch {
+      authTime = Number.NaN;
+    }
+    const nowSeconds = Math.floor(Date.now() / 1000);
+    if (!Number.isFinite(authTime) || authTime > nowSeconds + 60 || nowSeconds - authTime > 300) {
+      return new Response(JSON.stringify({ error: "Recent password confirmation required." }), { status: 403, headers });
+    }
     const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id);
     if (deleteError) {
