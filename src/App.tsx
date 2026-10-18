@@ -2357,7 +2357,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     <div className="hero recipe-hero">
       <div className="hero-copy">
         <p className="eyebrow">COZINHE COM O QUE JÁ TEM</p>
-        <h2>Ideias para cozinhar</h2>
+        <div className="recipe-title-row"><h2>Ideias para cozinhar</h2><span className="recipe-beta-badge" title="As recomendações ainda estão em aprimoramento">BETA</span></div>
         <p>Receitas com o que você já tem e ingredientes próximos da validade. O que faltar pode ir para a lista de compras.</p>
       </div>
     </div>
