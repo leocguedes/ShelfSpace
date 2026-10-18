@@ -1055,6 +1055,11 @@ function App(){
   }
 
   async function cookRecipe(recipe:Recipe){
+    if(!userId){
+      setCookConfirmRecipe(null);
+      promptAccount('atualizar seu estoque ao preparar uma receita');
+      return;
+    }
     if(recipe.presenceOnly){
       setCookConfirmRecipe(null);
       setAuthMessage('Receitas externas não descontam o estoque automaticamente, pois as quantidades precisam ser conferidas na fonte.');
