@@ -40,9 +40,26 @@ export type RecipeIngredientStatus = {
   missingQuantity: number;
 };
 
+function normalizeIngredientName(value:string){
+  return value.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/^\s*\d+(?:[.,]\d+)?\s*/,'')
+    .replace(/[^a-z0-9\s]/g,' ')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(word=>{
+      if(word.length>4&&word.endsWith('es'))return word.slice(0,-2);
+      if(word.length>3&&word.endsWith('s'))return word.slice(0,-1);
+      return word;
+    })
+    .join(' ')
+    .trim();
+}
+
 export function matchesRecipeIngredient(ingredient:RecipeIngredient, foodName:string){
-  const food = foodName.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-  const candidates=[ingredient.name,...ingredient.aliases].map(value=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()).filter(Boolean);
+  const food=normalizeIngredientName(foodName);
+  const candidates=[ingredient.name,...ingredient.aliases].map(normalizeIngredientName).filter(Boolean);
   return candidates.some(candidate=>food===candidate||food.startsWith(candidate+' ')||candidate.startsWith(food+' '));
 }
 
