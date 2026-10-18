@@ -417,6 +417,8 @@ function App(){
   const[authBusy,setAuthBusy]=useState(false);
   const[authMessage,setAuthMessage]=useState<string|null>(null);
   const[authModal,setAuthModal]=useState(false);
+  const[onboardingOpen,setOnboardingOpen]=useState(()=>{try{return !localStorage.getItem('shelfspace-onboarding-seen')}catch{return false}});
+  const[onboardingStep,setOnboardingStep]=useState(0);
   const[passwordRecovery,setPasswordRecovery]=useState(false);
   const[passwordChangeModal,setPasswordChangeModal]=useState(false);
   const[signOutConfirm,setSignOutConfirm]=useState(false);
@@ -440,6 +442,14 @@ function App(){
   const undoTimer=useRef<number|null>(null);
   const authRequest=useRef(0);
   const realtimeRefreshTimer=useRef<number|null>(null);
+
+  useEffect(()=>{if(userId)setOnboardingOpen(false)},[userId]);
+
+  function finishOnboarding(){
+    try{localStorage.setItem('shelfspace-onboarding-seen','1')}catch{}
+    setOnboardingOpen(false);
+    setOnboardingStep(0);
+  }
 
   function clearTransientUi(){
     setSelected(null);
@@ -1543,6 +1553,7 @@ function App(){
   }
 
   async function addToExistingFood(placeId:string,subId:string,existingId:string,amount:number,unit:Unit){
+    if(!userId){promptAccount('alterar quantidades do estoque');return;}
     const existing=places.find(p=>p.id===placeId)?.subdivisions.find(s=>s.id===subId)?.foods.find(f=>f.id===existingId);
     if(!existing||existing.unit!==unit||amount<=0)return;
     const nextQty=Number((existing.quantity+amount).toFixed(3));
@@ -1576,6 +1587,7 @@ function App(){
   }
 
   async function changeQty(placeId:string,subId:string,id:string,delta:number){
+    if(!userId){promptAccount('alterar quantidades do estoque');return;}
     const food=places.find(p=>p.id===placeId)?.subdivisions.find(s=>s.id===subId)?.foods.find(f=>f.id===id);
     if(!food)return;
     const step=quantityStep(food.unit);
@@ -1912,6 +1924,7 @@ function App(){
               <div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user&&!user.is_anonymous?(user.email||'Conta conectada'):'Visitante'}</strong><small>{user&&!user.is_anonymous?'E-mail da sua conta':'Entre ou crie uma conta para sincronizar seus dados'}</small></span></div>
               {user&&!user.is_anonymous&&<button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no ShelfSpace</small></span><ChevronRight size={17}/></button>}
               <button className="settings-row" onClick={user&&!user.is_anonymous?()=>setSignOutConfirm(true):()=>setAuthModal(true)} disabled={authBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user&&!user.is_anonymous?'Sair da conta':'Entrar ou criar conta'}</strong><small>{user&&!user.is_anonymous?'Desconectar esta sessão':'Acesse seus dados em todos os dispositivos'}</small></span><ChevronRight size={17}/></button>
+<button className="settings-row" onClick={()=>{setOnboardingStep(0);setOnboardingOpen(true)}}><span className="settings-row-icon"><BookOpen size={19}/></span><span className="settings-row-copy"><strong>Conhecer o ShelfSpace</strong><small>Rever o guia de primeiros passos</small></span><ChevronRight size={17}/></button>
             </div>
             {settingsHouseholdId&&households.some(h=>h.id===settingsHouseholdId)?(
               <div className="settings-group">
@@ -2205,7 +2218,8 @@ function App(){
       {moveModal&&<MoveModal data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>} 
       {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
-      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')?'signup':'signin'} busy={authBusy} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
+      {onboardingOpen&&!userId&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
+      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
         food={places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods)).find(food=>food.id===consumptionRuleModal.foodId)}
@@ -2259,6 +2273,23 @@ function App(){
       {actionFeedback&&<div className="action-feedback" role="status" aria-live="polite">✓ {actionFeedback}</div>}
     </div>
   );
+}
+
+function OnboardingModal({step,onStep,onFinish,onCreateAccount,onSignIn}:{step:number;onStep:(step:number)=>void;onFinish:()=>void;onCreateAccount:()=>void;onSignIn:()=>void}){
+  const pages=[
+    {eyebrow:'BEM-VINDO AO SHELFSPACE',title:'Sua casa, mais organizada.',body:'Tenha seus alimentos, quantidades e validades organizados em um só lugar.',detail:'Explore a demonstração para conhecer a experiência. Para salvar suas próprias informações, você precisará de uma conta.'},
+    {eyebrow:'PASSO 1 DE 2',title:'Organize por locais.',body:'Separe seus alimentos por geladeira, freezer, despensa ou armário.',detail:'Cada local pode ter seus próprios alimentos e subdivisões.'},
+    {eyebrow:'PASSO 2 DE 2',title:'Acompanhe seu estoque.',body:'Consulte quantidades, acompanhe validades e descubra ideias de receitas.',detail:'Crie sua conta gratuita para adicionar alimentos, alterar quantidades e personalizar seus locais.'}
+  ];
+  const page=pages[step];
+  return <div className="onboarding-backdrop" role="dialog" aria-modal="true" aria-labelledby="onboarding-title"><section className="onboarding-panel">
+    <div className="onboarding-top"><span>ShelfSpace</span><button type="button" onClick={onFinish}>Pular introdução</button></div>
+    <div className="onboarding-progress" aria-label={'Etapa '+(step+1)+' de '+pages.length}><span style={{width:((step+1)/pages.length*100)+'%'}}/></div>
+    <p className="eyebrow">{page.eyebrow}</p><h2 id="onboarding-title">{page.title}</h2><p className="onboarding-body">{page.body}</p><p className="onboarding-detail">{page.detail}</p>
+    {step===0?<div className="onboarding-benefits"><div><Box size={18}/><span>Locais personalizáveis</span></div><div><CalendarClock size={18}/><span>Controle de validade</span></div><div><ShoppingCart size={18}/><span>Lista de compras</span></div></div>:null}
+    <div className="onboarding-actions">{step>0&&<button type="button" className="secondary" onClick={()=>onStep(step-1)}>Voltar</button>}{step<pages.length-1?<button type="button" className="primary" onClick={()=>onStep(step+1)}>Continuar <ChevronRight size={16}/></button>:<button type="button" className="primary" onClick={onCreateAccount}>Criar conta gratuita</button>}</div>
+    {step===pages.length-1&&<button type="button" className="onboarding-signin" onClick={onSignIn}>Já tenho uma conta</button>}
+  </section></div>;
 }
 
 function AccountDeletionModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
