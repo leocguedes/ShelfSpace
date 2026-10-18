@@ -2225,8 +2225,8 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     <div className="hero recipe-hero">
       <div className="hero-copy">
         <p className="eyebrow">COZINHE COM O QUE JÁ TEM</p>
-        <h2>Ideias para a sua cozinha.</h2>
-        <p>As receitas priorizam ingredientes no estoque e alimentos próximos da validade. O que faltar pode ir direto para a lista de compras.</p>
+        <h2>Ideias para cozinhar</h2>
+        <p>Receitas com o que você já tem e ingredientes próximos da validade. O que faltar pode ir para a lista de compras.</p>
       </div>
       <div className="shopping-summary"><strong>{options.filter(option=>option.ready).length}</strong><span>{options.filter(option=>option.ready).length===1?'receita pronta':'receitas prontas'}</span></div>
     </div>
