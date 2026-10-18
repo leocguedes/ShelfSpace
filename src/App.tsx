@@ -2483,7 +2483,8 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
   const[houseName,setHouseName]=useState(active?.name||'');
   const[nameEditing,setNameEditing]=useState(false);
   const[nameMessage,setNameMessage]=useState('');
-  useEffect(()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');},[active?.id,active?.name]);
+  useEffect(()=>{setHouseName(active?.name||'');},[active?.name]);
+  useEffect(()=>{setNameEditing(false);setNameMessage('');},[active?.id]);
   const[members,setMembers]=useState<HouseholdMember[]>([]);
   const[membersLoading,setMembersLoading]=useState(false);
   const[membersError,setMembersError]=useState('');
