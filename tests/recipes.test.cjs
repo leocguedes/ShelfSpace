@@ -62,8 +62,26 @@ test('marks quantities with incompatible units as unknown instead of guessing', 
     recipe(ingredient('Arroz', 500, 'g')),
     [{ id: 'a', name: 'Arroz', quantity: 2, unit: 'pacotes' }],
   );
-  assert.equal(statuses[0].enough, null);
+  assert.equal(statuses[0].enough, true);
   assert.equal(statuses[0].comparable, false);
+});
+
+test('counts packaged salt and bottled olive oil as present without guessing quantities', () => {
+  const recipeWithPantryStaples = {
+    ...recipe(ingredient('Sal', 2, 'g', ['sal refinado'])),
+    ingredients: [
+      ingredient('Sal', 2, 'g', ['sal refinado', 'sal marinho']),
+      ingredient('Azeite ou óleo', 10, 'ml', ['azeite', 'óleo', 'oleo']),
+    ],
+  };
+  const statuses = getRecipeIngredientStatuses(recipeWithPantryStaples, [
+    { id: 'salt', name: 'Sal de cozinha', quantity: 1, unit: 'pacotes' },
+    { id: 'oil', name: 'Azeite extra virgem', quantity: 1, unit: 'garrafas' },
+  ]);
+  assert.equal(statuses[0].enough, true);
+  assert.equal(statuses[0].comparable, false);
+  assert.equal(statuses[1].enough, true);
+  assert.equal(statuses[1].comparable, false);
 });
 
 test('reports absent ingredients as missing', () => {
