@@ -79,7 +79,7 @@ returns trigger
 language plpgsql
 security invoker
 set search_path = pg_catalog, public, pg_temp
-as $
+as $preserve$
 begin
   if tg_op = 'INSERT' then
     if new.user_id is distinct from (select auth.uid()) then
@@ -92,7 +92,7 @@ begin
   end if;
   return new;
 end;
-$;
+$preserve$;
 
 -- Preserve household-wide records when the creator's auth account is deleted.
 -- Nullable attribution is preferable to cascading deletion of shared records.
