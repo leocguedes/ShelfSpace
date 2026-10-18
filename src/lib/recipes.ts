@@ -90,7 +90,7 @@ export function getRecipeIngredientStatuses(recipe:Recipe,pantry:RecipePantryIte
       comparable=true;
       availableQuantity+=amount;
     }
-    const enough=comparable?availableQuantity+1e-8>=ingredient.quantity:matches.length?null:false;
+    const enough=comparable?availableQuantity+1e-8>=ingredient.quantity:matches.length?true:false;
     const missingQuantity=comparable?Math.max(0,ingredient.quantity-availableQuantity):matches.length?0:ingredient.quantity;
     return{ingredient,matches,expiredMatches,availableQuantity,comparable,enough,missingQuantity};
   });
