@@ -379,6 +379,14 @@ function mapCloudPlaces(data:any[]):Place[]{
 }
 
 function App(){
+  const [language,setLanguage] = useState<'pt-BR'|'en'>(() => {
+    try { return localStorage.getItem('shelfspace-language') === 'en' ? 'en' : 'pt-BR'; }
+    catch { return 'pt-BR'; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('shelfspace-language',language); } catch {}
+    document.documentElement.lang = language === 'en' ? 'en' : 'pt-BR';
+  },[language]);
   const[places,setPlaces]=useState<Place[]>(()=>readAnonymousPlaces());
   const[recentFoods,setRecentFoods]=useState<RecentFood[]>(()=>readRecentFoods(null));
   const[userId,setUserId]=useState<string|null>(null);
@@ -1952,10 +1960,30 @@ function App(){
           <section className="settings-page">
             <div className="hero settings-hero">
               <div className="hero-copy">
-                <p className="eyebrow">PREFERÊNCIAS</p>
-                <h2>Configurações</h2>
-                <p>Gerencie sua conta, sua casa e a organização do ShelfSpace.</p>
+                <p className="eyebrow">{language==='en'?'PREFERENCES':'PREFERÊNCIAS'}</p>
+                <h2>{language==='en'?'Settings':'Configurações'}</h2>
+                <p>{language==='en'?'Manage your account, household, and ShelfSpace preferences.':'Gerencie sua conta, sua casa e a organização do ShelfSpace.'}</p>
               </div>
+            </div>
+            <div className="settings-group">
+              <p className="settings-group-label">{language==='en'?'LANGUAGE':'IDIOMA'}</p>
+              <div className="settings-row settings-static-row">
+                <span className="settings-row-icon"><BookOpen size={19}/></span>
+                <span className="settings-row-copy">
+                  <strong>{language==='en'?'App language':'Idioma do aplicativo'}</strong>
+                  <small>{language==='en'?'Choose the language used by ShelfSpace.':'Escolha o idioma usado pelo ShelfSpace.'}</small>
+                </span>
+                <select
+                  aria-label={language==='en'?'App language':'Idioma do aplicativo'}
+                  value={language}
+                  onChange={event=>setLanguage(event.target.value as 'pt-BR'|'en')}
+                  style={{maxWidth:150,minWidth:112,padding:'8px 10px',border:'1px solid var(--border, #ded9cd)',borderRadius:8,background:'var(--surface, #fffdf8)',color:'inherit',font:'inherit'}}
+                >
+                  <option value="pt-BR">Português</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+              <p className="settings-group-hint">{language==='en'?'More screens will be translated in upcoming localization steps.':'A tradução das demais telas será implementada nas próximas etapas.'}</p>
             </div>
             <div className="settings-group">
               <p className="settings-group-label">SUA CONTA</p>
