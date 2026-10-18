@@ -2359,7 +2359,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     </div>
     <div className="recipe-online-controls">
       <button className="secondary-action" onClick={()=>void loadOnlineRecipes()} disabled={onlineLoading}><BookOpen size={16}/>{onlineLoading?'Buscando receitas...':onlineLoaded?'Atualizar sugestões':'Buscar receitas online'}</button>
-      <span>Encontre novas ideias a partir dos ingredientes cadastrados no seu estoque. Algumas receitas podem estar em outro idioma.</span>
+      
     </div>
     {onlineError&&<p className="recipe-online-message" role="status">{onlineError}</p>}
     <div className="recipe-search search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar receita ou ingrediente" aria-label="Buscar receita ou ingrediente"/>{query&&<button onClick={()=>setQuery('')} aria-label="Limpar busca"><X size={16}/></button>}</div>
