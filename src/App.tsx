@@ -2277,19 +2277,71 @@ function App(){
 
 function OnboardingModal({step,onStep,onFinish,onCreateAccount,onSignIn}:{step:number;onStep:(step:number)=>void;onFinish:()=>void;onCreateAccount:()=>void;onSignIn:()=>void}){
   const pages=[
-    {eyebrow:'CONHEÇA O SHELFSPACE',title:'Tudo em ordem, sem complicação.',body:'Saiba o que você tem em casa e onde encontrar cada alimento.',detail:'Explore o app à vontade. Para salvar seus alimentos e acessar seus dados em outros dispositivos, crie uma conta gratuita.'},
-    {eyebrow:'ORGANIZE SUA CASA',title:'Cada alimento no seu lugar.',body:'Cadastre a geladeira, o freezer, a despensa e outros espaços da sua casa.',detail:'Se quiser, organize cada local por prateleiras, gavetas ou outras divisões.'},
-    {eyebrow:'PRONTO PARA COMEÇAR',title:'Saiba o que tem em casa.',body:'Confira quantidades e validades e encontre receitas com os alimentos que você já tem.',detail:'Crie uma conta gratuita para cadastrar seus alimentos e manter tudo salvo.'}
+    {eyebrow:'CONHEÇA O SHELFSPACE',title:'Saiba o que tem em casa.',body:'Organize seus alimentos, acompanhe seu estoque e planeje melhor as compras do dia a dia.',detail:'Tudo começa com uma visão mais clara do que você já tem.'},
+    {eyebrow:'ORGANIZE SUA CASA',title:'Cada alimento no seu lugar.',body:'Separe seus alimentos por locais como geladeira, freezer e despensa.',detail:'Encontre o que procura sem precisar conferir tudo de novo.'},
+    {eyebrow:'CADASTRE SEU ESTOQUE',title:'Comece do seu jeito.',body:'Adicione alimentos um a um ou importe uma lista para preencher o estoque com mais facilidade.',detail:'Você pode informar quantidades, unidades e validades.'},
+    {eyebrow:'PLANEJE A ROTINA',title:'Aproveite melhor o que já tem.',body:'Acompanhe validades, programe o consumo e encontre receitas com seus alimentos.',detail:'Use a lista de compras para organizar o que está faltando.'}
   ];
-  const page=pages[step];
-  return <div className="onboarding-backdrop" role="dialog" aria-modal="true" aria-labelledby="onboarding-title"><section className="onboarding-panel">
-    <div className="onboarding-top"><span>ShelfSpace</span><button type="button" onClick={onFinish}>Pular</button></div>
-    <div className="onboarding-progress" aria-label={'Etapa '+(step+1)+' de '+pages.length}><span style={{width:((step+1)/pages.length*100)+'%'}}/></div>
-    <p className="eyebrow">{page.eyebrow}</p><h2 id="onboarding-title">{page.title}</h2><p className="onboarding-body">{page.body}</p><p className="onboarding-detail">{page.detail}</p>
-    {step===0?<div className="onboarding-benefits"><div><Box size={18}/><span>Seus locais de armazenamento</span></div><div><CalendarClock size={18}/><span>Validades dos alimentos</span></div><div><ShoppingCart size={18}/><span>Lista de compras</span></div></div>:null}
-    <div className="onboarding-actions">{step>0&&<button type="button" className="secondary" onClick={()=>onStep(step-1)}>Voltar</button>}{step<pages.length-1?<button type="button" className="primary" onClick={()=>onStep(step+1)}>Continuar <ChevronRight size={16}/></button>:<button type="button" className="primary" onClick={onCreateAccount}>Criar conta gratuita</button>}</div>
-    {step===pages.length-1&&<button type="button" className="onboarding-signin" onClick={onSignIn}>Já tenho conta</button>}
-  </section></div>;
+  const isDemo=step===4;
+  const isSignup=step===5;
+  const page=pages[Math.min(step,3)];
+  const progressStep=Math.min(step+1,4);
+  return <div className="onboarding-backdrop" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <section className={'onboarding-panel'+(isDemo?' onboarding-panel-demo':'')+(isSignup?' onboarding-panel-signup':'')}>
+      <div className="onboarding-top">
+        <div className="onboarding-brand">
+          <img src={import.meta.env.BASE_URL+'brand/shelfspace-symbol.svg'} alt="" />
+          <span>ShelfSpace</span>
+        </div>
+        {!isDemo&&!isSignup&&<button type="button" onClick={onFinish}>Pular</button>}
+        {(isDemo||isSignup)&&<button type="button" onClick={()=>onStep(3)}>Voltar</button>}
+      </div>
+      {!isDemo&&!isSignup&&<div className="onboarding-progress" role="progressbar" aria-label={'Etapa '+(step+1)+' de 4'} aria-valuemin={1} aria-valuemax={4} aria-valuenow={step+1}><span style={{width:(progressStep/4*100)+'%'}}/></div>}
+      {!isDemo&&!isSignup?<>
+        <p className="eyebrow">{page.eyebrow}</p>
+        <h2 id="onboarding-title">{page.title}</h2>
+        <p className="onboarding-body">{page.body}</p>
+        <p className="onboarding-detail">{page.detail}</p>
+        {step===0&&<div className="onboarding-benefits">
+          <div><Box size={17}/><span>Estoque por local</span></div>
+          <div><CalendarClock size={17}/><span>Validades e consumo</span></div>
+          <div><BookOpen size={17}/><span>Receitas e compras</span></div>
+        </div>}
+        <div className="onboarding-actions">
+          {step>0&&<button type="button" className="secondary" onClick={()=>onStep(step-1)}>Voltar</button>}
+          <button type="button" className="primary" onClick={()=>onStep(step<3?step+1:5)}>{step<3?'Continuar':'Continuar'} <ChevronRight size={16}/></button>
+        </div>
+        {step===3&&<button type="button" className="onboarding-demo-link" onClick={()=>onStep(4)}>Explorar demonstração</button>}
+      </>:null}
+      {isDemo&&<>
+        <p className="eyebrow">DEMONSTRAÇÃO · SOMENTE VISUALIZAÇÃO</p>
+        <h2 id="onboarding-title">Veja como funciona.</h2>
+        <p className="onboarding-body">Este é um exemplo de como seus alimentos podem aparecer no ShelfSpace. Os itens abaixo são fictícios e não serão salvos na sua conta.</p>
+        <div className="onboarding-demo-content">
+          <div className="onboarding-demo-heading"><Box size={18}/><strong>Geladeira</strong><span>2 exemplos</span></div>
+          <div className="onboarding-demo-food"><span className="onboarding-demo-food-icon"><PackagePlus size={18}/></span><span><strong>Leite</strong><small>1 litro · Exemplo de validade</small></span><span className="onboarding-demo-tag">Exemplo</span></div>
+          <div className="onboarding-demo-food"><span className="onboarding-demo-food-icon"><PackagePlus size={18}/></span><span><strong>Ovos</strong><small>6 unidades · Exemplo de validade</small></span><span className="onboarding-demo-tag">Exemplo</span></div>
+          <div className="onboarding-demo-links"><span><CalendarClock size={15}/> Validades</span><span><BookOpen size={15}/> Receitas</span><span><ShoppingCart size={15}/> Compras</span></div>
+        </div>
+        <div className="onboarding-actions">
+          <button type="button" className="secondary" onClick={()=>onStep(3)}>Voltar</button>
+          <button type="button" className="primary" onClick={()=>onStep(5)}>Criar minha conta <ChevronRight size={16}/></button>
+        </div>
+      </>}
+      {isSignup&&<>
+        <div className="onboarding-signup-mark"><Check size={24}/></div>
+        <p className="eyebrow">SEU ESTOQUE, DO SEU JEITO</p>
+        <h2 id="onboarding-title">Vamos começar?</h2>
+        <p className="onboarding-body">Crie sua conta gratuita para cadastrar seus alimentos e manter tudo salvo.</p>
+        <div className="onboarding-actions onboarding-signup-actions">
+          <button type="button" className="secondary" onClick={()=>onStep(3)}>Voltar</button>
+          <button type="button" className="primary" onClick={onCreateAccount}>Criar conta gratuita <ChevronRight size={16}/></button>
+        </div>
+        <button type="button" className="onboarding-signin" onClick={onSignIn}>Já tenho conta</button>
+        <button type="button" className="onboarding-demo-link" onClick={()=>onStep(4)}>Explorar demonstração</button>
+      </>}
+    </section>
+  </div>;
 }
 
 function AccountDeletionModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
