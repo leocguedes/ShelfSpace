@@ -2642,7 +2642,7 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
   },[active?.id]);
   const roleLabel=(_role:HouseholdMember['role'])=>'Membro';
   return <Modal title={createHouseOpen?"Adicionar casa":"Família e compartilhamento"} onClose={onClose}>
-    {createHouseOpen? <div className="household-create-form">
+    {createHouseOpen? <div className="household-join household-create-form">
       <p className="modal-help">Crie uma casa separada para organizar outro endereço, imóvel ou grupo familiar.</p>
       <label>Nome da casa<input autoFocus value={newHouseName} maxLength={15} onChange={e=>{setNewHouseName(e.target.value);setCreateHouseError('');}} placeholder="Ex.: Casa de praia"/></label>
       <small className="household-create-hint">Escolha um nome com até 15 caracteres.</small>
