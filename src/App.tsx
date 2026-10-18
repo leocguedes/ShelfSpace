@@ -1520,6 +1520,7 @@ function App(){
   }
 
   async function saveFood(placeId:string,subId:string,data:Omit<Food,'id'>,id?:string):Promise<string|null>{
+    if(!userId){promptAccount('adicionar alimentos ao estoque');return null;}
     const cleanName=data.name.trim();
     if(!cleanName||!places.some(p=>p.id===placeId&&p.subdivisions.some(s=>s.id===subId)))return null;
     const safeQuantity=Math.max(0,Number.isFinite(data.quantity)?Number(data.quantity):0);
@@ -1553,6 +1554,7 @@ function App(){
   }
 
   async function removeFood(placeId:string,subId:string,id:string){
+    if(!userId){promptAccount('editar seu estoque');return;}
     const snapshot=places;
     const removed=places.find(p=>p.id===placeId)?.subdivisions.find(s=>s.id===subId)?.foods.find(f=>f.id===id);
     if(!removed)return;
@@ -1587,6 +1589,7 @@ function App(){
   }
 
   async function moveFood(fromPlaceId:string,fromSubId:string,foodId:string,toPlaceId:string,toSubId:string){
+    if(!userId){promptAccount('mover alimentos entre locais');return;}
     if(fromSubId===toSubId)return;
     const sourcePlace=places.find(p=>p.id===fromPlaceId);
     const sourceSub=sourcePlace?.subdivisions.find(s=>s.id===fromSubId);
@@ -1625,6 +1628,7 @@ function App(){
   }
 
   async function savePlace(name:string,id?:string):Promise<boolean>{
+    if(!userId){promptAccount('criar ou alterar locais de armazenamento');return false;}
     const clean=name.trim();
     if(!clean)return false;
     const duplicate=places.some(p=>p.id!==id&&searchKey(p.name)===searchKey(clean));
@@ -1648,6 +1652,7 @@ function App(){
   }
 
   async function removePlace(id:string):Promise<boolean>{
+    if(!userId){promptAccount('alterar seus locais de armazenamento');return false;}
     const removed=places.find(p=>p.id===id);
     if(!removed)return false;
     const snapshot=places;
@@ -1682,6 +1687,7 @@ function App(){
   }
 
   async function saveSub(placeId:string,name:string,id?:string):Promise<boolean>{
+    if(!userId){promptAccount('organizar seus locais');return false;}
     const clean=name.trim();
     if(!clean)return false;
     const place=places.find(p=>p.id===placeId);
@@ -1737,7 +1743,16 @@ function App(){
     setSelectedSub(subId);
   }
 
-  function openAddFoodFromHome(){ if(!places.length){setPlaceToEdit(null);setPlaceModal(true);return;} setFoodModal({place:'',sub:''}); }
+  function promptAccount(action:string){
+    setAuthMessage('Crie uma conta gratuita para '+action+'. Seus locais de exemplo continuarão disponíveis.');
+    setAuthModal(true);
+  }
+
+  function openAddFoodFromHome(){
+    if(!userId){promptAccount('adicionar alimentos ao estoque');return;}
+    if(!places.length){setPlaceToEdit(null);setPlaceModal(true);return;}
+    setFoodModal({place:'',sub:''});
+  }
 
   return (
     <div className="app">
@@ -1898,9 +1913,9 @@ function App(){
             </div>}
             <div className="settings-group">
               <p className="settings-group-label">SUA CASA</p>
-              <button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>
-              <button className="settings-row" onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>Gerencie geladeira, freezer, despensa e outros locais</small></span><ChevronRight size={17}/></button>
-              <button className="settings-row" onClick={()=>setImportModal(true)}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>Adicione uma lista ao seu estoque</small></span><ChevronRight size={17}/></button>
+              {userId?<button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>:<button className="settings-row" onClick={()=>promptAccount('compartilhar sua casa com outras pessoas')}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>Crie uma conta para convidar pessoas e entrar em outras casas</small></span><ChevronRight size={17}/></button>}
+              <button className="settings-row" onClick={()=>{if(!userId){promptAccount('criar e alterar locais de armazenamento');return;}setPlaceToEdit(null);setPlaceModal(true)}}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>{userId?'Gerencie geladeira, freezer, despensa e outros locais':'Crie uma conta para personalizar seus locais'}</small></span><ChevronRight size={17}/></button>
+              <button className="settings-row" onClick={()=>{if(!userId){promptAccount('adicionar alimentos ao estoque');return;}setImportModal(true)}}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>{userId?'Adicione uma lista ao seu estoque':'Crie uma conta para importar sua lista'}</small></span><ChevronRight size={17}/></button>
             </div>
             <div className="settings-group">
               <p className="settings-group-label">APLICATIVO</p>
@@ -2142,7 +2157,7 @@ function App(){
             <span><strong>Adicionar um alimento</strong><small>Cadastre nome, quantidade, unidade e local.</small></span>
             <ChevronRight size={17}/>
           </button>
-          <button type="button" className="add-action-choice" onClick={()=>{setAddActionModal(false);setImportModal(true)}}>
+          <button type="button" className="add-action-choice" onClick={()=>{setAddActionModal(false);if(!userId){promptAccount('importar alimentos para o estoque');return;}setImportModal(true)}}>
             <span className="add-action-choice-icon import"><ClipboardList size={19}/></span>
             <span><strong>Importar lista</strong><small>Adicione vários alimentos de uma só vez.</small></span>
             <ChevronRight size={17}/>
