@@ -20,6 +20,11 @@ test('matches ingredient names regardless of accents and case', () => {
   assert.equal(matchesRecipeIngredient(ingredient('Arroz', 1, 'kg'), 'feijão'), false);
 });
 
+test('matches singular and plural ingredient names', () => {
+  assert.equal(matchesRecipeIngredient(ingredient('Batata', 2, 'unidades', ['batatas']), 'Batatas médias'), true);
+  assert.equal(matchesRecipeIngredient(ingredient('Ovo', 2, 'unidades', ['ovos']), 'Ovos caipiras'), true);
+});
+
 test('converts compatible mass and volume units', () => {
   assert.equal(convertRecipeQuantity(0.5, 'kg', 'g'), 500);
   assert.equal(convertRecipeQuantity(250, 'ml', 'L'), 0.25);
