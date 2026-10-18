@@ -1049,7 +1049,7 @@ function App(){
     }
     const pantry:RecipePantryItem[]=places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods));
     const statuses=getRecipeIngredientStatuses(recipe,pantry);
-    if(statuses.some(status=>status.enough!==true)){
+    if(statuses.some(status=>status.enough!==true||!status.comparable)){
       setCookConfirmRecipe(null);
       setAuthMessage('Ainda faltam ingredientes ou há unidades que não podem ser comparadas com segurança.');
       return;
@@ -2337,7 +2337,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     const statuses=getRecipeIngredientStatuses(recipe,pantry);
     const ready=statuses.every(status=>status.enough===true);
     const available=statuses.filter(status=>status.enough===true).length;
-    const unknown=statuses.filter(status=>status.enough===null).length;
+    const unknown=recipe.presenceOnly?0:statuses.filter(status=>!status.comparable&&status.matches.length>0).length;
     const missing=statuses.filter(status=>status.enough===false);
     const expiring=statuses.filter(status=>status.matches.some(item=>!!item.expires_on&&daysUntilExpiry(item.expires_on)<=3)).length;
     return{recipe,statuses,ready,available,unknown,missing,expiring};
