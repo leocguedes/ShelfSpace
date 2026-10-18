@@ -1765,6 +1765,9 @@ function App(){
         </div>
         <div className="header-actions">
           {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>setHouseholdModal(true)} aria-label={'Alternar casa. Casa ativa: '+(households.find(h=>h.id===householdId)?.name||'Casa')} title="Alternar casa"><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
+          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title="Notificações">
+            <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
+          </button>
         </div>
       </header>
 
@@ -2146,7 +2149,7 @@ function App(){
         <button className={!selected&&workspace==='recipes'?'active':''} onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='recipes'?'page':undefined}><BookOpen size={20}/><span>Receitas</span></button>
         <button className={!selected&&workspace==='report'?'active':''} onClick={()=>{setWorkspace('report');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='report'?'page':undefined}><ClipboardList size={20}/><span className="nav-label-full">Lista geral</span><span className="nav-label-compact">Estoque</span></button>
         <button className={!selected&&workspace==='settings'?'active':''} onClick={()=>{setWorkspace('settings');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='settings'?'page':undefined}><Settings size={20}/><span>Ajustes</span></button>
-        <button type="button" className={'bottom-notifications '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} aria-expanded={notificationCenterOpen} title="Notificações"><Bell size={20}/><span>Alertas</span>{notificationCount>0&&<i>{notificationCount>99?'99+':notificationCount}</i>}</button>
+
       </nav>
 
       {addActionModal&&<Modal title="Adicionar à sua casa" onClose={()=>setAddActionModal(false)}>
