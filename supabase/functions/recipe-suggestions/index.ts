@@ -55,7 +55,7 @@ function parseAfroditeRecipe(raw: Record<string, unknown>, index: number, matche
   return {
     id: `afrodite-${id}`,
     name,
-    description: "Receita em português da base Afrodite. Confira as medidas originais antes de preparar.",
+    description: "Receita em português. Confira as medidas originais antes de preparar.",
     minutes: 0,
     servings: 0,
     ingredients,
