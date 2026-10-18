@@ -2317,19 +2317,23 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
   const[onlineLoading,setOnlineLoading]=useState(false);
   const[onlineError,setOnlineError]=useState('');
   const[onlineLoaded,setOnlineLoaded]=useState(false);
+  const[onlineHasMore,setOnlineHasMore]=useState(false);
   const pantry:RecipePantryItem[]=places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods));
-  async function loadOnlineRecipes(){
-    if(!pantry.length){setOnlineError('Adicione alguns alimentos ao estoque para buscar receitas compatíveis.');return;}
+  async function loadOnlineRecipes(loadMore=false){
+    if(!pantry.length){setOnlineError('Adicione alguns alimentos ao estoque para atualizar as receitas.');return;}
     setOnlineLoading(true);setOnlineError('');
+    const offset=loadMore?onlineRecipes.length:0;
     try{
-      const{data,error}=await supabase.functions.invoke('recipe-suggestions',{body:{ingredients:pantry.map(item=>item.name).filter(Boolean)}});
+      const{data,error}=await supabase.functions.invoke('recipe-suggestions',{body:{ingredients:pantry.map(item=>item.name).filter(Boolean),offset,limit:10}});
       if(error)throw error;
       const found=Array.isArray(data?.recipes)?data.recipes as Recipe[]:[];
-      setOnlineRecipes(found);
+      setOnlineRecipes(current=>loadMore?[...current,...found.filter(recipe=>!current.some(item=>item.id===recipe.id))]:found);
+      setOnlineHasMore(Boolean(data?.hasMore));
       setOnlineLoaded(true);
-      if(!found.length)setOnlineError('Não encontramos receitas online para os ingredientes cadastrados. Tente adicionar ingredientes mais comuns.');
+      if(!found.length&&!loadMore)setOnlineError('Não encontramos novas receitas compatíveis com os alimentos cadastrados.');
+      else if(!found.length&&loadMore)setOnlineHasMore(false);
     }catch{
-      setOnlineError('Não foi possível consultar as receitas online agora. Tente novamente em instantes.');
+      setOnlineError('Não foi possível atualizar as receitas agora. Tente novamente em instantes.');
     }finally{setOnlineLoading(false);}
   }
   const allRecipes=[...recipes,...onlineRecipes];
@@ -2358,7 +2362,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
       </div>
     </div>
     <div className="recipe-online-controls">
-      <button className="secondary-action" onClick={()=>void loadOnlineRecipes()} disabled={onlineLoading}><BookOpen size={16}/>{onlineLoading?'Buscando receitas...':onlineLoaded?'Atualizar sugestões':'Buscar receitas online'}</button>
+      <button className="secondary-action" onClick={()=>void loadOnlineRecipes()} disabled={onlineLoading}><BookOpen size={16}/>{onlineLoading?'Atualizando receitas...':'Atualizar receitas'}</button>
       
     </div>
     {onlineError&&<p className="recipe-online-message" role="status">{onlineError}</p>}
@@ -2373,9 +2377,9 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
         const isExpanded=expanded===recipe.id;
         const missingItems=missing.map(status=>({name:status.ingredient.name,quantity:Number(status.missingQuantity.toFixed(3)),unit:status.ingredient.unit,...(status.ingredient.measureText?{measureText:status.ingredient.measureText}:{})}));
         return <article className="recipe-card" key={recipe.id}>
-          <div className="recipe-card-top"><div><p className="eyebrow">{recipe.source==='afrodite'?'BASE AFRODITE':ready?'PRONTO PARA PREPARAR':expiring?'USE O QUE VENCE PRIMEIRO':'IDEIA PARA HOJE'}</p><h3>{recipe.name}</h3></div><span className={'recipe-status '+(ready?'ready':'')}>{ready?'Você tem tudo':available+'/'+recipe.ingredients.length+' itens'}</span></div>
+          <div className="recipe-card-top"><div><p className="eyebrow">{ready?'PRONTO PARA PREPARAR':expiring?'USE O QUE VENCE PRIMEIRO':'IDEIA PARA HOJE'}</p><h3>{recipe.name}</h3></div><span className={'recipe-status '+(ready?'ready':'')}>{ready?'Você tem tudo':available+'/'+recipe.ingredients.length+' itens'}</span></div>
           <p className="recipe-description">{recipe.description}</p>
-          {recipe.sourceUrl&&<p className="recipe-source"><a href={recipe.sourceUrl} target="_blank" rel="noreferrer">Conhecer a base Afrodite <MoveRight size={13}/></a></p>}
+          {recipe.sourceUrl&&<p className="recipe-source"><a href={recipe.sourceUrl} target="_blank" rel="noreferrer">Ver receita original <MoveRight size={13}/></a></p>}
           <div className="recipe-meta"><span>{recipe.minutes>0?recipe.minutes+' min':'Tempo não informado'}</span><span>{recipe.servings>0?recipe.servings+' '+(recipe.servings===1?'porção':'porções'):'Porções não informadas'}</span><span>{available} de {recipe.ingredients.length} ingredientes encontrados</span></div>
           <div className="recipe-progress"><span style={{width:Math.round(available/recipe.ingredients.length*100)+'%'}}/></div>
           {unknown>0&&<p className="recipe-hint">{unknown} ingrediente(s) está(ão) no estoque, mas a quantidade não pode ser confirmada por diferença de unidade. Confira antes de cozinhar.</p>}
@@ -2398,6 +2402,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
         </article>;
       })}
     </div>}
+    {onlineHasMore&&<div className="recipe-load-more"><button className="secondary-action" onClick={()=>void loadOnlineRecipes(true)} disabled={onlineLoading}>{onlineLoading?'Carregando receitas...':'Mostrar mais 10 receitas'}</button></div>}
     <p className="recipe-disclaimer">As sugestões online vêm de uma base de receitas em português. Confira as quantidades e o modo de preparo antes de cozinhar.</p>
   </section>
 }
