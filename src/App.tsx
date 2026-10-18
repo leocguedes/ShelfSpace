@@ -75,6 +75,10 @@ function locationPhotoClass(name:string){
 const authRedirectUrl=()=>new URL(import.meta.env.BASE_URL,window.location.origin).toString();
 const makeSub=(name:string,foods:Food[]=[]):Sub=>({id:uid(),name,foods});
 const initial:Place[]=[];
+const anonymousPreviewPlaces=():Place[]=>[
+  {id:uid(),name:'Geladeira',subdivisions:[makeSub('Geral')]},
+  {id:uid(),name:'Freezer',subdivisions:[makeSub('Geral')]}
+];
 
 function normalize(raw:any):Place[]{
   if(!Array.isArray(raw))return [];
@@ -128,16 +132,20 @@ function readAnonymousPlaces(){
   const isEmptyStarterInventory=(places:Place[]|null)=>!!places&&places.length===defaults.length
     &&[...places].sort((a,b)=>a.name.localeCompare(b.name)).every((place,index)=>
       place.name===defaults[index]&&place.subdivisions.every(sub=>sub.foods.length===0));
-  // One-time cleanup of the old anonymous starter screen; preserve any inventory containing foods.
+  // Remove the old five-location anonymous starter state without touching actual food data.
   if(isEmptyStarterInventory(stored)||isEmptyStarterInventory(legacy)){
     try{
       if(isEmptyStarterInventory(stored))localStorage.removeItem(anonymousLocalKey);
       if(isEmptyStarterInventory(legacy))localStorage.removeItem(legacyLocalKey);
       localStorage.removeItem(recentFoodsKey);
     }catch{}
-    return [];
   }
-  return readLocalPlaces(null);
+  const current=readLocalPlaces(null);
+  if(current.length)return current;
+  // Anonymous visitors get two empty example locations; signed-in accounts still start empty.
+  const preview=anonymousPreviewPlaces();
+  writeLocalPlaces(null,preview);
+  return preview;
 }
 
 function readHouseholdPlaces(userId:string,householdId:string,isPersonal:boolean){
