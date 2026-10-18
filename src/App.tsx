@@ -1708,6 +1708,7 @@ function App(){
   }
 
   async function removeSub(placeId:string,id:string):Promise<boolean>{
+    if(!userId){promptAccount('alterar a organização dos seus locais');return false;}
     const removed=places.find(p=>p.id===placeId)?.subdivisions.find(s=>s.id===id);
     if(!removed)return false;
     const snapshot=places;
