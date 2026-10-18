@@ -74,16 +74,10 @@ function locationPhotoClass(name:string){
 }
 const authRedirectUrl=()=>new URL(import.meta.env.BASE_URL,window.location.origin).toString();
 const makeSub=(name:string,foods:Food[]=[]):Sub=>({id:uid(),name,foods});
-const initial:Place[]=[
-  {id:uid(),name:'Geladeira',subdivisions:[makeSub('Geral')]},
-  {id:uid(),name:'Freezer',subdivisions:[makeSub('Geral')]},
-  {id:uid(),name:'Armário',subdivisions:[makeSub('Geral')]},
-  {id:uid(),name:'Gavetas',subdivisions:[makeSub('Geral')]},
-  {id:uid(),name:'Despensa',subdivisions:[makeSub('Geral')]}
-];
+const initial:Place[]=[];
 
 function normalize(raw:any):Place[]{
-  if(!Array.isArray(raw))return initial;
+  if(!Array.isArray(raw))return [];
   return raw.map((p:any)=>{
     const oldSubs=Array.isArray(p.subdivisions)?p.subdivisions:[];
     const first=oldSubs[0];
@@ -124,7 +118,7 @@ function readLocalPlaces(userId?:string|null){
     const legacy=readStoredPlaces(legacyLocalKey);
     if(legacy)return legacy;
   }
-  return initial;
+  return [];
 }
 
 function readAnonymousPlaces(){
@@ -138,7 +132,7 @@ function readHouseholdPlaces(userId:string,householdId:string,isPersonal:boolean
     const legacy=readStoredPlaces(userLocalKey(userId));
     if(legacy)return legacy;
     if(!getLocalOwner())return readAnonymousPlaces();
-    return initial;
+    return [];
   }
   return [];
 }
