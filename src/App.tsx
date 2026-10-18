@@ -154,7 +154,8 @@ function readHouseholdPlaces(userId:string,householdId:string,isPersonal:boolean
   if(isPersonal){
     const legacy=readStoredPlaces(userLocalKey(userId));
     if(legacy)return legacy;
-    if(!getLocalOwner())return readAnonymousPlaces();
+    // Never promote the anonymous preview/cache into a newly authenticated account.
+    // Anonymous and account inventories must remain isolated unless an explicit import flow exists.
     return [];
   }
   return [];
