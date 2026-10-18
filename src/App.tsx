@@ -2346,7 +2346,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
   const filtered=options.filter(option=>{
     const recipe=option.recipe;
     const matchesQuery=!q||searchKey(recipe.name+' '+recipe.description+' '+recipe.ingredients.map(i=>i.name+' '+i.aliases.join(' ')).join(' ')).includes(q);
-    const matchesFilter=filter==='all'||(filter==='ready'?option.ready:option.missing.length>0);
+    const matchesFilter=filter==='all'||(filter==='ready'?option.ready:!option.ready);
     return matchesQuery&&matchesFilter;
   }).sort((a,b)=>Number(b.ready)-Number(a.ready)||b.available-a.available||(b.available/b.statuses.length)-(a.available/a.statuses.length)||b.expiring-a.expiring||a.statuses.length-b.statuses.length||a.recipe.minutes-b.recipe.minutes);
   return <section className="recipe-page">
@@ -2366,7 +2366,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     <div className="recipe-filters" aria-label="Filtrar receitas">
       <button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>Todas ({options.length})</button>
       <button className={filter==='ready'?'active':''} onClick={()=>setFilter('ready')}>Tenho tudo ({options.filter(option=>option.ready).length})</button>
-      <button className={filter==='needs'?'active':''} onClick={()=>setFilter('needs')}>Faltam itens ({options.filter(option=>option.missing.length>0).length})</button>
+      <button className={filter==='needs'?'active':''} onClick={()=>setFilter('needs')}>Faltam itens ({options.filter(option=>!option.ready).length})</button>
     </div>
     {filtered.length===0?<div className="shopping-empty"><BookOpen size={25}/><strong>Nenhuma receita encontrada</strong><span>Tente outra busca ou selecione outro filtro.</span></div>:<div className="recipe-grid">
       {filtered.map(({recipe,statuses,ready,available,unknown,missing,expiring})=>{
