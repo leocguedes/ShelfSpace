@@ -2641,7 +2641,17 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
     return()=>{current=false};
   },[active?.id]);
   const roleLabel=(_role:HouseholdMember['role'])=>'Membro';
-  return <Modal title="Família e compartilhamento" onClose={onClose}>
+  return <Modal title={createHouseOpen?"Adicionar casa":"Família e compartilhamento"} onClose={onClose}>
+    {createHouseOpen? <div className="household-create-form">
+      <p className="modal-help">Crie uma casa separada para organizar outro endereço, imóvel ou grupo familiar.</p>
+      <label>Nome da casa<input autoFocus value={newHouseName} maxLength={15} onChange={e=>{setNewHouseName(e.target.value);setCreateHouseError('');}} placeholder="Ex.: Casa de praia"/></label>
+      <small className="household-create-hint">Escolha um nome com até 15 caracteres.</small>
+      {createHouseError&&<p className="form-error" role="alert">{createHouseError}</p>}
+      <div className="household-rename-actions">
+        <button type="button" disabled={busy} onClick={()=>{setCreateHouseOpen(false);setNewHouseName('');setCreateHouseError('');}}>Cancelar</button>
+        <button type="button" className="primary" disabled={busy||!newHouseName.trim()||newHouseName.trim().length>15} onClick={()=>{void onCreateHousehold(newHouseName).then(ok=>{if(ok){setNewHouseName('');setCreateHouseOpen(false);setCreateHouseError('');}else setCreateHouseError('Não foi possível criar a casa. Tente novamente.');});}}>{busy?'Criando…':'Criar casa'}</button>
+      </div>
+    </div>:<>
     <p className="modal-help">Veja quem participa desta casa e compartilhe o estoque com as pessoas que moram com você.</p>
     {households.length>1&&<label>Casa ativa<select value={activeHouseholdId||''} disabled={busy} onChange={e=>onSwitch(e.target.value)}>{households.map(h=><option key={h.id} value={h.id}>{h.name}{h.is_personal?' · pessoal':''}</option>)}</select></label>}
     <div className="household-panel">
@@ -2666,16 +2676,7 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
       </>:<p className="household-note">Entre em uma casa para gerar um convite.</p>}
     </div>
     <div className="household-join household-create">
-      {createHouseOpen? <>
-        <strong>Criar uma nova casa</strong>
-        <p>Crie um estoque separado para outro endereço, imóvel ou grupo familiar.</p>
-        <label>Nome da casa<input value={newHouseName} maxLength={15} onChange={e=>{setNewHouseName(e.target.value);setCreateHouseError('');}} placeholder="Ex.: Casa de praia"/></label>
-        {createHouseError&&<p className="form-error" role="alert">{createHouseError}</p>}
-        <div className="household-rename-actions">
-          <button type="button" disabled={busy} onClick={()=>{setCreateHouseOpen(false);setNewHouseName('');setCreateHouseError('');}}>Cancelar</button>
-          <button type="button" className="primary" disabled={busy||!newHouseName.trim()||newHouseName.trim().length>15} onClick={()=>{void onCreateHousehold(newHouseName).then(ok=>{if(ok){setNewHouseName('');setCreateHouseOpen(false);setCreateHouseError('');}else setCreateHouseError('Não foi possível criar a casa. Tente novamente.');});}}>{busy?'Criando…':'Criar casa'}</button>
-        </div>
-      </>:<button type="button" className="secondary full" disabled={busy} onClick={()=>setCreateHouseOpen(true)}><Plus size={16}/> Criar outra casa</button>}
+      <button type="button" className="secondary full" disabled={busy} onClick={()=>{setNewHouseName('');setCreateHouseError('');setCreateHouseOpen(true);}}><Plus size={16}/> Criar outra casa</button>
     </div>
     {active&&!(active.is_personal&&active.created_by===currentUserId&&members.length<=1)&&<div className="household-leave">
       {leaveConfirm?<div className="household-leave-confirm">
@@ -2690,9 +2691,9 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
       <label>Código<input value={joinCode} onChange={e=>onJoinCodeChange(e.target.value.toUpperCase())} placeholder="Ex.: A1B2C3D4E5" autoComplete="off"/></label>
       <button className="primary full" disabled={busy||joinCode.trim().length<6} onClick={onJoin}>{busy?'Aguarde...':'Entrar na casa'}</button>
     </div>
+    </>}
   </Modal>
 }
-
 function Empty({title,text,action,actionLabel}:{title:string;text:string;action?:()=>void;actionLabel?:string}){
   return <div className="empty"><PackagePlus size={30}/><h3>{title}</h3><p>{text}</p>{action&&<button className={actionLabel==='Limpar busca'?'secondary':'primary'} onClick={action}>{actionLabel==='Limpar busca'?<X size={18}/>:<Plus size={18}/>} {actionLabel||'Adicionar alimento'}</button>}</div>
 }
