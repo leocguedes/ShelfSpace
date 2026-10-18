@@ -1913,7 +1913,7 @@ function App(){
             </div>}
             <div className="settings-group">
               <p className="settings-group-label">SUA CASA</p>
-              {userId?<button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>:<button className="settings-row" onClick={()=>promptAccount('compartilhar sua casa com outras pessoas')}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>Crie uma conta para convidar pessoas e entrar em outras casas</small></span><ChevronRight size={17}/></button>}
+              {userId&&<button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>}
               <button className="settings-row" onClick={()=>{if(!userId){promptAccount('criar e alterar locais de armazenamento');return;}setPlaceToEdit(null);setPlaceModal(true)}}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>{userId?'Gerencie geladeira, freezer, despensa e outros locais':'Crie uma conta para personalizar seus locais'}</small></span><ChevronRight size={17}/></button>
               <button className="settings-row" onClick={()=>{if(!userId){promptAccount('adicionar alimentos ao estoque');return;}setImportModal(true)}}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>{userId?'Adicione uma lista ao seu estoque':'Crie uma conta para importar sua lista'}</small></span><ChevronRight size={17}/></button>
             </div>
@@ -2193,7 +2193,7 @@ function App(){
       {moveModal&&<MoveModal data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>} 
       {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
-      {authModal&&<AuthModal busy={authBusy} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
+      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')?'signup':'signin'} busy={authBusy} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
         food={places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods)).find(food=>food.id===consumptionRuleModal.foodId)}
@@ -2293,8 +2293,8 @@ function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=
   </Modal>
 }
 
-function AuthModal({busy,onClose,onSubmit,onReset}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>void;onReset:(email:string)=>void}){
-  const[mode,setMode]=useState<'signin'|'signup'>('signin');
+function AuthModal({busy,onClose,onSubmit,onReset,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>void;onReset:(email:string)=>void;initialMode?:'signin'|'signup'}){
+  const[mode,setMode]=useState<'signin'|'signup'>(initialMode);
   const[email,setEmail]=useState('');
   const[password,setPassword]=useState('');
   return <Modal title={mode==='signin'?'Entrar no ShelfSpace':'Criar sua conta'} onClose={onClose}>
