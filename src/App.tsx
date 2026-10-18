@@ -399,6 +399,7 @@ function App(){
   const[authModal,setAuthModal]=useState(false);
   const[passwordRecovery,setPasswordRecovery]=useState(false);
   const[passwordChangeModal,setPasswordChangeModal]=useState(false);
+  const[signOutConfirm,setSignOutConfirm]=useState(false);
   const[selected,setSelected]=useState<string|null>(null);
   const[selectedSub,setSelectedSub]=useState<string|null>(null);
   const[search,setSearch]=useState('');
@@ -1318,6 +1319,7 @@ function App(){
       setHouseholdId(null);
       setSynced(false);
       setAuthMessage(null);
+      showActionFeedback('Você saiu da conta.');
     }finally{setAuthBusy(false)}
   }
 
@@ -1328,7 +1330,7 @@ function App(){
       const{error}=await supabase.auth.updateUser({password});
       if(error)return 'Não foi possível alterar a senha. '+(error.message||'Tente novamente.');
       setPasswordChangeModal(false);
-      setActionFeedback('Senha alterada com sucesso.');
+      showActionFeedback('Senha alterada com sucesso.');
       return null;
     }catch{
       return 'Não foi possível alterar a senha agora. Confira sua conexão e tente novamente.';
@@ -1804,7 +1806,7 @@ function App(){
                 <strong>{user&&!user.is_anonymous?(user.email||'Sua conta'):'Use o ShelfSpace em todos os seus dispositivos'}</strong>
                 <span>{user&&!user.is_anonymous?'Conta conectada':'Entre ou crie uma conta para sincronizar seus dados'}</span>
               </div>
-              <button className="settings-action-button" onClick={user&&!user.is_anonymous?signOut:()=>setAuthModal(true)} disabled={authBusy}>{user&&!user.is_anonymous?'Sair':'Entrar'} <ChevronRight size={16}/></button>
+              <button className="settings-action-button" onClick={user&&!user.is_anonymous?()=>setSignOutConfirm(true):()=>setAuthModal(true)} disabled={authBusy}>{user&&!user.is_anonymous?'Sair':'Entrar'} <ChevronRight size={16}/></button>
             </div>
             {user&&!user.is_anonymous&&<div className="settings-group">
               <p className="settings-group-label">SEGURANÇA DA CONTA</p>
@@ -2123,6 +2125,7 @@ function App(){
         onJoinCodeChange={setHouseholdJoinCode}
         onCopy={async code=>{try{await navigator.clipboard.writeText(code);setHouseholdCopied(true)}catch{setAuthMessage('Não foi possível copiar automaticamente. Selecione o código para copiá-lo.')}}}
       />}
+      {signOutConfirm&&<Modal title="Sair da conta?" onClose={()=>setSignOutConfirm(false)}><p className="modal-help">Tem certeza de que deseja sair do ShelfSpace neste dispositivo? Seus dados sincronizados continuarão salvos.</p><div className="household-rename-actions"><button type="button" disabled={authBusy} onClick={()=>setSignOutConfirm(false)}>Cancelar</button><button type="button" className="primary" disabled={authBusy} onClick={()=>{setSignOutConfirm(false);void signOut();}}>{authBusy?'Saindo…':'Sim, sair da conta'}</button></div></Modal>}
       {passwordRecovery&&<PasswordRecoveryModal busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
       {passwordChangeModal&&<AccountPasswordModal busy={authBusy} onClose={()=>setPasswordChangeModal(false)} onSubmit={changeAccountPassword}/>}
       {undo&&<div className="undo-toast" role="status" aria-live="polite"><span>{undo.label}</span><button onClick={consumeUndo}>Desfazer</button></div>}
@@ -2507,9 +2510,9 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
       <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||'Sua casa'}</strong></div>
       {canInvite&&(nameEditing?<div className="household-rename">
         <label>Nome da casa<input value={houseName} maxLength={15} onChange={event=>{setHouseName(event.target.value);setNameMessage('');}} placeholder="Ex.: Minha casa"/></label>
-        <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage('Nome atualizado para todos os membros.');}});}}>Salvar nome</button></div>
-        {nameMessage&&<small>{nameMessage}</small>}
-      </div>:<button type="button" className="household-rename-trigger" onClick={()=>setNameEditing(true)}>Editar nome da casa</button>)}
+        <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage('Nome da casa alterado com sucesso.');}});}}>Salvar nome</button></div>
+      </div>:<button type="button" className="household-rename-trigger" onClick={()=>{setNameMessage('');setNameEditing(true);}}>Editar nome da casa</button>)}
+      {nameMessage&&<p className="household-rename-success" role="status" aria-live="polite">✓ {nameMessage}</p>}
       <p>{active?.is_personal?'Esta é sua casa pessoal. Você pode convidar familiares para compartilhar o mesmo estoque.':'Você está vendo o estoque compartilhado desta casa.'}</p>
       <div className="household-members">
         <div className="household-members-heading"><strong>Quem está nesta casa</strong><span>{membersLoading?'Carregando…':members.length+' '+(members.length===1?'pessoa':'pessoas')}</span></div>
