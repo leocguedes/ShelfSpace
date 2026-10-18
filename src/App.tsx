@@ -2331,7 +2331,6 @@ function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBus
         <h2>Lista de compras</h2>
         <p>Uma lista compartilhada com sua casa, ligada ao estoque para facilitar a reposição.</p>
       </div>
-      <div className="shopping-summary"><strong>{pending.length}</strong><span>{pending.length===1?'item pendente':'itens pendentes'}</span></div>
     </div>
     {!signedIn?(
       <div className="no-places shopping-signin">
