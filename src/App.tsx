@@ -2288,6 +2288,7 @@ function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBus
   const[recurringNextDue,setRecurringNextDue]=useState(localDateString());
   const[editingRecurringId,setEditingRecurringId]=useState<string|undefined>();
   const[editingShoppingItem,setEditingShoppingItem]=useState<ShoppingItem|null>(null);
+  const[isAddFormOpen,setIsAddFormOpen]=useState(true);
   const pending=items.filter(item=>!item.is_purchased);
   const purchased=items.filter(item=>item.is_purchased);
   const submit=(event:{preventDefault:()=>void})=>{
@@ -2340,17 +2341,24 @@ function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBus
         <button className="primary" onClick={onSignIn}>Entrar ou criar conta</button>
       </div>
     ):<>
-      <form className="shopping-add-form" onSubmit={submit}>
-        <div className="shopping-form-heading"><strong>Adicionar à lista</strong><span>Itens repetidos com a mesma unidade são somados.</span></div>
-        <label>Produto<input list="shopping-pantry-suggestions" value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/><datalist id="shopping-pantry-suggestions">{Array.from(new Map(places.flatMap(place=>place.subdivisions.flatMap(sub=>sub.foods)).map(food=>[searchKey(food.name),food])).values()).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(food=><option key={food.id} value={food.name}/>)}</datalist></label>
-        <div className="shopping-form-row">
-          <label>Quantidade<input type="number" min="0.01" step={unit==='kg'||unit==='L'?0.1:1} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
-          <label>Unidade<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
-          <button className="primary shopping-add-button" type="submit" disabled={!name.trim()||!Number.isFinite(quantity)||quantity<=0||loading}><Plus size={17}/> Adicionar</button>
+      <form className={'shopping-add-form '+(!isAddFormOpen?'is-collapsed':'')} onSubmit={submit}>
+        <div className="shopping-form-heading">
+          <button type="button" className="shopping-form-toggle" aria-expanded={isAddFormOpen} aria-controls="shopping-add-fields" onClick={()=>setIsAddFormOpen(open=>!open)}>
+            <strong>Adicionar à lista</strong><ChevronDown size={19} aria-hidden="true"/>
+          </button>
+          {isAddFormOpen&&<span>Itens repetidos com a mesma unidade são somados.</span>}
+        </div>
+        <div id="shopping-add-fields" className="shopping-add-fields" hidden={!isAddFormOpen}>
+          <label>Produto<input list="shopping-pantry-suggestions" value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/><datalist id="shopping-pantry-suggestions">{Array.from(new Map(places.flatMap(place=>place.subdivisions.flatMap(sub=>sub.foods)).map(food=>[searchKey(food.name),food])).values()).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(food=><option key={food.id} value={food.name}/>)}</datalist></label>
+          <div className="shopping-form-row">
+            <label>Quantidade<input type="number" min="0.01" step={unit==='kg'||unit==='L'?0.1:1} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
+            <label>Unidade<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+            <button className="primary shopping-add-button" type="submit" disabled={!name.trim()||!Number.isFinite(quantity)||quantity<=0||loading}><Plus size={17}/> Adicionar</button>
+          </div>
         </div>
       </form>
       <details className="recurring-panel">
-        <summary><span><strong>Reposições recorrentes</strong><small>Repor itens em intervalos definidos</small></span><b>{recurringRules.filter(rule=>rule.is_active).length}</b></summary>
+        <summary><span className="recurring-summary-icon" aria-hidden="true"><ClipboardList size={20}/></span><span className="recurring-summary-copy"><strong>Reposições recorrentes</strong><small>Repor itens em intervalos definidos</small></span><b>{recurringRules.filter(rule=>rule.is_active).length}</b><ChevronRight className="recurring-summary-chevron" size={18} aria-hidden="true"/></summary>
         <form id="recurring-shopping-form" className="recurring-form" onSubmit={submitRecurring}>
           <strong>{editingRecurringId?'Editar reposição':'Criar uma reposição programada'}</strong>
           <label>Produto<input value={recurringName} onChange={e=>setRecurringName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/></label>
