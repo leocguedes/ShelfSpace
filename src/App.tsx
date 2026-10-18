@@ -969,7 +969,7 @@ function App(){
       const newHouseholdId=String(data);
       await activateHousehold(newHouseholdId,userId,true);
       setHouseholdModal(false);
-      setAuthMessage('Casa criada. Você pode alternar entre suas casas pelo seletor.');
+      showActionFeedback('Casa criada. Você pode alternar entre suas casas pelo seletor.');
       return true;
     }catch{
       setAuthMessage('Não foi possível criar a casa agora. Confira o nome e tente novamente.');
