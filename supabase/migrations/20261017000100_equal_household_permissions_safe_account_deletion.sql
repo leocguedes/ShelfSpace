@@ -73,6 +73,27 @@ begin
 end;
 $$;
 
+-- Allow trusted nested cleanup to transfer inventory ownership during auth deletion.
+create or replace function public.preserve_row_creator()
+returns trigger
+language plpgsql
+security invoker
+set search_path = pg_catalog, public, pg_temp
+as $
+begin
+  if tg_op = 'INSERT' then
+    if new.user_id is distinct from (select auth.uid()) then
+      raise exception 'user_id must match the authenticated user';
+    end if;
+  elsif pg_trigger_depth() > 1 and current_user = 'postgres' then
+    return new;
+  else
+    new.user_id := old.user_id;
+  end if;
+  return new;
+end;
+$;
+
 -- Preserve household-wide records when the creator's auth account is deleted.
 -- Nullable attribution is preferable to cascading deletion of shared records.
 alter table public.households alter column created_by drop not null;
