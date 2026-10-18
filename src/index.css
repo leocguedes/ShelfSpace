@@ -2347,7 +2347,7 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
   background:transparent;
   box-shadow:none;
 }
-.home-overview-content{gap:14px;padding:0}
+.home-overview-content{gap:8px;padding:0}
 .home-overview-heading{margin:0}
 .home-overview-heading h3{
   display:flex;align-items:center;flex-wrap:wrap;gap:12px;
