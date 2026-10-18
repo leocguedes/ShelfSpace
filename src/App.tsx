@@ -886,7 +886,7 @@ function App(){
     setAuthMessage(message+' O dado local foi preservado.');
   }
 
-  async function activateHousehold(targetHouseholdId?:string|null,targetUserId=userId,showMessage=false){
+  async function activateHousehold(targetHouseholdId?:string|null,targetUserId=userId,showMessage=false,initializeDefaultLocations=false){
     if(!targetUserId)return;
     const request=++authRequest.current;
     setCacheReady(false);
@@ -938,6 +938,22 @@ function App(){
           if(request!==authRequest.current)return;
           setSynced(false);
           setAuthMessage('Os dados locais desta casa foram preservados, mas ainda não foi possível sincronizá-los.');
+        }
+      }else if(initializeDefaultLocations&&context.household.is_personal){
+        const starterPlaces:Place[]=[
+          {id:uid(),name:'Geladeira',subdivisions:[makeSub('Geral')]},
+          {id:uid(),name:'Freezer',subdivisions:[makeSub('Geral')]}
+        ];
+        setPlaces(starterPlaces);
+        writeHouseholdPlaces(targetUserId,context.householdId,starterPlaces);
+        try{
+          await uploadLocal(targetUserId,starterPlaces,context.householdId);
+          if(request!==authRequest.current)return;
+          setSynced(true);
+        }catch{
+          if(request!==authRequest.current)return;
+          setSynced(false);
+          setAuthMessage('Sua casa foi criada com Geladeira e Freezer, mas ainda não foi possível sincronizar os locais. Eles foram preservados neste dispositivo.');
         }
       }else{
         setPlaces([]);
@@ -1356,7 +1372,7 @@ function App(){
         setUser(data.user);
         setUserId(data.user.id);
         setRecentFoods(readRecentFoods(data.user.id));
-        await activateHousehold(null,data.user.id,true);
+        await activateHousehold(null,data.user.id,true,true);
         setAuthModal(false);
       }else{
         const{data,error}=await supabase.auth.signInWithPassword({email,password});
