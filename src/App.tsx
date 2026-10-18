@@ -1900,29 +1900,21 @@ function App(){
                 <p>Gerencie sua conta, sua casa e a organização do ShelfSpace.</p>
               </div>
             </div>
-            <div className="settings-account-card">
-              <div className="settings-avatar"><Home size={22}/></div>
-              <div className="settings-account-copy">
-                <strong>{user&&!user.is_anonymous?(user.email||'Sua conta'):'Use o ShelfSpace em todos os seus dispositivos'}</strong>
-                <span>{user&&!user.is_anonymous?'Conta conectada':'Entre ou crie uma conta para sincronizar seus dados'}</span>
-              </div>
-              <button className="settings-action-button" onClick={user&&!user.is_anonymous?()=>setSignOutConfirm(true):()=>setAuthModal(true)} disabled={authBusy}>{user&&!user.is_anonymous?'Sair':'Entrar'} <ChevronRight size={16}/></button>
+            <div className="settings-group">
+              <p className="settings-group-label">SUA CONTA</p>
+              <div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user&&!user.is_anonymous?(user.email||'Conta conectada'):'Visitante'}</strong><small>{user&&!user.is_anonymous?'E-mail da sua conta':'Entre ou crie uma conta para sincronizar seus dados'}</small></span></div>
+              {user&&!user.is_anonymous&&<button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no ShelfSpace</small></span><ChevronRight size={17}/></button>}
+              <button className="settings-row" onClick={user&&!user.is_anonymous?()=>setSignOutConfirm(true):()=>setAuthModal(true)} disabled={authBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user&&!user.is_anonymous?'Sair da conta':'Entrar ou criar conta'}</strong><small>{user&&!user.is_anonymous?'Desconectar esta sessão':'Acesse seus dados em todos os dispositivos'}</small></span><ChevronRight size={17}/></button>
             </div>
-            {user&&!user.is_anonymous&&<div className="settings-group">
-              <p className="settings-group-label">SEGURANÇA DA CONTA</p>
-              <button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no ShelfSpace</small></span><ChevronRight size={17}/></button>
-              <button className="settings-row danger" onClick={()=>setDeleteAccountConfirm(true)}><span className="settings-row-icon"><Trash2 size={19}/></span><span className="settings-row-copy"><strong>Excluir minha conta</strong><small>Apague sua conta permanentemente</small></span><ChevronRight size={17}/></button>
-            </div>}
             <div className="settings-group">
               <p className="settings-group-label">SUA CASA</p>
               {userId&&<button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>}
               <button className="settings-row" onClick={()=>{if(!userId){promptAccount('criar e alterar locais de armazenamento');return;}setPlaceToEdit(null);setPlaceModal(true)}}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>{userId?'Gerencie geladeira, freezer, despensa e outros locais':'Crie uma conta para personalizar seus locais'}</small></span><ChevronRight size={17}/></button>
               <button className="settings-row" onClick={()=>{if(!userId){promptAccount('adicionar alimentos ao estoque');return;}setImportModal(true)}}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>{userId?'Adicione uma lista ao seu estoque':'Crie uma conta para importar sua lista'}</small></span><ChevronRight size={17}/></button>
             </div>
-            <div className="settings-group">
-              <p className="settings-group-label">APLICATIVO</p>
-              <button className="settings-row" onClick={()=>{setNotificationCenterOpen(true);setWorkspace('inventory');setSelected(null);setSelectedSub(null)}}><span className="settings-row-icon"><Bell size={19}/></span><span className="settings-row-copy"><strong>Notificações</strong><small>{notificationCount?notificationCount+' alertas precisam da sua atenção':'Alertas de validade e consumo'}</small></span><ChevronRight size={17}/></button>
-            </div>
+            {user&&!user.is_anonymous&&<div className="settings-group settings-danger-group">
+              <button className="settings-row danger" onClick={()=>setDeleteAccountConfirm(true)}><span className="settings-row-icon"><Trash2 size={19}/></span><span className="settings-row-copy"><strong>Excluir minha conta</strong><small>Apague sua conta permanentemente</small></span><ChevronRight size={17}/></button>
+            </div>}
             <p className="settings-footer">ShelfSpace · Sua casa, organizada.</p>
           </section>
         ):workspace==='recipes'?(
