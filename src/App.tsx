@@ -940,6 +940,24 @@ function App(){
     }finally{setHouseholdBusy(false)}
   }
 
+  async function leaveHousehold(targetId:string):Promise<boolean>{
+    const target=households.find(h=>h.id===targetId);
+    if(!userId||!target||target.is_personal)return false;
+    setHouseholdBusy(true);
+    try{
+      const{error}=await supabase.rpc('leave_household',{target_household_id:targetId});
+      if(error)throw error;
+      setHouseholdModal(false);
+      const personalHouse=households.find(h=>h.is_personal&&h.id!==targetId);
+      await activateHousehold(personalHouse?.id||null,userId,true);
+      setAuthMessage('Você saiu da casa compartilhada. Sua conta e seus dados pessoais foram mantidos.');
+      return true;
+    }catch{
+      setAuthMessage('Não foi possível sair desta casa agora. Nenhum dado foi excluído; tente novamente.');
+      return false;
+    }finally{setHouseholdBusy(false)}
+  }
+
   async function createHouseholdInvite(){
     if(!userId||!householdId)return;
     setHouseholdBusy(true);
@@ -2150,6 +2168,7 @@ function App(){
         onSwitch={id=>void activateHousehold(id,userId,true)}
         onRename={renameHousehold}
         onCreateInvite={createHouseholdInvite}
+        onLeave={leaveHousehold}
         onJoin={joinHousehold}
         onJoinCodeChange={setHouseholdJoinCode}
         onCopy={async code=>{try{await navigator.clipboard.writeText(code);setHouseholdCopied(true)}catch{setAuthMessage('Não foi possível copiar automaticamente. Selecione o código para copiá-lo.')}}}
@@ -2527,12 +2546,13 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
   </Modal>
 }
 
-function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void}){
+function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy,onLeave}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void;onLeave:(id:string)=>Promise<boolean>}){
   const active=households.find(h=>h.id===activeHouseholdId);
   const canInvite=!!active;
   const[houseName,setHouseName]=useState(active?.name||'');
   const[nameEditing,setNameEditing]=useState(false);
   const[nameMessage,setNameMessage]=useState('');
+  const[leaveConfirm,setLeaveConfirm]=useState(false);
   useEffect(()=>{setHouseName(active?.name||'');},[active?.name]);
   useEffect(()=>{setNameEditing(false);setNameMessage('');},[active?.id]);
   const[members,setMembers]=useState<HouseholdMember[]>([]);
@@ -2578,6 +2598,13 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
         </div>}
       </>:<p className="household-note">Entre em uma casa para gerar um convite.</p>}
     </div>
+    {!active?.is_personal&&active&&<div className="household-leave">
+      {leaveConfirm?<div className="household-leave-confirm">
+        <strong>Sair desta casa compartilhada?</strong>
+        <p>Você perderá acesso ao estoque e à lista desta casa. Sua conta e os dados dos outros membros continuarão preservados.</p>
+        <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>setLeaveConfirm(false)}>Cancelar</button><button type="button" className="danger-button" disabled={busy} onClick={()=>void onLeave(active.id).then(ok=>{if(ok){setLeaveConfirm(false);onClose();}})}>{busy?'Saindo…':'Confirmar saída'}</button></div>
+      </div>:<button type="button" className="household-leave-trigger" disabled={busy} onClick={()=>setLeaveConfirm(true)}>Sair desta casa compartilhada</button>}
+    </div>}
     <div className="household-join">
       <strong>Entrar em outra casa</strong>
       <p>Digite o código de convite que um familiar compartilhou com você.</p>
