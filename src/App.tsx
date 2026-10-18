@@ -122,6 +122,21 @@ function readLocalPlaces(userId?:string|null){
 }
 
 function readAnonymousPlaces(){
+  const stored=readStoredPlaces(anonymousLocalKey);
+  const legacy=!getLocalOwner()?readStoredPlaces(legacyLocalKey):null;
+  const defaults=['Armário','Despensa','Freezer','Gavetas','Geladeira'];
+  const isEmptyStarterInventory=(places:Place[]|null)=>!!places&&places.length===defaults.length
+    &&[...places].sort((a,b)=>a.name.localeCompare(b.name)).every((place,index)=>
+      place.name===defaults[index]&&place.subdivisions.every(sub=>sub.foods.length===0));
+  // One-time cleanup of the old anonymous starter screen; preserve any inventory containing foods.
+  if(isEmptyStarterInventory(stored)||isEmptyStarterInventory(legacy)){
+    try{
+      if(isEmptyStarterInventory(stored))localStorage.removeItem(anonymousLocalKey);
+      if(isEmptyStarterInventory(legacy))localStorage.removeItem(legacyLocalKey);
+      localStorage.removeItem(recentFoodsKey);
+    }catch{}
+    return [];
+  }
   return readLocalPlaces(null);
 }
 
