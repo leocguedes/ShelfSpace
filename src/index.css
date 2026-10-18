@@ -465,6 +465,8 @@ header{position:sticky;top:0;z-index:6;background:#fffdf9ee;backdrop-filter:blur
 
 /* Pantry-aware recipe suggestions */
 .recipe-page{max-width:1000px;margin:0 auto}
+.recipe-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.recipe-beta-badge{display:inline-flex;align-items:center;border:1px solid var(--ss-olive);border-radius:5px;padding:3px 7px;color:var(--ss-olive);font-size:10px;font-weight:700;letter-spacing:.09em;line-height:1.3}
 .recipe-hero{align-items:flex-end}
 .recipe-hero .shopping-summary{min-width:118px}
 .recipe-search{margin-bottom:15px}
