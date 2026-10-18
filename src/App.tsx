@@ -432,6 +432,7 @@ function App(){
   const[foodMenu,setFoodMenu]=useState<string|null>(null);
   const[placeModal,setPlaceModal]=useState(false);
   const[placeToEdit,setPlaceToEdit]=useState<string|null>(null);
+  const[deletePlaceConfirm,setDeletePlaceConfirm]=useState<string|null>(null);
   const[subModal,setSubModal]=useState<{place:string;sub?:Sub}|null>(null);
   const[undo,setUndo]=useState<UndoState|null>(null);
   const[actionFeedback,setActionFeedback]=useState<string|null>(null);
@@ -1801,9 +1802,13 @@ function App(){
                   </p>
                 </div>
               </div>
-              <button className="primary location-add" onClick={()=>selectedSub&&setFoodModal({place:selected,sub:selectedSub})} disabled={!selectedSub}>
-                <Plus size={18}/> Adicionar alimento
-              </button>
+              <div className="location-header-actions">
+                <button type="button" className="location-manage-action" onClick={()=>{setPlaceToEdit(selected);setPlaceModal(true)}} aria-label="Editar nome do local" title="Editar nome"><Edit3 size={17}/></button>
+                <button type="button" className="location-manage-action danger" onClick={()=>setDeletePlaceConfirm(selected)} aria-label="Excluir local" title="Excluir local"><Trash2 size={17}/></button>
+                <button className="primary location-add" onClick={()=>selectedSub&&setFoodModal({place:selected,sub:selectedSub})} disabled={!selectedSub}>
+                  <Plus size={18}/> Adicionar alimento
+                </button>
+              </div>
             </div>
 
             {selectedSub&&sub?(
@@ -2239,6 +2244,17 @@ function App(){
       {passwordRecovery&&<PasswordRecoveryModal busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
       {passwordChangeModal&&<AccountPasswordModal busy={authBusy} onClose={()=>setPasswordChangeModal(false)} onSubmit={changeAccountPassword}/>}
        {deleteAccountConfirm&&<AccountDeletionModal busy={authBusy} onClose={()=>setDeleteAccountConfirm(false)} onSubmit={deleteAccount}/>}
+      {deletePlaceConfirm&&<Modal title="Excluir local permanentemente?" onClose={()=>setDeletePlaceConfirm(null)}>
+        <div className="delete-confirm">
+          <div className="delete-confirm-icon"><Trash2 size={22}/></div>
+          <h3>Excluir “{places.find(p=>p.id===deletePlaceConfirm)?.name||'este local'}”?</h3>
+          <p>Todos os alimentos cadastrados neste local, incluindo suas quantidades e datas de validade, serão excluídos permanentemente. Esta ação não poderá ser desfeita.</p>
+          <div className="delete-confirm-actions">
+            <button type="button" className="secondary" onClick={()=>setDeletePlaceConfirm(null)}>Cancelar</button>
+            <button type="button" className="danger" onClick={()=>{const id=deletePlaceConfirm;void removePlace(id).then(ok=>{if(ok){setDeletePlaceConfirm(null);setUndo(null);if(undoTimer.current)window.clearTimeout(undoTimer.current);}})}}>Excluir permanentemente</button>
+          </div>
+        </div>
+      </Modal>}
       {undo&&<div className="undo-toast" role="status" aria-live="polite"><span>{undo.label}</span><button onClick={consumeUndo}>Desfazer</button></div>}
       {actionFeedback&&<div className="action-feedback" role="status" aria-live="polite">✓ {actionFeedback}</div>}
     </div>
