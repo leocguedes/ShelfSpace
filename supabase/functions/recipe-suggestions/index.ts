@@ -89,7 +89,6 @@ async function searchAfrodite(input: string[]) {
       a.totalIngredients - b.totalIngredients ||
       String(a.raw.nome ?? "").localeCompare(String(b.raw.nome ?? ""), "pt-BR")
     )
-    .slice(0, 20);
   return scored.map((item) => parseAfroditeRecipe(item.raw, item.index, item.matched)).filter(Boolean);
 }
 
@@ -127,7 +126,7 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Unauthorized" }, 401, origin);
   }
 
-  let body: { ingredients?: unknown };
+  let body: { ingredients?: unknown; offset?: unknown; limit?: unknown };
   try {
     body = await req.json();
   } catch {
