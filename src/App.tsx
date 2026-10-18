@@ -1972,7 +1972,7 @@ function App(){
               )}
             </div>
 
-            {!search&&places.length>0&&(
+            {!search&&(
               <section className="home-overview" aria-label="Resumo da casa">
                 <div className="home-overview-content">
                   <div className="home-overview-heading">
