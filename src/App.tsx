@@ -1730,6 +1730,7 @@ function App(){
           <div><h1>ShelfSpace</h1><span>Sua casa, organizada.</span></div>
         </div>
         <div className="header-actions">
+          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>setHouseholdModal(true)} aria-label={'Alternar casa. Casa ativa: '+(households.find(h=>h.id===householdId)?.name||'Casa')} title="Alternar casa"><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
           <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title="Notificações">
             <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
           </button>
