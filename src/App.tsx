@@ -4,7 +4,7 @@ import{formatQuantity,quantityStep,searchKey,units}from'./lib/domain';
 import type{Unit}from'./lib/domain';
 import{convertRecipeQuantity,getRecipeIngredientStatuses,matchesRecipeIngredient,recipes}from'./lib/recipes';
 import type{Recipe,RecipeIngredient,RecipePantryItem}from'./lib/recipes';
-import{Apple,ArrowDownUp,Bell,BookOpen,Box,CalendarClock,Check,ChevronDown,ChevronRight,ClipboardList,Copy,Edit3,Home,LockKeyhole,Minus,MoreHorizontal,MoveRight,PackagePlus,Plus,Search,Settings,ShoppingCart,Trash2,Users,X}from'lucide-react';
+import{Apple,ArrowDownUp,Bell,BookOpen,Box,CalendarClock,Check,ChevronDown,ChevronRight,ClipboardList,Copy,Edit3,Home,LayoutGrid,List,LockKeyhole,Minus,MoreHorizontal,MoveRight,PackagePlus,Plus,Search,Settings,ShoppingCart,Trash2,Users,X}from'lucide-react';
 import{supabase}from'./lib/supabase';
 
 type RecentFood={name:string;unit:Unit};
@@ -377,6 +377,7 @@ function App(){
   const[workspace,setWorkspace]=useState<'inventory'|'shopping'|'recipes'|'report'|'settings'>('inventory');
   const[reportSearch,setReportSearch]=useState('');
   const[reportLocation,setReportLocation]=useState('all');
+  const[reportView,setReportView]=useState<'list'|'details'>('list');
   const[foodSort,setFoodSort]=useState<'name'|'expiry'|'quantity-asc'|'quantity-desc'>('name');
   const[reportSort,setReportSort]=useState<'name'|'expiry'|'location'|'quantity-asc'|'quantity-desc'>('name');
   const[shoppingItems,setShoppingItems]=useState<ShoppingItem[]>([]);
@@ -1828,28 +1829,48 @@ function App(){
             <div className="hero report-hero">
               <div className="hero-copy">
                 <p className="eyebrow">VISÃO GERAL</p>
-                <h2>Relatório de alimentos</h2>
-                <p>Consulte tudo o que está cadastrado, onde fica, quanto há e a validade informada.</p>
+                <h2>Estoque</h2>
+                <p>Seus alimentos, organizados por local e validade.</p>
               </div>
-              <div className="total report-total"><span>{reportFoods.length}</span><small>{reportFoods.length===1?'alimento listado':'alimentos listados'}</small><em>de {total} no estoque</em></div>
+              <p className="report-total-inline"><strong>{reportFoods.length}</strong> {reportFoods.length===1?'alimento':'alimentos'} <span>{reportSearch||reportLocation!=='all'?'encontrados':'cadastrados'}</span></p>
             </div>
             <div className="report-filters">
-              <label className="report-search"><Search size={18}/><input value={reportSearch} onChange={e=>setReportSearch(e.target.value)} placeholder="Buscar alimento..." aria-label="Buscar alimento no relatório"/></label>
-              <label className="report-location-filter"><span>Local de armazenamento</span><select value={reportLocation} onChange={e=>setReportLocation(e.target.value)}><option value="all">Todos os locais</option>{places.map(place=><option key={place.id} value={place.id}>{place.name}</option>)}</select></label>
-              <label className="report-sort-filter"><span>Ordenar por</span><select value={reportSort} onChange={e=>setReportSort(e.target.value as typeof reportSort)} aria-label="Ordenar relatório"><option value="name">Alfabética (A–Z)</option><option value="expiry">Validade (mais próxima)</option><option value="location">Local (A–Z)</option><option value="quantity-asc">Quantidade (menor primeiro)</option><option value="quantity-desc">Quantidade (maior primeiro)</option></select></label>
+              <label className="report-search"><Search size={18}/><input value={reportSearch} onChange={e=>setReportSearch(e.target.value)} placeholder="Buscar alimento..." aria-label="Buscar alimento no estoque"/></label>
+              <label className="report-location-filter"><span>Local</span><select value={reportLocation} onChange={e=>setReportLocation(e.target.value)}><option value="all">Todos os locais</option>{places.map(place=><option key={place.id} value={place.id}>{place.name}</option>)}</select></label>
+              <label className="report-sort-filter"><span>Ordenar por</span><select value={reportSort} onChange={e=>setReportSort(e.target.value as typeof reportSort)} aria-label="Ordenar estoque"><option value="name">Alfabética (A–Z)</option><option value="expiry">Validade (mais próxima)</option><option value="location">Local (A–Z)</option><option value="quantity-asc">Quantidade (menor primeiro)</option><option value="quantity-desc">Quantidade (maior primeiro)</option></select></label>
+            </div>
+            <div className="report-results-bar">
+              <span>Alimentos</span>
+              <div className="report-view-toggle" role="group" aria-label="Visualização do estoque">
+                <button type="button" className={reportView==='list'?'active':''} aria-pressed={reportView==='list'} onClick={()=>setReportView('list')}><List size={16}/> Lista</button>
+                <button type="button" className={reportView==='details'?'active':''} aria-pressed={reportView==='details'} onClick={()=>setReportView('details')}><LayoutGrid size={16}/> Detalhes</button>
+              </div>
             </div>
             {reportFoods.length?(
-              <div className="report-table-wrap">
-                <table className="report-table">
-                  <thead><tr><th>Alimento</th><th>Onde está</th><th>Quantidade</th><th>Validade</th></tr></thead>
-                  <tbody>{reportFoods.map(food=><tr key={food.id}>
-                    <td data-label="Alimento"><strong>{food.name}</strong></td>
-                    <td data-label="Onde está"><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={14}/></button></td>
-                    <td data-label="Quantidade"><span className="report-quantity">{formatQuantity(food.quantity,food.unit)}</span>{food.quantity===0&&<small className="report-out">Sem estoque</small>}</td>
-                    <td data-label="Validade">{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on)}</small></span>:<span className="report-no-expiry">Não informada</span>}</td>
-                  </tr>)}</tbody>
-                </table>
-              </div>
+              reportView==='list'?(
+                <div className="report-list" aria-label="Alimentos em lista">
+                  {reportFoods.map(food=><div className="report-list-row" key={food.id}>
+                    <div className="report-list-copy">
+                      <strong>{food.name}</strong>
+                      <div className="report-list-meta"><button type="button" className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={13}/></button><span className="report-list-dot">·</span><span>{food.quantity===0?'Sem estoque':formatQuantity(food.quantity,food.unit)}</span></div>
+                      {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on)}</small>:<small className="report-list-expiry no-date">Validade não informada</small>}
+                    </div>
+                    <span className="report-list-quantity" aria-label={'Quantidade: '+formatQuantity(food.quantity,food.unit)}>{formatQuantity(food.quantity,food.unit)}</span>
+                  </div>)}
+                </div>
+              ):(
+                <div className="report-table-wrap">
+                  <table className="report-table">
+                    <thead><tr><th>Alimento</th><th>Onde está</th><th>Quantidade</th><th>Validade</th></tr></thead>
+                    <tbody>{reportFoods.map(food=><tr key={food.id}>
+                      <td data-label="Alimento"><strong>{food.name}</strong></td>
+                      <td data-label="Onde está"><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={14}/></button></td>
+                      <td data-label="Quantidade"><span className="report-quantity">{formatQuantity(food.quantity,food.unit)}</span>{food.quantity===0&&<small className="report-out">Sem estoque</small>}</td>
+                      <td data-label="Validade">{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on)}</small></span>:<span className="report-no-expiry">Não informada</span>}</td>
+                    </tr>)}</tbody>
+                  </table>
+                </div>
+              )
             ):(
               <div className="report-empty"><ClipboardList size={28}/><strong>{total===0?'Seu estoque ainda está vazio':'Nenhum alimento encontrado'}</strong><span>{total===0?'Cadastre alimentos nos locais para que eles apareçam neste relatório.':'Tente mudar a busca ou selecionar outro local.'}</span>{(reportSearch||reportLocation!=='all')&&<button className="secondary-action" onClick={()=>{setReportSearch('');setReportLocation('all')}}>Limpar filtros</button>}</div>
             )}
