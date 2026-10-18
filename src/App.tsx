@@ -1852,7 +1852,7 @@ function App(){
                   {reportFoods.map(food=><div className="report-list-row" key={food.id}>
                     <div className="report-list-copy">
                       <strong>{food.name}</strong>
-                      <div className="report-list-meta"><button type="button" className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={13}/></button><span className="report-list-dot">·</span><span>{food.quantity===0?'Sem estoque':formatQuantity(food.quantity,food.unit)}</span></div>
+                      <div className="report-list-meta"><button type="button" className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={13}/></button></div>
                       {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on)}</small>:<small className="report-list-expiry no-date">Validade não informada</small>}
                     </div>
                     <span className="report-list-quantity" aria-label={'Quantidade: '+formatQuantity(food.quantity,food.unit)}>{formatQuantity(food.quantity,food.unit)}</span>
