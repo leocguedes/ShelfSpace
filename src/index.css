@@ -2493,3 +2493,17 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
   .home-shortcuts button>span small{line-height:1.35}
   .section-title{margin-top:16px}
 }
+
+
+/* Final home rhythm correction: close the gap before the locations heading */
+.home-overview{margin-bottom:10px}
+.home-overview + .section-title{margin-top:0!important}
+.home-shortcuts button{min-height:64px;padding-top:8px;padding-bottom:8px}
+@media(max-width:760px){
+  .home-overview{margin-bottom:8px}
+  .home-shortcuts button{min-height:60px;padding-top:7px;padding-bottom:7px}
+}
+@media(max-width:430px){
+  .home-overview{margin-bottom:6px}
+  .home-shortcuts button{min-height:58px;padding-top:6px;padding-bottom:6px}
+}
