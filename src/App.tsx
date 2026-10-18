@@ -2379,7 +2379,6 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
         return <article className="recipe-card" key={recipe.id}>
           <div className="recipe-card-top"><div><p className="eyebrow">{ready?'PRONTO PARA PREPARAR':expiring?'USE O QUE VENCE PRIMEIRO':'IDEIA PARA HOJE'}</p><h3>{recipe.name}</h3></div><span className={'recipe-status '+(ready?'ready':'')}>{ready?'Você tem tudo':available+'/'+recipe.ingredients.length+' itens'}</span></div>
           <p className="recipe-description">{recipe.description}</p>
-          {recipe.sourceUrl&&<p className="recipe-source"><a href={recipe.sourceUrl} target="_blank" rel="noreferrer">Ver receita original <MoveRight size={13}/></a></p>}
           <div className="recipe-meta"><span>{recipe.minutes>0?recipe.minutes+' min':'Tempo não informado'}</span><span>{recipe.servings>0?recipe.servings+' '+(recipe.servings===1?'porção':'porções'):'Porções não informadas'}</span><span>{available} de {recipe.ingredients.length} ingredientes encontrados</span></div>
           <div className="recipe-progress"><span style={{width:Math.round(available/recipe.ingredients.length*100)+'%'}}/></div>
           {unknown>0&&<p className="recipe-hint">{unknown} ingrediente(s) está(ão) no estoque, mas a quantidade não pode ser confirmada por diferença de unidade. Confira antes de cozinhar.</p>}
