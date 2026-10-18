@@ -2586,7 +2586,7 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 .shopping-page .shopping-add-form input,.shopping-page .shopping-add-form select{
   width:100%;min-width:0;min-height:46px;padding:11px 13px;
   border:1px solid var(--ss-border);border-radius:13px;background:var(--ss-paper);
-  color:var(--ss-charcoal);font:400 14px inherit;box-shadow:none
+  color:var(--ss-charcoal);font:inherit;font-size:14px;font-weight:400;box-shadow:none
 }
 .shopping-page .shopping-add-form input::placeholder{color:#9A9B92}
 .shopping-page .shopping-form-row{
