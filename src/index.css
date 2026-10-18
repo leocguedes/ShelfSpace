@@ -193,6 +193,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .location-identity h2{font-size:32px;margin:0 0 5px}
 .location-identity p:last-child{margin:0;color:#849087;font-size:12px}
 .location-add{flex:0 0 auto}
+.location-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto}
+.location-manage-action{width:38px;height:38px;display:grid;place-items:center;border:1px solid #dfe6dc;border-radius:11px;background:#fffdf9;color:#59694b;cursor:pointer;transition:background .15s,border-color .15s}
+.location-manage-action:hover{background:#edf2e9;border-color:#cbd8c7}
+.location-manage-action:focus-visible{outline:2px solid #59694b;outline-offset:2px}
+.location-manage-action.danger{color:#a85b4d;border-color:#eadbd6}
+.location-manage-action.danger:hover{background:#fbefec;border-color:#dfbcb4}
 .sub-head{margin-top:26px;margin-bottom:12px;align-items:flex-end}
 .sub-head>div{min-width:0}
 .sub-head h3{font-size:18px}
@@ -207,7 +213,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .location-identity{gap:12px}
   .location-icon{width:46px;height:46px;border-radius:14px}
   .location-identity h2{font-size:28px}
-  .location-add{width:100%;margin-top:16px;min-height:44px}
+  .location-header-actions{display:grid;grid-template-columns:38px 38px minmax(0,1fr);gap:8px;margin-top:16px}
+  .location-header-actions .location-add{width:100%;margin-top:0;min-height:44px;white-space:nowrap}
   .sub-head{margin-top:22px;align-items:center}
   .sub-head p{max-width:245px}
   .sub-head button{font-size:12px;white-space:nowrap}
