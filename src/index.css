@@ -2444,103 +2444,93 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 }
 
 
-/* Keep the household name typographically continuous with the summary title */
+/* ShelfSpace home — consolidated layout rules */
 .home-overview-heading h3{display:block}
 .home-household-name{
-  display:inline;
-  min-height:0;
-  padding:0;
-  border-radius:0;
-  background:transparent;
-  color:inherit;
-  font-size:inherit;
-  font-weight:inherit;
-  letter-spacing:inherit;
-  line-height:inherit;
-  vertical-align:baseline;
-  overflow-wrap:anywhere
+  display:inline;min-height:0;padding:0;border-radius:0;background:transparent;
+  color:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;
+  line-height:inherit;vertical-align:baseline;overflow-wrap:anywhere
 }
-
-
-/* Center the household summary metrics for a calmer, balanced layout */
-.home-stat-grid .home-stat{justify-content:center;text-align:center}
-.home-stat-grid .home-stat>div{align-items:center;width:100%;text-align:center}
-.home-stat-grid .home-stat>div>span{max-width:100%;text-align:center}
-@media(max-width:430px){
-  .home-stat-grid .home-stat{align-items:center}
+.home-overview{
+  margin:20px 0 26px;
 }
-
-
-/* Home spacing refinement: tighter shortcut rhythm and clearer transition to locations */
 .home-overview-content{gap:16px}
-.home-shortcuts button{min-height:70px;padding:10px 8px;gap:14px}
-.home-shortcut-icon{flex-basis:48px;width:48px;height:48px}
-.section-title{margin-top:22px}
-@media(max-width:760px){
-  .home-overview{margin-bottom:24px}
-  .home-overview-content{gap:14px}
-  .home-shortcuts button{min-height:66px;padding:9px 6px;gap:12px}
-  .home-shortcut-icon{flex-basis:44px;width:44px;height:44px}
-  .section-title{margin-top:18px}
+.home-overview-heading{margin-bottom:0}
+.home-overview-heading h3{
+  color:var(--ss-charcoal,#292C27);
+  font-size:21px;line-height:1.25;letter-spacing:-.025em
 }
-@media(max-width:430px){
-  .home-overview{margin-top:20px;margin-bottom:20px}
-  .home-overview-content{gap:12px}
-  .home-shortcuts button{min-height:62px;padding:8px 4px;gap:10px}
-  .home-shortcut-icon{flex-basis:40px;width:40px;height:40px}
-  .home-shortcuts button>span:nth-child(2){gap:3px}
-  .home-shortcuts button>span strong{line-height:1.25}
-  .home-shortcuts button>span small{line-height:1.35}
-  .section-title{margin-top:16px}
+.home-stat-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;padding:8px 0 18px
 }
-
-
-/* Final home rhythm correction: close the gap before the locations heading */
-.home-overview{margin-bottom:10px}
-.home-overview + .section-title{margin-top:0!important}
-.home-shortcuts button{min-height:64px;padding-top:8px;padding-bottom:8px}
-@media(max-width:760px){
-  .home-overview{margin-bottom:8px}
-  .home-shortcuts button{min-height:60px;padding-top:7px;padding-bottom:7px}
-}
-@media(max-width:430px){
-  .home-overview{margin-bottom:6px}
-  .home-shortcuts button{min-height:58px;padding-top:6px;padding-bottom:6px}
-}
-
-
-/* ShelfSpace Home refinement: text-only recent food markers and consistently centered metrics */
 .home-stat-grid .home-stat{
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:4px;
-  text-align:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:7px;min-width:0;min-height:94px;padding:10px 14px;
+  border:0;border-radius:0;background:transparent;box-shadow:none;
+  text-align:center
 }
+.home-stat-grid .home-stat+.home-stat{border-left:1px solid #DCCEB9}
 .home-stat-grid .home-stat-icon{display:none!important}
 .home-stat-grid .home-stat>div{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  text-align:center;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;width:100%;min-width:0;text-align:center
 }
-.home-stat-grid .home-stat>div>strong,
+.home-stat-grid .home-stat>div>strong{
+  display:block;width:100%;font-size:30px;line-height:1;
+  letter-spacing:-.045em;color:var(--ss-charcoal,#292C27);text-align:center
+}
 .home-stat-grid .home-stat>div>span{
-  display:block;
-  width:100%;
-  text-align:center;
+  display:block;width:100%;font-size:13px;line-height:1.4;
+  color:#74786F;text-align:center;overflow-wrap:anywhere
 }
+.home-shortcuts{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.home-shortcuts button{
+  display:flex;align-items:center;gap:14px;min-width:0;min-height:68px;
+  padding:10px 8px;border:0;border-bottom:1px solid #DCCEB9;
+  border-radius:0;background:transparent;box-shadow:none;text-align:left
+}
+.home-shortcuts button:last-child{border-bottom:0}
+.home-shortcuts button:hover{background:#FBF8F1}
+.home-shortcut-icon{
+  display:grid;place-items:center;flex:0 0 44px;
+  width:44px;height:44px;border-radius:13px;
+  background:#E7E9DF;color:var(--ss-olive,#59694B)
+}
+.home-shortcut-icon.recipes{background:#F0EEE8;color:#68785E}
+.home-shortcuts button>span:nth-child(2){
+  display:flex;flex:1;flex-direction:column;gap:4px;min-width:0
+}
+.home-shortcuts button>span strong{font-size:16px;line-height:1.3;color:var(--ss-charcoal,#292C27)}
+.home-shortcuts button>span small{font-size:13px;line-height:1.4;color:#74786F}
+.home-shortcuts button>svg:last-child{flex:0 0 auto;color:#85877E}
 .home-recent-thumb{
-  display:grid;
-  place-items:center;
-  font-size:13px;
-  font-weight:650;
-  letter-spacing:.015em;
-  line-height:1;
-  user-select:none;
+  display:grid;place-items:center;font-size:13px;font-weight:650;
+  letter-spacing:.015em;line-height:1;user-select:none
+}
+.home-overview + .section-title{margin-top:26px}
+@media(max-width:760px){
+  .home-overview{margin:18px 0 24px}
+  .home-overview-content{gap:14px}
+  .home-stat-grid{padding-bottom:14px}
+  .home-stat-grid .home-stat{min-height:88px;padding:9px 8px}
+  .home-stat-grid .home-stat>div>strong{font-size:27px}
+  .home-stat-grid .home-stat>div>span{font-size:11px}
+  .home-shortcuts button{min-height:64px;padding:8px 4px;gap:12px}
+  .home-shortcut-icon{flex-basis:40px;width:40px;height:40px}
+  .home-overview + .section-title{margin-top:22px}
 }
 @media(max-width:430px){
-  .home-stat-grid .home-stat{align-items:center}
+  .home-overview{margin:16px 0 22px}
+  .home-overview-heading h3{font-size:19px}
+  .home-stat-grid .home-stat{min-height:82px;padding:8px 4px;gap:5px}
+  .home-stat-grid .home-stat>div{gap:5px}
+  .home-stat-grid .home-stat>div>strong{font-size:24px}
+  .home-stat-grid .home-stat>div>span{font-size:10px;line-height:1.35}
+  .home-shortcuts button{min-height:62px;padding:8px 2px;gap:10px}
+  .home-shortcut-icon{flex-basis:38px;width:38px;height:38px}
+  .home-shortcuts button>span:nth-child(2){gap:3px}
+  .home-shortcuts button>span strong{font-size:15px;line-height:1.25}
+  .home-shortcuts button>span small{font-size:12px;line-height:1.35}
+  .home-overview + .section-title{margin-top:20px}
 }
