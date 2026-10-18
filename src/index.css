@@ -3261,3 +3261,12 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
   .onboarding-panel{max-height:none;margin:auto}
 }
 @media(prefers-reduced-motion:reduce){.onboarding-progress span{transition:none}}
+
+
+.auth-confirmation{display:grid;gap:12px;text-align:left}
+.auth-confirmation-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#e7ecdf;color:var(--ss-olive,#59694B)}
+.auth-confirmation h3{margin:2px 0 0;color:var(--ss-charcoal,#292C27);font-size:21px;line-height:1.25}
+.auth-confirmation p{margin:0;color:var(--ss-muted,#73766c);font-size:14px;line-height:1.6}
+.auth-confirmation-email{overflow-wrap:anywhere;color:var(--ss-charcoal,#292C27);font-size:15px}
+.auth-confirmation .auth-confirmation-hint{padding-top:10px;border-top:1px solid #ebe6dc;font-size:13px}
+.auth-confirmation .primary{margin-top:8px}
