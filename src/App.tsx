@@ -1866,8 +1866,7 @@ function App(){
                 <button type="button" className="home-add" onClick={()=>setAddActionModal(true)}>
                   <span className="home-add-icon"><Plus size={20}/></span>
                   <span>
-                    <strong>{places.length?'Adicionar alimento':'Criar primeiro local'}</strong>
-                    <small>{places.length?'Registre algo novo na sua casa':'Escolha onde seus alimentos ficam'}</small>
+                    <strong>Adicionar alimento</strong>
                   </span>
                   <ChevronRight size={18}/>
                 </button>
