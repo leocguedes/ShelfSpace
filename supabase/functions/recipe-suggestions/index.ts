@@ -74,11 +74,22 @@ async function searchAfrodite(input: string[]) {
     const sections = afroditeSections(raw);
     const section = sections.find((item) => normalize(String(item.nome ?? "")).includes("ingrediente"));
     const lines = Array.isArray(section?.conteudo) ? section.conteudo.map((line) => normalize(String(line ?? ""))).filter(Boolean) : [];
-    const matched = pantryTerms.filter((term) => lines.some((line) => line.includes(term) || term.split(/\s+/).filter(part => part.length >= 4).some(part => line.includes(part))));
-    return { raw, index, score: matched.length, matched };
-  }).filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || String(a.raw.nome ?? "").localeCompare(String(b.raw.nome ?? ""), "pt-BR"))
-    .slice(0, 8);
+    const matchedLines = lines.filter((line) => pantryTerms.some((term) =>
+      line.includes(term) || term.split(/\s+/).filter(part => part.length >= 4).some(part => line.includes(part))
+    ));
+    const matched = pantryTerms.filter((term) => lines.some((line) =>
+      line.includes(term) || term.split(/\s+/).filter(part => part.length >= 4).some(part => line.includes(part))
+    ));
+    const coverage = lines.length ? matchedLines.length / lines.length : 0;
+    return { raw, index, matchedLines: matchedLines.length, totalIngredients: lines.length, coverage, matched };
+  }).filter((item) => item.matchedLines > 0)
+    .sort((a, b) =>
+      b.coverage - a.coverage ||
+      b.matchedLines - a.matchedLines ||
+      a.totalIngredients - b.totalIngredients ||
+      String(a.raw.nome ?? "").localeCompare(String(b.raw.nome ?? ""), "pt-BR")
+    )
+    .slice(0, 20);
   return scored.map((item) => parseAfroditeRecipe(item.raw, item.index, item.matched)).filter(Boolean);
 }
 
