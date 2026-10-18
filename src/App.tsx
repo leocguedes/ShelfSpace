@@ -1336,16 +1336,15 @@ function App(){
     setShoppingStockItem(null);
   }
 
-  async function handleEmailAuth(mode:'signin'|'signup',email:string,password:string){
+  async function handleEmailAuth(mode:'signin'|'signup',email:string,password:string):Promise<boolean>{
     setAuthBusy(true);
     setAuthMessage(null);
     try{
       if(mode==='signup'){
         const{data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:authRedirectUrl()}});
-        if(error){setAuthMessage(error.message);return}
+        if(error){setAuthMessage(error.message);return false}
         if(!data.session||!data.user){
-          setAuthMessage('Conta criada. Verifique seu e-mail para confirmar a conta e depois entre novamente.');
-          return;
+          return true;
         }
         setUser(data.user);
         setUserId(data.user.id);
@@ -1354,10 +1353,10 @@ function App(){
         setAuthModal(false);
       }else{
         const{data,error}=await supabase.auth.signInWithPassword({email,password});
-        if(error){setAuthMessage(error.message);return}
+        if(error){setAuthMessage(error.message);return false}
         if(!data.user){
           setAuthMessage('Não foi possível carregar esta conta. Tente entrar novamente.');
-          return;
+          return false;
         }
         setUser(data.user);
         setUserId(data.user.id);
@@ -1365,6 +1364,7 @@ function App(){
         await activateHousehold(null,data.user.id,true);
         setAuthModal(false);
       }
+      return false;
     }finally{setAuthBusy(false)}
   }
 
@@ -2405,20 +2405,40 @@ function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=
   </Modal>
 }
 
-function AuthModal({busy,onClose,onSubmit,onReset,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>void;onReset:(email:string)=>void;initialMode?:'signin'|'signup'}){
+function AuthModal({busy,onClose,onSubmit,onReset,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>Promise<boolean>;onReset:(email:string)=>void;initialMode?:'signin'|'signup'}){
   const[mode,setMode]=useState<'signin'|'signup'>(initialMode);
   const[email,setEmail]=useState('');
   const[password,setPassword]=useState('');
+  const[confirmationEmail,setConfirmationEmail]=useState('');
+  const submit=async()=>{
+    if(busy||!email.trim()||password.length<6)return;
+    const needsConfirmation=await onSubmit(mode,email.trim(),password);
+    if(needsConfirmation){
+      setConfirmationEmail(email.trim());
+      setPassword('');
+    }
+  };
+  if(confirmationEmail)return <Modal title="Confirme seu e-mail" onClose={onClose}>
+    <div className="auth-confirmation" role="status" aria-live="polite">
+      <div className="auth-confirmation-icon"><Check size={24}/></div>
+      <h3>Falta só confirmar sua conta</h3>
+      <p>Enviamos um link de confirmação para:</p>
+      <strong className="auth-confirmation-email">{confirmationEmail}</strong>
+      <p>Abra sua caixa de entrada e clique no link para confirmar seu e-mail. Depois, volte ao ShelfSpace e entre com sua conta.</p>
+      <p className="auth-confirmation-hint">Não encontrou a mensagem? Confira a pasta de spam ou lixo eletrônico.</p>
+      <button type="button" className="primary full" onClick={()=>{setConfirmationEmail('');setMode('signin');setEmail(confirmationEmail);setPassword('');}}>Ir para entrar</button>
+      <button type="button" className="auth-switch" onClick={onClose}>Fazer isso mais tarde</button>
+    </div>
+  </Modal>;
   return <Modal title={mode==='signin'?'Entrar no ShelfSpace':'Criar sua conta'} onClose={onClose}>
     <p className="modal-help">{mode==='signin'?'Entre para acessar seus alimentos em qualquer dispositivo.':'Crie uma conta para manter seu histórico sincronizado no celular, PC e outros navegadores.'}</p>
     <label>E-mail<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email"/></label>
     <label>Senha<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
-    <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>onSubmit(mode,email.trim(),password)}>{busy?'Aguarde...':mode==='signin'?'Entrar':'Criar conta'}</button>
+    <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?'Aguarde...':mode==='signin'?'Entrar':'Criar conta'}</button>
     {mode==='signin'&&<button className="auth-link" disabled={busy||!email.trim()} onClick={()=>onReset(email.trim())}>Esqueci minha senha</button>}
-    <button className="auth-switch" onClick={()=>setMode(mode==='signin'?'signup':'signin')}>{mode==='signin'?'Ainda não tenho uma conta':'Já tenho uma conta'}</button>
+    <button className="auth-switch" onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');}}>{mode==='signin'?'Ainda não tenho uma conta':'Já tenho uma conta'}</button>
   </Modal>
 }
-
 function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(items:Pick<RecipeIngredient,'name'|'quantity'|'unit'|'measureText'>[])=>void;onCook:(recipe:Recipe)=>void}){
   const[query,setQuery]=useState('');
   const[filter,setFilter]=useState<'all'|'ready'|'needs'>('all');
