@@ -2347,7 +2347,7 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
   background:transparent;
   box-shadow:none;
 }
-.home-overview-content{gap:22px;padding:0}
+.home-overview-content{gap:14px;padding:0}
 .home-overview-heading{margin:0}
 .home-overview-heading h3{
   display:flex;align-items:center;flex-wrap:wrap;gap:12px;
@@ -2362,7 +2362,7 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 }
 .home-stat-grid{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:0;padding:6px 0 22px;border-bottom:1px solid #E3DDCF
+  gap:0;padding:4px 0 12px;border-bottom:1px solid #E3DDCF
 }
 .home-stat{
   display:flex;flex-direction:row;align-items:center;gap:12px;
@@ -2382,7 +2382,7 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 .home-shortcuts{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
 .home-shortcuts button{
   display:flex;align-items:center;gap:16px;min-width:0;
-  min-height:78px;padding:14px 8px;border:0;border-bottom:1px solid #E3DDCF;
+  min-height:72px;padding:12px 8px;border:0;border-bottom:1px solid #E3DDCF;
   border-radius:0;background:transparent;box-shadow:none;text-align:left
 }
 .home-shortcuts button:last-child{border-bottom:0}
