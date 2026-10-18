@@ -1864,7 +1864,7 @@ function App(){
                   </div>
                 ):(
                   <Empty
-                    title={localFoodSearch?'Nenhum alimento encontrado':'Nenhum alimento na '+(current?.name||'local')}
+                    title={localFoodSearch?'Nenhum alimento encontrado':'Nenhum alimento neste local'}
                     text={localFoodSearch?'Tente outro nome ou limpe a busca para ver todos os alimentos deste local.':'Adicione os alimentos que ficam neste local.'}
                     action={localFoodSearch?()=>setLocalFoodSearch(''):()=>setFoodModal({place:selected,sub:selectedSub})}
                     actionLabel={localFoodSearch?'Limpar busca':'Adicionar alimento'}
