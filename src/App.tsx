@@ -9,13 +9,13 @@ import{supabase}from'./lib/supabase';
 
 type RecentFood={name:string;unit:Unit};
 type Food={id:string;name:string;quantity:number;unit:Unit;expires_on?:string|null};
-type ConsumptionRule={id:string;household_id:string;food_id:string;amount:number;period_days:number;next_suggestion_on:string;low_stock_threshold:number|null;restock_quantity:number|null;is_active:boolean;created_by:string;last_confirmed_at:string|null};
+type ConsumptionRule={id:string;household_id:string;food_id:string;amount:number;period_days:number;next_suggestion_on:string;low_stock_threshold:number|null;restock_quantity:number|null;is_active:boolean;created_by:string|null;last_confirmed_at:string|null};
 type Sub={id:string;name:string;foods:Food[]};
 type Place={id:string;name:string;subdivisions:Sub[]};
-type Household={id:string;name:string;created_by:string;is_personal:boolean;role:'owner'|'admin'|'member'};
+type Household={id:string;name:string;created_by:string|null;is_personal:boolean;role:'owner'|'admin'|'member'};
 type HouseholdMember={user_id:string;email:string;display_name:string;role:'owner'|'admin'|'member';joined_at:string};
-type ShoppingItem={id:string;household_id:string;name:string;quantity:number;unit:string;category?:string|null;is_purchased:boolean;source:string;linked_food_id?:string|null;notes?:string|null;created_by:string;purchased_by?:string|null;purchased_at?:string|null;created_at?:string;recurring_rule_id?:string|null;recurring_occurrence?:string|null};
-type RecurringShoppingRule={id:string;household_id:string;name:string;quantity:number;unit:string;frequency_days:number;next_due_on:string;is_active:boolean;created_by:string;created_at?:string;};
+type ShoppingItem={id:string;household_id:string;name:string;quantity:number;unit:string;category?:string|null;is_purchased:boolean;source:string;linked_food_id?:string|null;notes?:string|null;created_by:string|null;purchased_by?:string|null;purchased_at?:string|null;created_at?:string;recurring_rule_id?:string|null;recurring_occurrence?:string|null};
+type RecurringShoppingRule={id:string;household_id:string;name:string;quantity:number;unit:string;frequency_days:number;next_due_on:string;is_active:boolean;created_by:string|null;created_at?:string;};
 type UndoState={label:string;action:()=>void};
 type SyncTable='locations'|'subdivisions'|'foods'|'shopping_items'|'recurring_shopping_items'|'food_consumption_rules'|'food_consumption_events';
 type SyncAction='insert'|'upsert'|'update'|'delete';
