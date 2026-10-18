@@ -2742,3 +2742,20 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
     flex-basis:38px;
   }
 }
+
+
+/* Softer edit action: keep it discoverable without competing with the item name. */
+.shopping-page .shopping-row-actions button.shopping-edit{
+  background:#F8F6F0!important;
+  border-color:#E7E1D5!important;
+  color:#78836B!important;
+}
+.shopping-page .shopping-row-actions button.shopping-edit:hover{
+  background:#EEE9DE!important;
+  border-color:#D9D2C4!important;
+  color:var(--ss-olive)!important;
+}
+.shopping-page .shopping-row-actions button.shopping-edit:focus-visible{
+  outline:2px solid #8A987B!important;
+  outline-offset:2px;
+}
