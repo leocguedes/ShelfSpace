@@ -1342,10 +1342,17 @@ function App(){
     try{
       if(mode==='signup'){
         const{data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:authRedirectUrl()}});
-        if(error){setAuthMessage(error.message);return false}
-        if(!data.session||!data.user){
-          return true;
+        if(error){
+          setAuthMessage(error.message==='User already registered'
+            ?'Este e-mail já tem uma conta. Entre ou use “Esqueci minha senha”.'
+            :error.message);
+          return false;
         }
+        if(data.user?.identities?.length===0){
+          setAuthMessage('Não foi possível criar a conta com esse e-mail. Se você já se cadastrou, entre ou recupere sua senha.');
+          return false;
+        }
+        if(!data.session||!data.user)return true;
         setUser(data.user);
         setUserId(data.user.id);
         setRecentFoods(readRecentFoods(data.user.id));
@@ -1353,7 +1360,12 @@ function App(){
         setAuthModal(false);
       }else{
         const{data,error}=await supabase.auth.signInWithPassword({email,password});
-        if(error){setAuthMessage(error.message);return false}
+        if(error){
+          setAuthMessage(error.message==='Invalid login credentials'
+            ?'E-mail ou senha incorretos. Se acabou de criar a conta, confirme se ela precisa ser ativada pelo e-mail antes de entrar.'
+            :error.message);
+          return false;
+        }
         if(!data.user){
           setAuthMessage('Não foi possível carregar esta conta. Tente entrar novamente.');
           return false;
@@ -1364,6 +1376,11 @@ function App(){
         await activateHousehold(null,data.user.id,true);
         setAuthModal(false);
       }
+      return false;
+    }catch(error){
+      setAuthMessage(error instanceof Error
+        ?'A autenticação foi concluída, mas não foi possível preparar sua casa. Seus dados não foram excluídos. Tente novamente.'
+        :'Não foi possível concluir a autenticação. Tente novamente.');
       return false;
     }finally{setAuthBusy(false)}
   }
@@ -2224,7 +2241,7 @@ function App(){
       {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
       {onboardingOpen&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
-      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
+      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
         food={places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods)).find(food=>food.id===consumptionRuleModal.foodId)}
@@ -2405,7 +2422,7 @@ function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=
   </Modal>
 }
 
-function AuthModal({busy,onClose,onSubmit,onReset,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>Promise<boolean>;onReset:(email:string)=>void;initialMode?:'signin'|'signup'}){
+function AuthModal({busy,onClose,onSubmit,onReset,message,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>Promise<boolean>;onReset:(email:string)=>void;message:string|null;initialMode?:'signin'|'signup'}){
   const[mode,setMode]=useState<'signin'|'signup'>(initialMode);
   const[email,setEmail]=useState('');
   const[password,setPassword]=useState('');
@@ -2432,6 +2449,7 @@ function AuthModal({busy,onClose,onSubmit,onReset,initialMode='signin'}:{busy:bo
   </Modal>;
   return <Modal title={mode==='signin'?'Entrar no ShelfSpace':'Criar sua conta'} onClose={onClose}>
     <p className="modal-help">{mode==='signin'?'Entre para acessar seus alimentos em qualquer dispositivo.':'Crie uma conta para manter seu histórico sincronizado no celular, PC e outros navegadores.'}</p>
+    {message&&!/^(Crie uma conta gratuita|Entre na sua conta|Para começar)/.test(message)&&<p className="auth-note" role="alert" aria-live="assertive">{message}</p>}
     <label>E-mail<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email"/></label>
     <label>Senha<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
     <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?'Aguarde...':mode==='signin'?'Entrar':'Criar conta'}</button>
