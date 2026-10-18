@@ -136,12 +136,16 @@ Deno.serve(async (req: Request) => {
   const input = Array.isArray(body.ingredients)
     ? body.ingredients.filter((item): item is string => typeof item === "string").slice(0, 40)
     : [];
-  if (!input.length) return jsonResponse({ recipes: [] }, 200, origin);
+  const offset = Number.isInteger(body.offset) && Number(body.offset) >= 0 ? Number(body.offset) : 0;
+  const requestedLimit = Number.isInteger(body.limit) ? Number(body.limit) : 10;
+  const limit = Math.min(10, Math.max(1, requestedLimit));
+  if (!input.length) return jsonResponse({ recipes: [], total: 0, hasMore: false }, 200, origin);
 
   try {
-    const recipes = await searchAfrodite(input);
-    return jsonResponse({ recipes, source: "afrodite" }, 200, origin);
+    const allRecipes = await searchAfrodite(input);
+    const recipes = allRecipes.slice(offset, offset + limit);
+    return jsonResponse({ recipes, total: allRecipes.length, hasMore: offset + recipes.length < allRecipes.length }, 200, origin);
   } catch {
-    return jsonResponse({ error: "Recipe source temporarily unavailable", recipes: [] }, 502, origin);
+    return jsonResponse({ error: "Recipe source temporarily unavailable", recipes: [], total: 0, hasMore: false }, 502, origin);
   }
 });
