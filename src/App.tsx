@@ -2348,7 +2348,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     const matchesQuery=!q||searchKey(recipe.name+' '+recipe.description+' '+recipe.ingredients.map(i=>i.name+' '+i.aliases.join(' ')).join(' ')).includes(q);
     const matchesFilter=filter==='all'||(filter==='ready'?option.ready:option.missing.length>0);
     return matchesQuery&&matchesFilter;
-  }).sort((a,b)=>Number(b.ready)-Number(a.ready)||(b.available/b.statuses.length)-(a.available/a.statuses.length)||b.expiring-a.expiring||b.available-a.available||a.statuses.length-b.statuses.length||a.recipe.minutes-b.recipe.minutes);
+  }).sort((a,b)=>Number(b.ready)-Number(a.ready)||b.available-a.available||(b.available/b.statuses.length)-(a.available/a.statuses.length)||b.expiring-a.expiring||a.statuses.length-b.statuses.length||a.recipe.minutes-b.recipe.minutes);
   return <section className="recipe-page">
     <div className="hero recipe-hero">
       <div className="hero-copy">
