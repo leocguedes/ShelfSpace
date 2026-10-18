@@ -3159,3 +3159,16 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
     font-size:11px;
   }
 }
+
+
+/* Clear, accessible success feedback after renaming a household. */
+.household-rename-success{
+  margin:9px 0 0;
+  padding:9px 11px;
+  border:1px solid #D7E1D0;
+  border-radius:9px;
+  background:#F0F4EC;
+  color:#59694B;
+  font-size:12px;
+  line-height:1.45;
+}
