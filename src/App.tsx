@@ -2336,7 +2336,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
   const options=allRecipes.map(recipe=>{
     const statuses=getRecipeIngredientStatuses(recipe,pantry);
     const ready=statuses.every(status=>status.enough===true);
-    const available=statuses.filter(status=>status.enough===true||status.enough===null).length;
+    const available=statuses.filter(status=>status.enough===true).length;
     const unknown=statuses.filter(status=>status.enough===null).length;
     const missing=statuses.filter(status=>status.enough===false);
     const expiring=statuses.filter(status=>status.matches.some(item=>!!item.expires_on&&daysUntilExpiry(item.expires_on)<=3)).length;
@@ -2346,7 +2346,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
   const filtered=options.filter(option=>{
     const recipe=option.recipe;
     const matchesQuery=!q||searchKey(recipe.name+' '+recipe.description+' '+recipe.ingredients.map(i=>i.name+' '+i.aliases.join(' ')).join(' ')).includes(q);
-    const matchesFilter=filter==='all'||(filter==='ready'?option.ready:!option.ready);
+    const matchesFilter=filter==='all'||(filter==='ready'?option.ready:option.missing.length>0);
     return matchesQuery&&matchesFilter;
   }).sort((a,b)=>Number(b.ready)-Number(a.ready)||(b.available/b.statuses.length)-(a.available/a.statuses.length)||b.expiring-a.expiring||b.available-a.available||a.statuses.length-b.statuses.length||a.recipe.minutes-b.recipe.minutes);
   return <section className="recipe-page">
@@ -2366,7 +2366,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
     <div className="recipe-filters" aria-label="Filtrar receitas">
       <button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>Todas ({options.length})</button>
       <button className={filter==='ready'?'active':''} onClick={()=>setFilter('ready')}>Tenho tudo ({options.filter(option=>option.ready).length})</button>
-      <button className={filter==='needs'?'active':''} onClick={()=>setFilter('needs')}>Faltam itens ({options.filter(option=>!option.ready).length})</button>
+      <button className={filter==='needs'?'active':''} onClick={()=>setFilter('needs')}>Faltam itens ({options.filter(option=>option.missing.length>0).length})</button>
     </div>
     {filtered.length===0?<div className="shopping-empty"><BookOpen size={25}/><strong>Nenhuma receita encontrada</strong><span>Tente outra busca ou selecione outro filtro.</span></div>:<div className="recipe-grid">
       {filtered.map(({recipe,statuses,ready,available,unknown,missing,expiring})=>{
@@ -2378,7 +2378,7 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
           {recipe.sourceUrl&&<p className="recipe-source"><a href={recipe.sourceUrl} target="_blank" rel="noreferrer">Conhecer a base Afrodite <MoveRight size={13}/></a></p>}
           <div className="recipe-meta"><span>{recipe.minutes>0?recipe.minutes+' min':'Tempo não informado'}</span><span>{recipe.servings>0?recipe.servings+' '+(recipe.servings===1?'porção':'porções'):'Porções não informadas'}</span><span>{available} de {recipe.ingredients.length} ingredientes encontrados</span></div>
           <div className="recipe-progress"><span style={{width:Math.round(available/recipe.ingredients.length*100)+'%'}}/></div>
-          {unknown>0&&<p className="recipe-hint">{unknown} ingrediente(s) existe(m), mas usa(m) outra unidade. Confira a quantidade antes de cozinhar.</p>}
+          {unknown>0&&<p className="recipe-hint">{unknown} ingrediente(s) está(ão) no estoque, mas a quantidade não pode ser confirmada por diferença de unidade. Confira antes de cozinhar.</p>}
           <button className="recipe-detail-toggle" onClick={()=>setExpanded(isExpanded?null:recipe.id)}>{isExpanded?'Ocultar receita':'Ver ingredientes e preparo'} <ChevronRight size={16}/></button>
           {isExpanded&&<div className="recipe-detail">
             <div className="recipe-ingredients"><strong>Ingredientes</strong>
