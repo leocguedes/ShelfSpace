@@ -949,11 +949,30 @@ function App(){
       if(error)throw error;
       setHouseholdModal(false);
       const personalHouse=households.find(h=>h.is_personal&&h.id!==targetId);
-      await activateHousehold(personalHouse?.id||null,userId,true);
+      const nextHouse=households.find(h=>h.id!==targetId);
+      await activateHousehold(personalHouse?.id||nextHouse?.id||null,userId,true);
       setAuthMessage('Você saiu da casa compartilhada. Sua conta e seus dados pessoais foram mantidos.');
       return true;
     }catch{
       setAuthMessage('Não foi possível sair desta casa agora. Nenhum dado foi excluído; tente novamente.');
+      return false;
+    }finally{setHouseholdBusy(false)}
+  }
+
+  async function createHousehold(name:string):Promise<boolean>{
+    const clean=name.trim();
+    if(!userId||!clean||clean.length>15)return false;
+    setHouseholdBusy(true);
+    try{
+      const{data,error}=await supabase.rpc('create_household',{house_name:clean});
+      if(error)throw error;
+      const newHouseholdId=String(data);
+      await activateHousehold(newHouseholdId,userId,true);
+      setHouseholdModal(false);
+      setAuthMessage('Casa criada. Você pode alternar entre suas casas pelo seletor.');
+      return true;
+    }catch{
+      setAuthMessage('Não foi possível criar a casa agora. Confira o nome e tente novamente.');
       return false;
     }finally{setHouseholdBusy(false)}
   }
@@ -2169,6 +2188,7 @@ function App(){
         onRename={renameHousehold}
         onCreateInvite={createHouseholdInvite}
         onLeave={leaveHousehold}
+        onCreateHousehold={createHousehold}
         onJoin={joinHousehold}
         onJoinCodeChange={setHouseholdJoinCode}
         onCopy={async code=>{try{await navigator.clipboard.writeText(code);setHouseholdCopied(true)}catch{setAuthMessage('Não foi possível copiar automaticamente. Selecione o código para copiá-lo.')}}}
@@ -2546,13 +2566,16 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
   </Modal>
 }
 
-function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy,onLeave}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void;onLeave:(id:string)=>Promise<boolean>}){
+function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy,onLeave,onCreateHousehold}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void;onLeave:(id:string)=>Promise<boolean>;onCreateHousehold:(name:string)=>Promise<boolean>}){
   const active=households.find(h=>h.id===activeHouseholdId);
   const canInvite=!!active;
   const[houseName,setHouseName]=useState(active?.name||'');
   const[nameEditing,setNameEditing]=useState(false);
   const[nameMessage,setNameMessage]=useState('');
   const[leaveConfirm,setLeaveConfirm]=useState(false);
+  const[createHouseOpen,setCreateHouseOpen]=useState(false);
+  const[newHouseName,setNewHouseName]=useState('');
+  const[createHouseError,setCreateHouseError]=useState('');
   useEffect(()=>{setHouseName(active?.name||'');},[active?.name]);
   useEffect(()=>{setNameEditing(false);setNameMessage('');},[active?.id]);
   const[members,setMembers]=useState<HouseholdMember[]>([]);
@@ -2597,6 +2620,18 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
           <small>Expira em {new Date(invite.expiresAt).toLocaleDateString('pt-BR')} · até 10 usos</small>
         </div>}
       </>:<p className="household-note">Entre em uma casa para gerar um convite.</p>}
+    </div>
+    <div className="household-join household-create">
+      {createHouseOpen? <>
+        <strong>Criar uma nova casa</strong>
+        <p>Crie um estoque separado para outro endereço, imóvel ou grupo familiar.</p>
+        <label>Nome da casa<input value={newHouseName} maxLength={15} onChange={e=>{setNewHouseName(e.target.value);setCreateHouseError('');}} placeholder="Ex.: Casa de praia"/></label>
+        {createHouseError&&<p className="form-error" role="alert">{createHouseError}</p>}
+        <div className="household-rename-actions">
+          <button type="button" disabled={busy} onClick={()=>{setCreateHouseOpen(false);setNewHouseName('');setCreateHouseError('');}}>Cancelar</button>
+          <button type="button" className="primary" disabled={busy||!newHouseName.trim()||newHouseName.trim().length>15} onClick={()=>{void onCreateHousehold(newHouseName).then(ok=>{if(ok){setNewHouseName('');setCreateHouseOpen(false);setCreateHouseError('');}else setCreateHouseError('Não foi possível criar a casa. Tente novamente.');});}}>{busy?'Criando…':'Criar casa'}</button>
+        </div>
+      </>:<button type="button" className="secondary full" disabled={busy} onClick={()=>setCreateHouseOpen(true)}><Plus size={16}/> Criar outra casa</button>}
     </div>
     {!active?.is_personal&&active&&<div className="household-leave">
       {leaveConfirm?<div className="household-leave-confirm">
