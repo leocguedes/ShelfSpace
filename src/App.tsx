@@ -2004,7 +2004,7 @@ function App(){
                             if(match)openSearchResult(match.place.id,match.subdivision.id);
                             else{setSearch(recent.name);setWorkspace('inventory');setSelected(null);setSelectedSub(null);}
                           }}>
-                            <span className={'home-recent-thumb thumb-'+(index%4)}><Apple size={21}/></span>
+                            <span className={'home-recent-thumb thumb-'+(index%4)} aria-hidden="true">{recent.name.trim().split(/\s+/).slice(0,2).map(part=>part.charAt(0)).join('').toLocaleUpperCase('pt-BR')}</span>
                             <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:'Adicionado recentemente'}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit):recent.unit}</small></span>
                             <ChevronRight size={17}/>
                           </button>
