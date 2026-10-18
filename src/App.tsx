@@ -389,6 +389,7 @@ function App(){
   const[householdId,setHouseholdId]=useState<string|null>(null);
   const[settingsHouseholdId,setSettingsHouseholdId]=useState<string|null>(null);
   const[householdModal,setHouseholdModal]=useState(false);
+  const[householdCreateOnly,setHouseholdCreateOnly]=useState(false);
   const[householdBusy,setHouseholdBusy]=useState(false);
   const[householdJoinCode,setHouseholdJoinCode]=useState('');
   const[householdInvite,setHouseholdInvite]=useState<{code:string;expiresAt:string}|null>(null);
@@ -1765,7 +1766,7 @@ function App(){
           <div><h1>ShelfSpace</h1><span>Sua casa, organizada.</span></div>
         </div>
         <div className="header-actions">
-          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>setHouseholdModal(true)} aria-label={'Alternar casa. Casa ativa: '+(households.find(h=>h.id===householdId)?.name||'Casa')} title="Alternar casa"><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
+          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={'Alternar casa. Casa ativa: '+(households.find(h=>h.id===householdId)?.name||'Casa')} title="Alternar casa"><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
           <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title="Notificações">
             <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
           </button>
@@ -1912,7 +1913,7 @@ function App(){
                 <button className="settings-row" onClick={()=>setSettingsHouseholdId(null)}><span className="settings-row-icon"><ChevronRight size={17} style={{transform:'rotate(180deg)'}}/></span><span className="settings-row-copy"><strong>Minhas casas</strong><small>Voltar para a lista de casas</small></span></button>
                 <p className="settings-group-label">CONFIGURAÇÕES DA CASA</p>
                 <div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{households.find(h=>h.id===settingsHouseholdId)?.name}</strong><small>{households.find(h=>h.id===settingsHouseholdId)?.is_personal?'Casa pessoal':'Casa compartilhada'}{settingsHouseholdId===householdId?' · Selecionada':''}</small></span></div>
-                <button className="settings-row" onClick={()=>setHouseholdModal(true)} disabled={householdBusy||settingsHouseholdId!==householdId}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>Gerencie membros e convide pessoas para esta casa</small></span><ChevronRight size={17}/></button>
+                <button className="settings-row" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} disabled={householdBusy||settingsHouseholdId!==householdId}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>Gerencie membros e convide pessoas para esta casa</small></span><ChevronRight size={17}/></button>
                 <button className="settings-row" onClick={()=>{if(!userId){promptAccount('criar e alterar locais de armazenamento');return;}setPlaceToEdit(null);setPlaceModal(true)}} disabled={householdBusy||settingsHouseholdId!==householdId}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>Gerencie geladeira, freezer, despensa e outros locais</small></span><ChevronRight size={17}/></button>
                 <button className="settings-row" onClick={()=>{if(!userId){promptAccount('adicionar alimentos ao estoque');return;}setImportModal(true)}} disabled={householdBusy||settingsHouseholdId!==householdId}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>Adicione uma lista ao estoque desta casa</small></span><ChevronRight size={17}/></button>
               </div>
@@ -1920,7 +1921,7 @@ function App(){
               <div className="settings-group">
                 <p className="settings-group-label">MINHAS CASAS</p>
                 {households.length>0?households.map(h=><button key={h.id} className="settings-row" onClick={()=>{setSettingsHouseholdId(h.id);if(h.id!==householdId){void activateHousehold(h.id,userId);setWorkspace('settings');}}} disabled={householdBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{h.name}</strong><small>{h.id===householdId?'Casa selecionada · ':''}{h.is_personal?'Casa pessoal':'Casa compartilhada'}</small></span><ChevronRight size={17}/></button>):<div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>Nenhuma casa disponível</strong><small>{userId?'Crie uma casa para começar a organizar seu estoque.':'Entre ou crie uma conta para gerenciar suas casas.'}</small></span></div>}
-                <button className="settings-row" onClick={()=>{if(!userId){setAuthModal(true);return;}setHouseholdModal(true)}}><span className="settings-row-icon"><Plus size={19}/></span><span className="settings-row-copy"><strong>Adicionar casa</strong><small>Crie uma casa ou entre em uma casa compartilhada</small></span><ChevronRight size={17}/></button>
+                <button className="settings-row" onClick={()=>{if(!userId){setAuthModal(true);return;}setHouseholdCreateOnly(true);setHouseholdModal(true)}}><span className="settings-row-icon"><Plus size={19}/></span><span className="settings-row-copy"><strong>Adicionar casa</strong><small>Crie uma casa ou entre em uma casa compartilhada</small></span><ChevronRight size={17}/></button>
               </div>
             )}
             {user&&!user.is_anonymous&&<div className="settings-group settings-danger-group">
@@ -2216,6 +2217,7 @@ function App(){
       />}
       {shoppingAddFood&&<AddFoodToShoppingModal food={shoppingAddFood} onClose={()=>setShoppingAddFood(null)} onConfirm={quantity=>{void addShoppingItem(shoppingAddFood.name,quantity,shoppingAddFood.unit,'manual');setShoppingAddFood(null)}}/>}
       {householdModal&&<HouseholdModal
+        initialCreateOnly={householdCreateOnly}
         busy={householdBusy}
         households={households}
         activeHouseholdId={householdId}
@@ -2610,14 +2612,14 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
   </Modal>
 }
 
-function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy,onLeave,onCreateHousehold,currentUserId}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void;onLeave:(id:string)=>Promise<boolean>;onCreateHousehold:(name:string)=>Promise<boolean>;currentUserId:string|null}){
+function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy,onLeave,onCreateHousehold,currentUserId,initialCreateOnly}:{busy:boolean;initialCreateOnly:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void;onLeave:(id:string)=>Promise<boolean>;onCreateHousehold:(name:string)=>Promise<boolean>;currentUserId:string|null}){
   const active=households.find(h=>h.id===activeHouseholdId);
   const canInvite=!!active;
   const[houseName,setHouseName]=useState(active?.name||'');
   const[nameEditing,setNameEditing]=useState(false);
   const[nameMessage,setNameMessage]=useState('');
   const[leaveConfirm,setLeaveConfirm]=useState(false);
-  const[createHouseOpen,setCreateHouseOpen]=useState(false);
+  const[createHouseOpen,setCreateHouseOpen]=useState(initialCreateOnly);
   const[newHouseName,setNewHouseName]=useState('');
   const[createHouseError,setCreateHouseError]=useState('');
   useEffect(()=>{setHouseName(active?.name||'');},[active?.name]);
