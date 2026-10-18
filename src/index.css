@@ -3172,3 +3172,12 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
   font-size:12px;
   line-height:1.45;
 }
+
+/* Safe account deletion confirmation */
+.settings-row.danger .settings-row-icon{background:#F7EAE6;color:#9B4941}
+.settings-row.danger .settings-row-copy strong{color:#9B4941}
+.settings-row.danger:hover .settings-row-icon{background:#F2DCD6}
+.danger-button{border:1px solid #9B4941;background:#9B4941;color:#fff;border-radius:10px;padding:11px 14px;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
+.danger-button:hover{background:#843B35}
+.danger-button:disabled{opacity:.5;cursor:not-allowed}
+.password-form-error{margin:-4px 0 12px;color:#9B4941;font-size:12px;line-height:1.5}
