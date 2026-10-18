@@ -387,6 +387,7 @@ function App(){
   const[cacheReady,setCacheReady]=useState(true);
   const[households,setHouseholds]=useState<Household[]>([]);
   const[householdId,setHouseholdId]=useState<string|null>(null);
+  const[settingsHouseholdId,setSettingsHouseholdId]=useState<string|null>(null);
   const[householdModal,setHouseholdModal]=useState(false);
   const[householdBusy,setHouseholdBusy]=useState(false);
   const[householdJoinCode,setHouseholdJoinCode]=useState('');
@@ -1906,12 +1907,22 @@ function App(){
               {user&&!user.is_anonymous&&<button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no ShelfSpace</small></span><ChevronRight size={17}/></button>}
               <button className="settings-row" onClick={user&&!user.is_anonymous?()=>setSignOutConfirm(true):()=>setAuthModal(true)} disabled={authBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user&&!user.is_anonymous?'Sair da conta':'Entrar ou criar conta'}</strong><small>{user&&!user.is_anonymous?'Desconectar esta sessão':'Acesse seus dados em todos os dispositivos'}</small></span><ChevronRight size={17}/></button>
             </div>
-            <div className="settings-group">
-              <p className="settings-group-label">SUA CASA</p>
-              {userId&&<button className="settings-row" onClick={()=>setHouseholdModal(true)}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>{households.find(h=>h.id===householdId)?.name||'Convide pessoas para compartilhar o estoque'}</small></span><ChevronRight size={17}/></button>}
-              <button className="settings-row" onClick={()=>{if(!userId){promptAccount('criar e alterar locais de armazenamento');return;}setPlaceToEdit(null);setPlaceModal(true)}}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>{userId?'Gerencie geladeira, freezer, despensa e outros locais':'Crie uma conta para personalizar seus locais'}</small></span><ChevronRight size={17}/></button>
-              <button className="settings-row" onClick={()=>{if(!userId){promptAccount('adicionar alimentos ao estoque');return;}setImportModal(true)}}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>{userId?'Adicione uma lista ao seu estoque':'Crie uma conta para importar sua lista'}</small></span><ChevronRight size={17}/></button>
-            </div>
+            {settingsHouseholdId&&households.some(h=>h.id===settingsHouseholdId)?(
+              <div className="settings-group">
+                <button className="settings-row" onClick={()=>setSettingsHouseholdId(null)}><span className="settings-row-icon"><ChevronRight size={17} style={{transform:'rotate(180deg)'}}/></span><span className="settings-row-copy"><strong>Minhas casas</strong><small>Voltar para a lista de casas</small></span></button>
+                <p className="settings-group-label">CONFIGURAÇÕES DA CASA</p>
+                <div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{households.find(h=>h.id===settingsHouseholdId)?.name}</strong><small>{households.find(h=>h.id===settingsHouseholdId)?.is_personal?'Casa pessoal':'Casa compartilhada'}{settingsHouseholdId===householdId?' · Selecionada':''}</small></span></div>
+                <button className="settings-row" onClick={()=>{if(settingsHouseholdId!==householdId){void activateHousehold(settingsHouseholdId,userId);setWorkspace('settings');}setHouseholdModal(true)}} disabled={householdBusy}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>Família e compartilhamento</strong><small>Gerencie membros e convide pessoas para esta casa</small></span><ChevronRight size={17}/></button>
+                <button className="settings-row" onClick={()=>{if(!userId){promptAccount('criar e alterar locais de armazenamento');return;}if(settingsHouseholdId!==householdId){void activateHousehold(settingsHouseholdId,userId);setWorkspace('settings');}setPlaceToEdit(null);setPlaceModal(true)}} disabled={householdBusy}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>Locais de armazenamento</strong><small>Gerencie geladeira, freezer, despensa e outros locais</small></span><ChevronRight size={17}/></button>
+                <button className="settings-row" onClick={()=>{if(!userId){promptAccount('adicionar alimentos ao estoque');return;}if(settingsHouseholdId!==householdId){void activateHousehold(settingsHouseholdId,userId);setWorkspace('settings');}setImportModal(true)}} disabled={householdBusy}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>Importar alimentos</strong><small>Adicione uma lista ao estoque desta casa</small></span><ChevronRight size={17}/></button>
+              </div>
+            ):(
+              <div className="settings-group">
+                <p className="settings-group-label">MINHAS CASAS</p>
+                {households.length>0?households.map(h=><button key={h.id} className="settings-row" onClick={()=>{setSettingsHouseholdId(h.id);if(h.id!==householdId){void activateHousehold(h.id,userId);setWorkspace('settings');}}} disabled={householdBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{h.name}</strong><small>{h.id===householdId?'Casa selecionada · ':''}{h.is_personal?'Casa pessoal':'Casa compartilhada'}</small></span><ChevronRight size={17}/></button>):<div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>Nenhuma casa disponível</strong><small>{userId?'Crie uma casa para começar a organizar seu estoque.':'Entre ou crie uma conta para gerenciar suas casas.'}</small></span></div>}
+                <button className="settings-row" onClick={()=>{if(!userId){setAuthModal(true);return;}setHouseholdModal(true)}}><span className="settings-row-icon"><Plus size={19}/></span><span className="settings-row-copy"><strong>Adicionar casa</strong><small>Crie uma casa ou entre em uma casa compartilhada</small></span><ChevronRight size={17}/></button>
+              </div>
+            )}
             {user&&!user.is_anonymous&&<div className="settings-group settings-danger-group">
               <button className="settings-row danger" onClick={()=>setDeleteAccountConfirm(true)}><span className="settings-row-icon"><Trash2 size={19}/></span><span className="settings-row-copy"><strong>Excluir minha conta</strong><small>Apague sua conta permanentemente</small></span><ChevronRight size={17}/></button>
             </div>}
