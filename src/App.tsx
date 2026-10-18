@@ -1839,6 +1839,7 @@ function App(){
             {user&&!user.is_anonymous&&<div className="settings-group">
               <p className="settings-group-label">SEGURANÇA DA CONTA</p>
               <button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>Alterar senha</strong><small>Atualize a senha usada para entrar no ShelfSpace</small></span><ChevronRight size={17}/></button>
+              <button className="settings-row danger" onClick={()=>setDeleteAccountConfirm(true)}><span className="settings-row-icon"><Trash2 size={19}/></span><span className="settings-row-copy"><strong>Excluir minha conta</strong><small>Apague sua conta permanentemente</small></span><ChevronRight size={17}/></button>
             </div>}
             <div className="settings-group">
               <p className="settings-group-label">SUA CASA</p>
@@ -2161,6 +2162,26 @@ function App(){
       {actionFeedback&&<div className="action-feedback" role="status" aria-live="polite">✓ {actionFeedback}</div>}
     </div>
   );
+}
+
+function AccountDeletionModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
+  const[password,setPassword]=useState('');
+  const[error,setError]=useState('');
+  const submit=async()=>{
+    if(!password||busy)return;
+    setError('');
+    const result=await onSubmit(password);
+    if(result)setError(result);
+  };
+  return <Modal title="Excluir minha conta?" onClose={busy?()=>{}:onClose}>
+    <p className="modal-help">Esta ação é permanente. Sua conta e seus dados pessoais de autenticação serão excluídos. Os dados de uma casa compartilhada serão preservados para os outros membros; se você for a última pessoa da casa, os dados dessa casa também serão excluídos.</p>
+    <label>Confirme sua senha<input type="password" value={password} onChange={event=>setPassword(event.target.value)} autoComplete="current-password" required/></label>
+    {error&&<p className="form-error" role="alert">{error}</p>}
+    <div className="household-rename-actions">
+      <button type="button" disabled={busy} onClick={onClose}>Cancelar</button>
+      <button type="button" className="danger-button" disabled={busy||!password} onClick={()=>void submit()}>{busy?'Excluindo…':'Excluir conta permanentemente'}</button>
+    </div>
+  </Modal>
 }
 
 function AccountPasswordModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
