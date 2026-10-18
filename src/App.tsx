@@ -953,7 +953,7 @@ function App(){
         }catch{
           if(request!==authRequest.current)return;
           setSynced(false);
-          setAuthMessage('Sua casa foi criada com Geladeira e Freezer, mas ainda não foi possível sincronizar os locais. Eles foram preservados neste dispositivo.');
+          // Keep the default locations locally without showing a non-actionable first-login warning.
         }
       }else{
         setPlaces([]);
