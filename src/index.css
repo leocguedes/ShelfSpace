@@ -2939,3 +2939,29 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 @media(prefers-reduced-motion:reduce){
   .report-list-row{transition:none}
 }
+
+
+/* Fix mobile filter controls: desktop flex-basis values must not become row heights. */
+@media(max-width:650px){
+  .inventory-report .report-filters{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:9px;
+    margin-bottom:13px;
+  }
+  .inventory-report .report-search,
+  .inventory-report .report-location-filter,
+  .inventory-report .report-sort-filter{
+    flex:0 0 auto;
+    min-height:0;
+    height:auto;
+    width:100%;
+  }
+  .inventory-report .report-search{height:44px}
+  .inventory-report .report-location-filter,
+  .inventory-report .report-sort-filter{gap:5px}
+  .inventory-report .report-location-filter select,
+  .inventory-report .report-sort-filter select{width:100%;height:44px}
+  .inventory-report .report-results-bar{margin-top:0}
+}
