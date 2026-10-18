@@ -3181,3 +3181,11 @@ select:disabled{background-color:#F0EEE5;color:#777D72;opacity:1}
 .danger-button:hover{background:#843B35}
 .danger-button:disabled{opacity:.5;cursor:not-allowed}
 .password-form-error{margin:-4px 0 12px;color:#9B4941;font-size:12px;line-height:1.5}
+
+/* Leave-household action */
+.household-leave{margin-top:16px;padding-top:14px;border-top:1px solid var(--ss-border)}
+.household-leave-trigger{border:0;background:transparent;color:#9B4941;padding:7px 0;font:600 12px 'DM Sans',sans-serif;cursor:pointer}
+.household-leave-trigger:hover{text-decoration:underline}
+.household-leave-trigger:disabled{opacity:.5;cursor:not-allowed}
+.household-leave-confirm>strong{font-size:13px;color:var(--ss-charcoal)}
+.household-leave-confirm>p{font-size:12px;line-height:1.6;color:var(--ss-muted)}
