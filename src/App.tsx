@@ -1816,7 +1816,7 @@ function App(){
             {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{food.name} atingiu o consumo previsto</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>Consumiu uma unidade? Estoque atual: {formatQuantity(food.quantity,food.unit)}.</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>Atualizar estoque</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>Adiar</button></div></article>)}
           </div>}
         </section>}
-        {authMessage&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
+        {authMessage&&!authModal&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
 
 
         {selected?(
@@ -2241,7 +2241,7 @@ function App(){
       {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
       {onboardingOpen&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
-      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
+      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
         food={places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods)).find(food=>food.id===consumptionRuleModal.foodId)}
@@ -2422,7 +2422,7 @@ function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=
   </Modal>
 }
 
-function AuthModal({busy,onClose,onSubmit,onReset,message,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>Promise<boolean>;onReset:(email:string)=>void;message:string|null;initialMode?:'signin'|'signup'}){
+function AuthModal({busy,onClose,onSubmit,onReset,onClearMessage,message,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>Promise<boolean>;onReset:(email:string)=>void;onClearMessage:()=>void;message:string|null;initialMode?:'signin'|'signup'}){
   const[mode,setMode]=useState<'signin'|'signup'>(initialMode);
   const[email,setEmail]=useState('');
   const[password,setPassword]=useState('');
@@ -2454,7 +2454,7 @@ function AuthModal({busy,onClose,onSubmit,onReset,message,initialMode='signin'}:
     <label>Senha<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
     <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?'Aguarde...':mode==='signin'?'Entrar':'Criar conta'}</button>
     {mode==='signin'&&<button className="auth-link" disabled={busy||!email.trim()} onClick={()=>onReset(email.trim())}>Esqueci minha senha</button>}
-    <button className="auth-switch" onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');}}>{mode==='signin'?'Ainda não tenho uma conta':'Já tenho uma conta'}</button>
+    <button className="auth-switch" disabled={busy} onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');onClearMessage();}}>{mode==='signin'?'Ainda não tenho uma conta':'Já tenho uma conta'}</button>
   </Modal>
 }
 function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(items:Pick<RecipeIngredient,'name'|'quantity'|'unit'|'measureText'>[])=>void;onCook:(recipe:Recipe)=>void}){
