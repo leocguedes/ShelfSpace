@@ -400,6 +400,7 @@ function App(){
   const[passwordRecovery,setPasswordRecovery]=useState(false);
   const[passwordChangeModal,setPasswordChangeModal]=useState(false);
   const[signOutConfirm,setSignOutConfirm]=useState(false);
+   const[deleteAccountConfirm,setDeleteAccountConfirm]=useState(false);
   const[selected,setSelected]=useState<string|null>(null);
   const[selectedSub,setSelectedSub]=useState<string|null>(null);
   const[search,setSearch]=useState('');
@@ -926,7 +927,7 @@ function App(){
   async function renameHousehold(targetId:string,name:string){
     const clean=name.trim();
     const target=households.find(h=>h.id===targetId);
-    if(!userId||!target||!clean||clean.length>15||!(target.role==='owner'||target.role==='admin'))return false;
+    if(!userId||!target||!clean||clean.length>15)return false;
     setHouseholdBusy(true);
     try{
       const{error}=await supabase.from('households').update({name:clean}).eq('id',targetId);
@@ -954,7 +955,7 @@ function App(){
       setHouseholdInvite({code:invite.invite_code,expiresAt:invite.invite_expires_at});
       setAuthMessage(null);
     }catch{
-      setAuthMessage('Não foi possível gerar o convite. Apenas administradores da casa podem convidar membros.');
+      setAuthMessage('Não foi possível gerar o convite. Verifique se você ainda faz parte desta casa e tente novamente.');
     }finally{setHouseholdBusy(false)}
   }
 
@@ -1323,7 +1324,34 @@ function App(){
     }finally{setAuthBusy(false)}
   }
 
-  async function changeAccountPassword(password:string):Promise<string|null>{
+  async function deleteAccount(password:string):Promise<string|null>{
+     if(!user?.email||user.is_anonymous)return 'Entre em uma conta com e-mail e senha para continuar.';
+     setAuthBusy(true);
+     setAuthMessage(null);
+     try{
+       const{error:reauthError}=await supabase.auth.signInWithPassword({email:user.email,password});
+       if(reauthError)return 'Não foi possível confirmar sua senha. Confira a senha e tente novamente.';
+       const{error}=await supabase.functions.invoke('delete-account');
+       if(error)return 'Não foi possível excluir sua conta agora. Seus dados continuam disponíveis. Tente novamente mais tarde.';
+       ++authRequest.current;
+       await supabase.auth.signOut();
+       setLocalOwner(user.id);
+       setCacheReady(true);
+       setPlaces(readAnonymousPlaces());
+       setUser(null);
+       setUserId(null);
+       setHouseholds([]);
+       setHouseholdId(null);
+       setSynced(false);
+       setDeleteAccountConfirm(false);
+       showActionFeedback('Sua conta foi excluída.');
+       return null;
+     }catch{
+       return 'Não foi possível excluir sua conta agora. Seus dados continuam disponíveis. Tente novamente mais tarde.';
+     }finally{setAuthBusy(false)}
+   }
+
+   async function changeAccountPassword(password:string):Promise<string|null>{
     setAuthBusy(true);
     setAuthMessage(null);
     try{
@@ -2128,6 +2156,7 @@ function App(){
       {signOutConfirm&&<Modal title="Sair da conta?" onClose={()=>setSignOutConfirm(false)}><p className="modal-help">Tem certeza de que deseja sair do ShelfSpace neste dispositivo? Seus dados sincronizados continuarão salvos.</p><div className="household-rename-actions"><button type="button" disabled={authBusy} onClick={()=>setSignOutConfirm(false)}>Cancelar</button><button type="button" className="primary" disabled={authBusy} onClick={()=>{setSignOutConfirm(false);void signOut();}}>{authBusy?'Saindo…':'Sim, sair da conta'}</button></div></Modal>}
       {passwordRecovery&&<PasswordRecoveryModal busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
       {passwordChangeModal&&<AccountPasswordModal busy={authBusy} onClose={()=>setPasswordChangeModal(false)} onSubmit={changeAccountPassword}/>}
+       {deleteAccountConfirm&&<AccountDeletionModal busy={authBusy} onClose={()=>setDeleteAccountConfirm(false)} onSubmit={deleteAccount}/>}
       {undo&&<div className="undo-toast" role="status" aria-live="polite"><span>{undo.label}</span><button onClick={consumeUndo}>Desfazer</button></div>}
       {actionFeedback&&<div className="action-feedback" role="status" aria-live="polite">✓ {actionFeedback}</div>}
     </div>
@@ -2479,7 +2508,7 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
 
 function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy}:{busy:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void}){
   const active=households.find(h=>h.id===activeHouseholdId);
-  const canInvite=active?.role==='owner'||active?.role==='admin';
+  const canInvite=!!active;
   const[houseName,setHouseName]=useState(active?.name||'');
   const[nameEditing,setNameEditing]=useState(false);
   const[nameMessage,setNameMessage]=useState('');
@@ -2503,13 +2532,13 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
     }finally{if(current)setMembersLoading(false);}})();
     return()=>{current=false};
   },[active?.id]);
-  const roleLabel=(role:HouseholdMember['role'])=>role==='owner'?'Responsável':role==='admin'?'Administrador':'Membro';
+  const roleLabel=(_role:HouseholdMember['role'])=>'Membro';
   return <Modal title="Família e compartilhamento" onClose={onClose}>
     <p className="modal-help">Veja quem participa desta casa e compartilhe o estoque com as pessoas que moram com você.</p>
     {households.length>1&&<label>Casa ativa<select value={activeHouseholdId||''} disabled={busy} onChange={e=>onSwitch(e.target.value)}>{households.map(h=><option key={h.id} value={h.id}>{h.name}{h.is_personal?' · pessoal':''}</option>)}</select></label>}
     <div className="household-panel">
       <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||'Sua casa'}</strong></div>
-      {canInvite&&(nameEditing?<div className="household-rename">
+      {active&&(nameEditing?<div className="household-rename">
         <label>Nome da casa<input value={houseName} maxLength={15} onChange={event=>{setHouseName(event.target.value);setNameMessage('');}} placeholder="Ex.: Minha casa"/></label>
         <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage('Nome da casa alterado com sucesso.');}});}}>Salvar nome</button></div>
       </div>:<button type="button" className="household-rename-trigger" onClick={()=>{setNameMessage('');setNameEditing(true);}}>Editar nome da casa</button>)}
@@ -2526,7 +2555,7 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
           <div><strong>{invite.code}</strong><button type="button" onClick={()=>onCopy(invite.code)} aria-label="Copiar código de convite"><Copy size={16}/>{copied?'Copiado':'Copiar'}</button></div>
           <small>Expira em {new Date(invite.expiresAt).toLocaleDateString('pt-BR')} · até 10 usos</small>
         </div>}
-      </>:<p className="household-note">Somente proprietários e administradores podem gerar convites.</p>}
+      </>:<p className="household-note">Entre em uma casa para gerar um convite.</p>}
     </div>
     <div className="household-join">
       <strong>Entrar em outra casa</strong>
