@@ -3055,7 +3055,7 @@ function PlaceModal({language,places,initialEditId,onClose,onSave,onDelete}:{lan
       </>
     ):(
       <>
-        {places.length>0&&<button className="back modal-back" onClick={goBack}{language==='en'?'← Back to locations':'← Voltar aos locais'}</button>}
+        {places.length>0&&<button className="back modal-back" onClick={goBack}>{language==='en'?'← Back to locations':'← Voltar aos locais'}</button>}
         <label>{language==='en'?'Location name':'Nome do local'}<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?'E.g. Fridge':'Ex.: Geladeira'}/></label>
         <button className="primary full" disabled={!name.trim()} onClick={save}>{edit?(language==='en'?'Save changes':'Salvar alterações'):(language==='en'?'Create location':'Criar local')}</button>
       </>
