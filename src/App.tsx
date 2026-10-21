@@ -2371,51 +2371,51 @@ function OnboardingModal({language,step,onStep,onFinish,onCreateAccount,onSignIn
           <img src={import.meta.env.BASE_URL+'brand/shelfspace-symbol.svg'} alt="" />
           <span>ShelfSpace</span>
         </div>
-        {!isDemo&&!isSignup&&<button type="button" onClick={onFinish}>Pular</button>}
-        {(isDemo||isSignup)&&<button type="button" onClick={()=>onStep(3)}>Voltar</button>}
+        {!isDemo&&!isSignup&&<button type="button" onClick={onFinish}>{language==='en'?"Skip":"Pular"}</button>}
+        {(isDemo||isSignup)&&<button type="button" onClick={()=>onStep(3)}>{language==='en'?"Back":"Voltar"}</button>}
       </div>
-      {!isDemo&&!isSignup&&<div className="onboarding-progress" role="progressbar" aria-label={'Etapa '+(step+1)+' de 4'} aria-valuemin={1} aria-valuemax={4} aria-valuenow={step+1}><span style={{width:(progressStep/4*100)+'%'}}/></div>}
+      {!isDemo&&!isSignup&&<div className="onboarding-progress" role="progressbar" aria-label={language==='en'?'Step '+(step+1)+' of 4':'Etapa '+(step+1)+' de 4'} aria-valuemin={1} aria-valuemax={4} aria-valuenow={step+1}><span style={{width:(progressStep/4*100)+'%'}}/></div>}
       {!isDemo&&!isSignup?<>
         <p className="eyebrow">{page.eyebrow}</p>
         <h2 id="onboarding-title">{page.title}</h2>
         <p className="onboarding-body">{page.body}</p>
         <p className="onboarding-detail">{page.detail}</p>
         {step===0&&<div className="onboarding-benefits">
-          <div><Box size={17}/><span>Estoque por local</span></div>
-          <div><CalendarClock size={17}/><span>Validades e consumo</span></div>
-          <div><BookOpen size={17}/><span>Receitas e compras</span></div>
+          <div><Box size={17}/><span>{language==='en'?"Inventory by location":"Estoque por local"}</span></div>
+          <div><CalendarClock size={17}/><span>{language==='en'?"Expiration and consumption":"Validades e consumo"}</span></div>
+          <div><BookOpen size={17}/><span>{language==='en'?"Recipes and shopping":"Receitas e compras"}</span></div>
         </div>}
         <div className="onboarding-actions">
           {step>0&&<button type="button" className="secondary" onClick={()=>onStep(step-1)}>Voltar</button>}
-          <button type="button" className="primary" onClick={()=>onStep(step<3?step+1:5)}>{step<3?'Continuar':'Continuar'} <ChevronRight size={16}/></button>
+          <button type="button" className="primary" onClick={()=>onStep(step<3?step+1:5)}>{language==='en'?'Continue':'Continuar'} <ChevronRight size={16}/></button>
         </div>
-        {step===3&&<button type="button" className="onboarding-demo-link" onClick={()=>onStep(4)}>Explorar demonstração</button>}
+        {step===3&&<button type="button" className="onboarding-demo-link" onClick={()=>onStep(4)}>{language==='en'?"Explore demo":"Explorar demonstração"}</button>}
       </>:null}
       {isDemo&&<>
-        <p className="eyebrow">DEMONSTRAÇÃO · SOMENTE VISUALIZAÇÃO</p>
-        <h2 id="onboarding-title">Veja como funciona.</h2>
-        <p className="onboarding-body">Este é um exemplo de como seus alimentos podem aparecer no ShelfSpace. Os itens abaixo são fictícios e não serão salvos na sua conta.</p>
+        <p className="eyebrow">{language==='en'?"DEMO · VIEW ONLY":"DEMONSTRAÇÃO · SOMENTE VISUALIZAÇÃO"}</p>
+        <h2 id="onboarding-title">{language==='en'?"See how it works.":"Veja como funciona."}</h2>
+        <p className="onboarding-body">{language==='en'?"Here’s an example of how your food can appear in ShelfSpace. The items below are fictional and won’t be saved to your account.":"Este é um exemplo de como seus alimentos podem aparecer no ShelfSpace. Os itens abaixo são fictícios e não serão salvos na sua conta."}</p>
         <div className="onboarding-demo-content">
-          <div className="onboarding-demo-heading"><Box size={18}/><strong>Geladeira</strong><span>2 exemplos</span></div>
-          <div className="onboarding-demo-food"><span className="onboarding-demo-food-icon"><PackagePlus size={18}/></span><span><strong>Leite</strong><small>1 litro · Exemplo de validade</small></span><span className="onboarding-demo-tag">Exemplo</span></div>
-          <div className="onboarding-demo-food"><span className="onboarding-demo-food-icon"><PackagePlus size={18}/></span><span><strong>Ovos</strong><small>6 unidades · Exemplo de validade</small></span><span className="onboarding-demo-tag">Exemplo</span></div>
-          <div className="onboarding-demo-links"><span><CalendarClock size={15}/> Validades</span><span><BookOpen size={15}/> Receitas</span><span><ShoppingCart size={15}/> Compras</span></div>
+          <div className="onboarding-demo-heading"><Box size={18}/><strong>{language==='en'?"Fridge":"Geladeira"}</strong><span>{language==='en'?"2 examples":"2 exemplos"}</span></div>
+          <div className="onboarding-demo-food"><span className="onboarding-demo-food-icon"><PackagePlus size={18}/></span><span><strong>Leite</strong><small>{language==='en'?"1 liter · Example expiration":"1 litro · Exemplo de validade"}</small></span><span className="onboarding-demo-tag">{language==='en'?"Example":"Exemplo"}</span></div>
+          <div className="onboarding-demo-food"><span className="onboarding-demo-food-icon"><PackagePlus size={18}/></span><span><strong>Ovos</strong><small>{language==='en'?"6 units · Example expiration":"6 unidades · Exemplo de validade"}</small></span><span className="onboarding-demo-tag">Exemplo</span></div>
+          <div className="onboarding-demo-links"><span><CalendarClock size={15}/> {language==='en'?"Expiration":"Validades"}</span><span><BookOpen size={15}/> {language==='en'?"Recipes":"Receitas"}</span><span><ShoppingCart size={15}/> {language==='en'?"Shopping":"Compras"}</span></div>
         </div>
         <div className="onboarding-actions">
           <button type="button" className="secondary" onClick={()=>onStep(3)}>Voltar</button>
-          <button type="button" className="primary" onClick={()=>onStep(5)}>Criar minha conta <ChevronRight size={16}/></button>
+          <button type="button" className="primary" onClick={()=>onStep(5)}>{language==='en'?"Create my account":"Criar minha conta"} <ChevronRight size={16}/></button>
         </div>
       </>}
       {isSignup&&<>
         <div className="onboarding-signup-mark"><Check size={24}/></div>
-        <p className="eyebrow">SEU ESTOQUE, DO SEU JEITO</p>
-        <h2 id="onboarding-title">Vamos começar?</h2>
-        <p className="onboarding-body">Crie sua conta gratuita para cadastrar seus alimentos e manter tudo salvo.</p>
+        <p className="eyebrow">{language==='en'?"YOUR INVENTORY, YOUR WAY":"SEU ESTOQUE, DO SEU JEITO"}</p>
+        <h2 id="onboarding-title">{language==='en'?"Ready to get started?":"Vamos começar?"}</h2>
+        <p className="onboarding-body">{language==='en'?"Create your free account to add food and keep everything saved.":"Crie sua conta gratuita para cadastrar seus alimentos e manter tudo salvo."}</p>
         <div className="onboarding-actions onboarding-signup-actions">
           <button type="button" className="secondary" onClick={()=>onStep(3)}>Voltar</button>
-          <button type="button" className="primary" onClick={onCreateAccount}>Criar conta gratuita <ChevronRight size={16}/></button>
+          <button type="button" className="primary" onClick={onCreateAccount}>{language==='en'?"Create free account":"Criar conta gratuita"} <ChevronRight size={16}/></button>
         </div>
-        <button type="button" className="onboarding-signin" onClick={onSignIn}>Já tenho conta</button>
+        <button type="button" className="onboarding-signin" onClick={onSignIn}>{language==='en'?"I already have an account":"Já tenho conta"}</button>
         <button type="button" className="onboarding-demo-link" onClick={()=>onStep(4)}>Explorar demonstração</button>
       </>}
     </section>
