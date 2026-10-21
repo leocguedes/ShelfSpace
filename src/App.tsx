@@ -1867,8 +1867,8 @@ function App(){
                 </div>
               </div>
               <div className="location-header-actions">
-                <button type="button" className="location-manage-action" onClick={()=>{setPlaceToEdit(selected);setPlaceModal(true)}} aria-label="Editar nome do local" title="Editar nome"><Edit3 size={17}/></button>
-                <button type="button" className="location-manage-action danger" onClick={()=>setDeletePlaceConfirm(selected)} aria-label="Excluir local" title="Excluir local"><Trash2 size={17}/></button>
+                <button type="button" className="location-manage-action" onClick={()=>{setPlaceToEdit(selected);setPlaceModal(true)}} aria-label={language==='en'?'Edit location name':'Editar nome do local'} title={language==='en'?'Edit name':'Editar nome'}><Edit3 size={17}/></button>
+                <button type="button" className="location-manage-action danger" onClick={()=>setDeletePlaceConfirm(selected)} aria-label={language==='en'?'Delete location':'Excluir local'} title={language==='en'?'Delete location':'Excluir local'}><Trash2 size={17}/></button>
                 <button className="primary location-add" onClick={()=>selectedSub&&setFoodModal({place:selected,sub:selectedSub})} disabled={!selectedSub}>
                   <Plus size={18}/> Adicionar alimento
                 </button>
@@ -2513,7 +2513,7 @@ function AuthModal({language,busy,onClose,onSubmit,onReset,onClearMessage,messag
     <p className="modal-help">{mode==='signin'?(language==='en'?'Sign in to access your food on any device.':'Entre para acessar seus alimentos em qualquer dispositivo.'):(language==='en'?'Create an account to sync your inventory across your phone, computer, and other browsers.':'Crie uma conta para manter seu histórico sincronizado no celular, PC e outros navegadores.')}</p>
     {message&&!/^(Crie uma conta gratuita|Entre na sua conta|Para começar)/.test(message)&&<p className="auth-note" role="alert" aria-live="assertive">{message}</p>}
     <label>{language==='en'?'Email':'E-mail'}<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder={language==='en'?"you@email.com":"voce@email.com"} autoComplete="email"/></label>
-    <label>{language==='en'?'Password':'Senha'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
+    <label>{language==='en'?'Password':'Senha'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder={language==='en'?'At least 6 characters':'Mínimo de 6 caracteres'} autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
     <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?(language==='en'?'Please wait...':'Aguarde...'):mode==='signin'?(language==='en'?'Sign in':'Entrar'):(language==='en'?'Create account':'Criar conta')}</button>
     {mode==='signin'&&<button className="auth-link" disabled={busy||!email.trim()} onClick={()=>onReset(email.trim())}>{language==='en'?'Forgot password?':'Esqueci minha senha'}</button>}
     <button className="auth-switch" disabled={busy} onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');onClearMessage();}}>{mode==='signin'?(language==='en'?"I don't have an account yet":"Ainda não tenho uma conta"):(language==='en'?"I already have an account":"Já tenho uma conta")}</button>
@@ -2567,7 +2567,7 @@ function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en'
     <div className="hero recipe-hero">
       <div className="hero-copy">
         <p className="eyebrow">{language==='en'?'COOK WITH WHAT YOU HAVE':'COZINHE COM O QUE JÁ TEM'}</p>
-        <div className="recipe-title-row"><h2>{language==='en'?'Ideas for cooking':'Ideias para cozinhar'}</h2><span className="recipe-beta-badge" title="As recomendações ainda estão em aprimoramento">BETA</span></div>
+        <div className="recipe-title-row"><h2>{language==='en'?'Ideas for cooking':'Ideias para cozinhar'}</h2><span className="recipe-beta-badge" title={language==='en'?'Recommendations are still being improved':'As recomendações ainda estão em aprimoramento'}>BETA</span></div>
         <p>{language==='en'?'Recipes based on what you have and ingredients nearing expiration. Add anything missing to your shopping list.':'Receitas com o que você já tem e ingredientes próximos da validade. O que faltar pode ir para a lista de compras.'}</p>
       </div>
     </div>
@@ -2576,7 +2576,7 @@ function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en'
       
     </div>
     {onlineError&&<p className="recipe-online-message" role="status">{onlineError}</p>}
-    <div className="recipe-search search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={language==='en'?'Search recipes or ingredients':'Buscar receita ou ingrediente'} aria-label={language==='en'?'Search recipes or ingredients':'Buscar receita ou ingrediente'}/>{query&&<button onClick={()=>setQuery('')} aria-label="Limpar busca"><X size={16}/></button>}</div>
+    <div className="recipe-search search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={language==='en'?'Search recipes or ingredients':'Buscar receita ou ingrediente'} aria-label={language==='en'?'Search recipes or ingredients':'Buscar receita ou ingrediente'}/>{query&&<button onClick={()=>setQuery('')} aria-label={language==='en'?'Clear search':'Limpar busca'}><X size={16}/></button>}</div>
     <div className="recipe-filters" aria-label={language==='en'?'Filter recipes':'Filtrar receitas'}>
       <button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>{language==='en'?'All':'Todas'} ({options.length})</button>
       <button className={filter==='ready'?'active':''} onClick={()=>setFilter('ready')}>{language==='en'?'I have everything':'Tenho tudo'} ({options.filter(option=>option.ready).length})</button>
