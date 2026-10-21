@@ -1,6 +1,6 @@
 import{useEffect,useMemo,useRef,useState}from'react';
 import type{ReactNode}from'react';
-import{formatQuantity,quantityStep,searchKey,units}from'./lib/domain';
+import{formatQuantity,quantityStep,searchKey,unitLabel,units}from'./lib/domain';
 import type{Unit}from'./lib/domain';
 import{convertRecipeQuantity,getRecipeIngredientStatuses,matchesRecipeIngredient,recipes}from'./lib/recipes';
 import type{Recipe,RecipeIngredient,RecipePantryItem}from'./lib/recipes';
@@ -1856,7 +1856,7 @@ function App(){
           <div className="notification-center-head"><div><p className="eyebrow">{language==='en'?'ALERT CENTER':'CENTRAL DE ALERTAS'}</p><h3>{language==='en'?'Notifications':'Notificações'}</h3><p>{notificationCount?`${notificationCount} ${notificationCount===1?'item precisa':'itens precisam'} da sua atenção`:'Tudo em dia por aqui.'}</p></div><button className="notification-close" onClick={()=>setNotificationCenterOpen(false)} aria-label={language==='en'?'Close notifications':'Fechar notificações'}><X size={17}/></button></div>
           {notificationCount===0?<div className="notification-empty"><Check size={19}/><span>{language==='en'?'No pending actions.':'Nenhuma decisão pendente.'}</span></div>:<div className="notification-list">
             {expiredNotifications.map(({food,place,subdivision,key})=><article className="notification-item expiry-notification" key={key}><span className="notification-dot expiry-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expiration date':food.name+' atingiu a validade'}</strong><small>{place.name} · validade {food.expires_on?.split('-').reverse().join('/')}</small><p>{language==='en'?'Remove it from inventory?':'Deseja retirar do estoque?'}</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void removeFood(place.id,subdivision.id,food.id)}>{language==='en'?'Remove':'Retirar'}</button><button onClick={()=>handleNotification(key)}>{language==='en'?'Keep':'Manter'}</button></div></article>)}
-            {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expected consumption date':food.name+' atingiu o consumo previsto'}</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>Consumiu uma unidade? Estoque atual: {formatQuantity(food.quantity,food.unit)}.</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>{language==='en'?'Update inventory':'Atualizar estoque'}</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>{language==='en'?'Snooze':'Adiar'}</button></div></article>)}
+            {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expected consumption date':food.name+' atingiu o consumo previsto'}</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>Consumiu uma unidade? Estoque atual: {formatQuantity(food.quantity,food.unit,language)}.</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>{language==='en'?'Update inventory':'Atualizar estoque'}</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>{language==='en'?'Snooze':'Adiar'}</button></div></article>)}
           </div>}
         </section>}
         {authMessage&&!authModal&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
@@ -2066,7 +2066,7 @@ function App(){
                       <div className="report-list-meta"><button type="button" className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={13}/></button></div>
                       {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on,language)}</small>:<small className="report-list-expiry no-date">{language==='en'?"Expiration date not provided":"Validade não informada"}</small>}
                     </div>
-                    <span className="report-list-quantity" aria-label={'Quantidade: '+formatQuantity(food.quantity,food.unit)}>{formatQuantity(food.quantity,food.unit)}</span>
+                    <span className="report-list-quantity" aria-label={'Quantidade: '+formatQuantity(food.quantity,food.unit,language)}>{formatQuantity(food.quantity,food.unit,language)}</span>
                   </div>)}
                 </div>
               ):(
@@ -2076,7 +2076,7 @@ function App(){
                     <tbody>{reportFoods.map(food=><tr key={food.id}>
                       <td data-label={language==='en'?"Item":"Alimento"}><strong>{food.name}</strong></td>
                       <td data-label={language==='en'?"Location":"Onde está"}><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={14}/></button></td>
-                      <td data-label={language==='en'?"Quantity":"Quantidade"}><span className="report-quantity">{formatQuantity(food.quantity,food.unit)}</span>{food.quantity===0&&<small className="report-out">{language==='en'?"Out of stock":"Sem estoque"}</small>}</td>
+                      <td data-label={language==='en'?"Quantity":"Quantidade"}><span className="report-quantity">{formatQuantity(food.quantity,food.unit,language)}</span>{food.quantity===0&&<small className="report-out">{language==='en'?"Out of stock":"Sem estoque"}</small>}</td>
                       <td data-label={language==='en'?"Expiration":"Validade"}>{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on,language)}</small></span>:<span className="report-no-expiry">{language==='en'?"Not provided":"Não informada"}</span>}</td>
                     </tr>)}</tbody>
                   </table>
@@ -2142,7 +2142,7 @@ function App(){
               <div className="smart-panel-heading"><div><p className="eyebrow">{language==='en'?"REDUCE WASTE":"REDUZA O DESPERDÍCIO"}</p><h3>{language==='en'?"Expiring soon":"Validade próxima"}</h3><p>{language==='en'?"Items that are expired or will expire in the next 7 days.":"Itens vencidos ou que vencem nos próximos 7 dias."}</p></div><span>{expiringFoods.length}</span></div>
               <div className="expiry-items">
                 {expiringFoods.slice(0,5).map(({food,place,subdivision,days})=><div className="expiry-item" key={food.id}>
-                  <div className="expiry-item-copy"><strong>{food.name}</strong><small>{formatQuantity(food.quantity,food.unit)} · {place.name}</small></div>
+                  <div className="expiry-item-copy"><strong>{food.name}</strong><small>{formatQuantity(food.quantity,food.unit,language)} · {place.name}</small></div>
                   <span className={'expiry-label '+(days<0?'expired':days<=3?'urgent':'')}>{expiryCaption(food.expires_on!)}</span>
                   <button type="button" className="tertiary-action" onClick={()=>openSearchResult(place.id,subdivision.id)}>{language==='en'?"View":"Ver"}</button>
                 </div>)}
@@ -2165,7 +2165,7 @@ function App(){
                         <Apple size={18}/>
                         <span>
                           <strong>{r.name}</strong>
-                          <small>{r.quantity===0?(language==='en'?'Out of stock':'Sem estoque'):formatQuantity(r.quantity,r.unit)} · {r.place}</small>
+                          <small>{r.quantity===0?(language==='en'?'Out of stock':'Sem estoque'):formatQuantity(r.quantity,r.unit,language)} · {r.place}</small>
                         </span>
                         <ChevronRight size={17}/>
                       </button>
@@ -2236,7 +2236,7 @@ function App(){
                             else{setSearch(recent.name);setWorkspace('inventory');setSelected(null);setSelectedSub(null);}
                           }}>
                             <span className={'home-recent-thumb thumb-'+(index%4)} aria-hidden="true">{recent.name.trim().split(/\s+/).slice(0,2).map(part=>part.charAt(0)).join('').toLocaleUpperCase('pt-BR')}</span>
-                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:(language==='en'?'Recently added':'Adicionado recentemente')}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit):recent.unit}</small></span>
+                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:(language==='en'?'Recently added':'Adicionado recentemente')}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit,language):recent.unit}</small></span>
                             <ChevronRight size={17}/>
                           </button>
                         );
@@ -2610,7 +2610,7 @@ function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en'
             <div className="recipe-ingredients"><strong>{language==='en'?'Ingredients':'Ingredientes'}</strong>
               {statuses.map(status=><div className="recipe-ingredient" key={status.ingredient.name}>
                 <span className={'recipe-ingredient-icon '+(status.enough===true?'available':status.enough===false?'missing':'unknown')}>{status.enough===true?'✓':status.enough===false?'!':'?'}</span>
-                <div><strong>{status.ingredient.name}</strong><small>{recipe.presenceOnly?(status.ingredient.measureText||(language==='en'?'Quantity not provided':'Quantidade não informada'))+(status.enough===true?(language==='en'?' · in inventory; check quantity':' · presente no estoque; confira a quantidade'):status.enough===false?(language==='en'?' · not found in inventory':' · não encontrado no estoque'):' ') : formatQuantity(status.ingredient.quantity,status.ingredient.unit)+(status.enough===true?(language==='en'?' · available':' · disponível'):status.enough===false?(language==='en'?' · missing ':' · falta ')+formatQuantity(status.missingQuantity,status.ingredient.unit):(language==='en'?' · check unit':' · confira a unidade'))}{status.expiredMatches.length>0?(status.matches.length?(language==='en'?' · an expired item also exists':' · também há item vencido'):(language==='en'?' · only expired items found':' · só há item vencido')):''}</small></div>
+                <div><strong>{status.ingredient.name}</strong><small>{recipe.presenceOnly?(status.ingredient.measureText||(language==='en'?'Quantity not provided':'Quantidade não informada'))+(status.enough===true?(language==='en'?' · in inventory; check quantity':' · presente no estoque; confira a quantidade'):status.enough===false?(language==='en'?' · not found in inventory':' · não encontrado no estoque'):' ') : formatQuantity(status.ingredient.quantity,status.ingredient.unit,language)+(status.enough===true?(language==='en'?' · available':' · disponível'):status.enough===false?(language==='en'?' · missing ':' · falta ')+formatQuantity(status.missingQuantity,status.ingredient.unit,language):(language==='en'?' · check unit':' · confira a unidade'))}{status.expiredMatches.length>0?(status.matches.length?(language==='en'?' · an expired item also exists':' · também há item vencido'):(language==='en'?' · only expired items found':' · só há item vencido')):''}</small></div>
               </div>)}
             </div>
             <div className="recipe-steps"><strong>{language==='en'?'Instructions':'Modo de preparo'}</strong><ol>{recipe.instructions.map((step,index)=><li key={index}>{step}</li>)}</ol></div>
@@ -2633,7 +2633,7 @@ function RecipeCookModal({language,recipe,onClose,onConfirm}:{language:'pt-BR'|'
   return <Modal title={language==='en'?"Mark recipe as prepared":"Marcar receita como preparada"} onClose={onClose}>
     <div className="move-current"><span>{language==='en'?'Recipe':'Receita'}</span><strong>{recipe.name}</strong><small>{recipe.servings} {language==='en'?(recipe.servings===1?'serving':'servings'):(recipe.servings===1?'porção':'porções')} · {recipe.minutes} min</small></div>
     <p className="modal-help">{language==='en'?'ShelfSpace will deduct the planned quantities from inventory, prioritizing food closest to expiration. Nothing will be deducted if an ingredient is missing or units cannot be safely compared.':'O ShelfSpace vai descontar as quantidades previstas do estoque, priorizando os alimentos com validade mais próxima. Nada será descontado se faltar ingrediente ou não for possível comparar as unidades.'}</p>
-    <div className="recipe-cook-list">{recipe.ingredients.map(ingredient=><div key={ingredient.name}><span>{ingredient.name}</span><strong>{formatQuantity(ingredient.quantity,ingredient.unit)}</strong></div>)}</div>
+    <div className="recipe-cook-list">{recipe.ingredients.map(ingredient=><div key={ingredient.name}><span>{ingredient.name}</span><strong>{formatQuantity(ingredient.quantity,ingredient.unit,language)}</strong></div>)}</div>
     <button className="primary full" onClick={onConfirm}>{language==='en'?'Confirm preparation and update inventory':'Confirmar preparo e atualizar estoque'}</button>
   </Modal>
 }
@@ -2644,10 +2644,10 @@ function ConsumptionRuleModal({language,food,rule,onClose,onSave,onDelete}:{lang
   if(!food)return <Modal title={language==='en'?'Schedule consumption':'Programar consumo'} onClose={onClose}><p className="modal-help">{language==='en'?'This food is no longer in your inventory.':'Este alimento não está mais no estoque.'}</p></Modal>;
   const totalDays=Number.isInteger(daysPerUnit)&&daysPerUnit>0?Math.round(food.quantity*daysPerUnit):0;
   return <Modal title={rule?(language==='en'?'Edit expected consumption':'Editar consumo previsto'):(language==='en'?'Schedule consumption':'Programar consumo')} onClose={onClose}>
-    <div className="move-current"><span>{language==='en'?"Food":"Alimento"}</span><strong>{food.name}</strong><small>{language==='en'?"Current inventory:":"Estoque atual:"} {formatQuantity(food.quantity,food.unit)}</small></div>
+    <div className="move-current"><span>{language==='en'?"Food":"Alimento"}</span><strong>{food.name}</strong><small>{language==='en'?"Current inventory:":"Estoque atual:"} {formatQuantity(food.quantity,food.unit,language)}</small></div>
     <p className="modal-help">{language==='en'?"Enter how many days one unit usually lasts. On the scheduled date, we’ll ask whether you used one unit. Inventory changes only after you confirm.":"Informe por quantos dias uma unidade costuma durar. Na data prevista, perguntaremos se você consumiu uma unidade. O estoque só muda quando confirmar."}</p>
     <label>{language==='en'?"How many days does one unit last?":"Quantos dias dura uma unidade?"}<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
-    <div className="consumption-rule-help">{language==='en'?`With ${formatQuantity(food.quantity,food.unit)} in inventory, the estimated duration is ${totalDays} days. Example: 3 boxes, 7 days per box = 21 days.`:`Com ${formatQuantity(food.quantity,food.unit)} em estoque, a duração estimada é de ${totalDays} dias. Exemplo: 3 caixas, 7 dias por caixa = 21 dias.`}</div>
+    <div className="consumption-rule-help">{language==='en'?`With ${formatQuantity(food.quantity,food.unit,language)} in inventory, the estimated duration is ${totalDays} days. Example: 3 boxes, 7 days per box = 21 days.`:`Com ${formatQuantity(food.quantity,food.unit,language)} em estoque, a duração estimada é de ${totalDays} dias. Exemplo: 3 caixas, 7 dias por caixa = 21 dias.`}</div>
     <button className="primary full" disabled={!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365} onClick={()=>onSave(food.id,daysPerUnit)}>{rule?(language==='en'?'Save schedule':'Salvar programação'):(language==='en'?'Enable expected consumption':'Ativar consumo previsto')}</button>
     {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> {language==='en'?"Remove schedule":"Remover programação"}</button>}
   </Modal>
@@ -2738,7 +2738,7 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
           <label>{language==='en'?'Item':'Produto'}<input value={recurringName} onChange={e=>setRecurringName(e.target.value)} placeholder={language==='en'?'e.g., Whole milk':'Ex.: Leite integral'} maxLength={120}/></label>
           <div className="recurring-form-row">
             <label>{language==='en'?'Quantity':'Quantidade'}<input type="number" min="0.01" step={recurringUnit==='kg'||recurringUnit==='L'?0.1:1} value={recurringQuantity} onChange={e=>setRecurringQuantity(Number(e.target.value))}/></label>
-            <label>{language==='en'?'Unit':'Unidade'}<select value={recurringUnit} onChange={e=>setRecurringUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+            <label>{language==='en'?'Unit':'Unidade'}<select value={recurringUnit} onChange={e=>setRecurringUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{unitLabel(value,language)}</option>)}</select></label>
           </div>
           <div className="recurring-form-row">
             <label>{language==='en'?'Repeat every (days)':'Repetir a cada (dias)'}<input type="number" min="1" max="365" step="1" value={recurringFrequency} onChange={e=>setRecurringFrequency(Number(e.target.value))}/></label>
@@ -2752,7 +2752,7 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
         </form>
         {recurringRules.length>0?<div className="recurring-rules">
           {recurringRules.map(rule=><div className={'recurring-rule '+(!rule.is_active?'inactive':'')} key={rule.id}>
-            <div className="recurring-rule-copy"><strong>{rule.name}</strong><small>{formatQuantity(rule.quantity,units.includes(rule.unit as Unit)?rule.unit as Unit:'unidades')} · {language==='en'?'every ':'a cada '}{rule.frequency_days} {language==='en'?(rule.frequency_days===1?'day':'days'):(rule.frequency_days===1?'dia':'dias')}</small><small>{rule.is_active?(language==='en'?'Next suggestion: ':'Próxima sugestão: ')+rule.next_due_on:(language==='en'?'Paused':'Pausada')}</small></div>
+            <div className="recurring-rule-copy"><strong>{rule.name}</strong><small>{formatQuantity(rule.quantity,units.includes(rule.unit as Unit)?rule.unit as Unit:'unidades',language)} · {language==='en'?'every ':'a cada '}{rule.frequency_days} {language==='en'?(rule.frequency_days===1?'day':'days'):(rule.frequency_days===1?'dia':'dias')}</small><small>{rule.is_active?(language==='en'?'Next suggestion: ':'Próxima sugestão: ')+rule.next_due_on:(language==='en'?'Paused':'Pausada')}</small></div>
             <div className="recurring-rule-actions"><button type="button" onClick={()=>editRecurring(rule)}>{language==='en'?"Edit":"Editar"}</button><button type="button" onClick={()=>onToggleRecurring(rule)}>{rule.is_active?(language==='en'?'Pause':'Pausar'):(language==='en'?'Activate':'Ativar')}</button><button type="button" onClick={()=>onDeleteRecurring(rule)} aria-label={(language==='en'?'Delete rule for ':'Excluir regra de ')+rule.name}><Trash2 size={15}/></button></div>
           </div>)}
         </div>:<p className="recurring-empty">{language==='en'?"No recurring restocks scheduled. Create a routine, such as milk every week or coffee every month.":"Nenhuma reposição programada. Crie uma rotina, como leite toda semana ou café todo mês."}</p>}
@@ -2777,7 +2777,7 @@ function ShoppingRow({language,item,onToggle,onDelete,onEdit,onStock}:{language:
   const unit=units.includes(item.unit as Unit)?item.unit as Unit:'unidades';
   return <div className={'shopping-row '+(item.is_purchased?'purchased':'')}>
     <label className="shopping-check"><input type="checkbox" checked={item.is_purchased} onChange={()=>onToggle(item)} aria-label={(item.is_purchased?(language==='en'?'Unmark ':'Desmarcar '):(language==='en'?'Mark as purchased ':'Marcar como comprado '))+item.name}/><span className="shopping-checkmark"/></label>
-    <div className="shopping-row-name"><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}{item.category?' · '+item.category:''}{item.source!=='manual'?(language==='en'?' · auto-suggested':' · sugestão automática'):''}</small></div>
+    <div className="shopping-row-name"><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit,language)}{item.category?' · '+item.category:''}{item.source!=='manual'?(language==='en'?' · auto-suggested':' · sugestão automática'):''}</small></div>
     <div className="shopping-row-actions">
       <button type="button" className="shopping-edit" onClick={()=>onEdit(item)} aria-label={(language==='en'?'Edit ':'Editar ')+item.name} title={language==='en'?'Edit quantity and unit':'Editar quantidade e unidade'}><Edit3 size={16}/></button>
       {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title={language==='en'?"Add to inventory":"Adicionar ao estoque"}>{language==='en'?'Add to inventory':'Adicionar ao estoque'}</button>}
@@ -2804,7 +2804,7 @@ function AddFoodToShoppingModal({language,food,onClose,onConfirm}:{language:'pt-
   return <Modal title={language==='en'?"Add to shopping list":"Adicionar à lista de compras"} onClose={onClose}>
     <div className="move-current"><span>{language==='en'?"Food":"Alimento"}</span><strong>{food.name}</strong><small>{language==='en'?"Unit":"Unidade"}: {food.unit}</small></div>
     <label>{language==='en'?"Quantity to buy":"Quantidade para comprar"}<input type="number" min={step} step={step} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
-    <button className="primary full" disabled={!Number.isFinite(quantity)||quantity<=0} onClick={()=>onConfirm(Number(quantity))}>{language==='en'?"Add ":"Adicionar "}{Number.isFinite(quantity)&&quantity>0?formatQuantity(quantity,food.unit):''} {language==='en'?"to list":"à lista"}</button>
+    <button className="primary full" disabled={!Number.isFinite(quantity)||quantity<=0} onClick={()=>onConfirm(Number(quantity))}>{language==='en'?"Add ":"Adicionar "}{Number.isFinite(quantity)&&quantity>0?formatQuantity(quantity,food.unit,language):''} {language==='en'?"to list":"à lista"}</button>
   </Modal>
 }
 
@@ -2815,13 +2815,13 @@ function ShoppingStockModal({language,item,places,onClose,onConfirm}:{language:'
   const destination=place?.subdivisions[0];
   const unit=units.includes(item.unit as Unit)?item.unit as Unit:'unidades';
   return <Modal title={language==='en'?"Add to inventory":"Adicionar ao estoque"} onClose={onClose}>
-    <div className="move-current"><span>{language==='en'?"Purchase completed":"Compra concluída"}</span><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}</small></div>
+    <div className="move-current"><span>{language==='en'?"Purchase completed":"Compra concluída"}</span><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit,language)}</small></div>
     {places.length?<>
       <p className="modal-help">{language==='en'?"Choose where to store your purchase.":"Escolha onde guardar o que você comprou."}</p>
       <label>{language==='en'?"Location":"Local"}<select value={placeId} onChange={e=>setPlaceId(e.target.value)}>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
       <label>{language==='en'?"Expiration date (optional)":"Validade (opcional)"}<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)}/></label>
       {destination?.foods.some(f=>searchKey(f.name)===searchKey(item.name)&&f.unit===unit&&(f.expires_on||'')===expiresOn)&&<p className="modal-help">{language==='en'?"This food already exists in this location with the same expiration date. The quantity will be added to the current inventory.":"Esse alimento já existe neste local com a mesma validade. A quantidade será somada ao estoque atual."}</p>}
-      <button className="primary full" disabled={!place||!destination} onClick={()=>onConfirm(item,placeId,destination!.id,expiresOn||null)}>{language==='en'?"Add ":"Adicionar "}{formatQuantity(item.quantity,unit)}</button>
+      <button className="primary full" disabled={!place||!destination} onClick={()=>onConfirm(item,placeId,destination!.id,expiresOn||null)}>{language==='en'?"Add ":"Adicionar "}{formatQuantity(item.quantity,unit,language)}</button>
     </>:<>
       <p className="modal-help">{language==='en'?"Create a location before adding this purchase to inventory.":"Crie um local antes de adicionar esta compra ao estoque."}</p>
       <button className="primary full" onClick={onClose}>{language==='en'?"Close":"Fechar"}</button>
@@ -2998,7 +2998,7 @@ function FoodModal({language,data,placeId,subId,places,recentFoods,onClose,onSav
     {!data&&placeId&&places.some(p=>p.id===placeId)&&<p className="food-destination-note"><Check size={14}/> {language==='en'?"Will be added to":"Será adicionado a"} <strong>{places.find(p=>p.id===placeId)?.name}</strong>.</p>}
     <label>{language==='en'?'Food name':'Nome do alimento'}<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?'e.g., Rice':'Ex.: Arroz'}/></label>
     {!data&&recentFoods.length>0&&!name&&<div className="recent-foods"><span>{language==='en'?'Recently added':'Adicionados recentemente'}</span><div>{recentFoods.slice(0,6).map(f=><button key={f.name} onClick={()=>{setName(f.name);setUnit(f.unit)}}>{f.name}</button>)}</div></div>}
-    {duplicate&&<div className="duplicate-note"><strong>{language==='en'?`“${duplicateFood?.name}” is already in this location.`:`“${duplicateFood?.name}” já está neste local.`}</strong><span>{language==='en'?'You can add the new quantity to the existing inventory.':'Você pode somar a nova quantidade ao estoque existente.'}</span>{canMerge&&<button type="button" onClick={()=>onAddToExisting(chosenPlace,chosenSub,duplicateFood!.id,quantity,unit)}><Plus size={15}/> {language==='en'?"Add ":"Somar "}{formatQuantity(quantity,unit)}</button>}</div>}
+    {duplicate&&<div className="duplicate-note"><strong>{language==='en'?`“${duplicateFood?.name}” is already in this location.`:`“${duplicateFood?.name}” já está neste local.`}</strong><span>{language==='en'?'You can add the new quantity to the existing inventory.':'Você pode somar a nova quantidade ao estoque existente.'}</span>{canMerge&&<button type="button" onClick={()=>onAddToExisting(chosenPlace,chosenSub,duplicateFood!.id,quantity,unit)}><Plus size={15}/> {language==='en'?"Add ":"Somar "}{formatQuantity(quantity,unit,language)}</button>}</div>}
     <label>{language==='en'?"Expiration date (optional)":"Validade (opcional)"}<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)} aria-label={language==='en'?"Food expiration date":"Data de validade do alimento"}/><small className="field-help">{language==='en'?'If packages have different expiration dates, add each batch separately.':'Se houver várias embalagens com datas diferentes, cadastre cada lote separadamente.'}</small></label>
     <div className="row">
       <label>{language==='en'?'Quantity':'Quantidade'}<div className="number"><button type="button" aria-label={language==='en'?'Decrease quantity':'Diminuir quantidade'} onClick={()=>setQuantity(Math.max(0,Number((quantity-quantityStep).toFixed(3))))}><Minus/></button><input type="number" min="0" step={quantityStep} value={quantity} onChange={e=>{const value=Number(e.target.value);setQuantity(Number.isFinite(value)?Math.max(0,value):0)}} aria-label={language==='en'?"Quantity":"Quantidade"} /><button type="button" aria-label={language==='en'?'Increase quantity':'Aumentar quantidade'} onClick={()=>setQuantity(Number((quantity+quantityStep).toFixed(3)))}><Plus/></button></div></label>
@@ -3011,7 +3011,7 @@ function FoodModal({language,data,placeId,subId,places,recentFoods,onClose,onSav
 
 function MoveModal({language,data,places,onClose,onMove}:{language:'pt-BR'|'en';data:{place:string;sub:string;food:Food};places:Place[];onClose:()=>void;onMove:(fromPlaceId:string,fromSubId:string,foodId:string,toPlaceId:string,toSubId:string)=>void}){
   return <Modal title={language==='en'?'Move food':'Mover alimento'} onClose={onClose}>
-    <div className="move-current"><span>{language==='en'?'Moving':'Movendo'}</span><strong>{data.food.name}</strong><small>{formatQuantity(data.food.quantity,data.food.unit)} · {places.find(p=>p.id===data.place)?.name}</small></div>
+    <div className="move-current"><span>{language==='en'?'Moving':'Movendo'}</span><strong>{data.food.name}</strong><small>{formatQuantity(data.food.quantity,data.food.unit,language)} · {places.find(p=>p.id===data.place)?.name}</small></div>
     <p className="modal-help move-help">{language==='en'?'Choose the destination.':'Escolha o local de destino.'}</p>
     <div className="move-list">
       {places.map(p=>{
