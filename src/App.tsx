@@ -2304,6 +2304,7 @@ function App(){
       />}
       {shoppingAddFood&&<AddFoodToShoppingModal food={shoppingAddFood} onClose={()=>setShoppingAddFood(null)} onConfirm={quantity=>{void addShoppingItem(shoppingAddFood.name,quantity,shoppingAddFood.unit,'manual');setShoppingAddFood(null)}}/>}
       {householdModal&&<HouseholdModal
+        language={language}
         initialCreateOnly={householdCreateOnly}
         busy={householdBusy}
         households={households}
@@ -2800,7 +2801,7 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
   </Modal>
 }
 
-function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy,onLeave,onCreateHousehold,currentUserId,initialCreateOnly}:{busy:boolean;initialCreateOnly:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void;onLeave:(id:string)=>Promise<boolean>;onCreateHousehold:(name:string)=>Promise<boolean>;currentUserId:string|null}){
+function HouseholdModal({language,busy,households,activeHouseholdId,invite,joinCode,copied,onClose,onSwitch,onRename,onCreateInvite,onJoin,onJoinCodeChange,onCopy,onLeave,onCreateHousehold,currentUserId,initialCreateOnly}:{language:'pt-BR'|'en';busy:boolean;initialCreateOnly:boolean;households:Household[];activeHouseholdId:string|null;invite:{code:string;expiresAt:string}|null;joinCode:string;copied:boolean;onClose:()=>void;onSwitch:(id:string)=>void;onRename:(id:string,name:string)=>Promise<boolean>;onCreateInvite:()=>void;onJoin:()=>void;onJoinCodeChange:(value:string)=>void;onCopy:(code:string)=>void;onLeave:(id:string)=>Promise<boolean>;onCreateHousehold:(name:string)=>Promise<boolean>;currentUserId:string|null}){
   const active=households.find(h=>h.id===activeHouseholdId);
   const canInvite=!!active;
   const[houseName,setHouseName]=useState(active?.name||'');
@@ -2830,22 +2831,22 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
     }finally{if(current)setMembersLoading(false);}})();
     return()=>{current=false};
   },[active?.id]);
-  const roleLabel=(_role:HouseholdMember['role'])=>'Membro';
-  return <Modal title={createHouseOpen?"Adicionar casa":"Família e compartilhamento"} onClose={onClose}>
+  const roleLabel=(_role:HouseholdMember['role'])=>language==='en'?'Member':'Membro';
+  return <Modal title={createHouseOpen?(language==='en'?"Add household":"Adicionar casa"):(language==='en'?"Family and sharing":"Família e compartilhamento")} onClose={onClose}>
     {createHouseOpen? <div className="household-join household-create-form">
-      <p className="modal-help">Crie uma casa separada para organizar outro endereço, imóvel ou grupo familiar.</p>
-      <label>Nome da casa<input autoFocus value={newHouseName} maxLength={15} onChange={e=>{setNewHouseName(e.target.value);setCreateHouseError('');}} placeholder="Ex.: Casa de praia"/></label>
-      <small className="household-create-hint">Escolha um nome com até 15 caracteres.</small>
+      <p className="modal-help">{language==='en'?"Create a separate household to organize another address, property, or family group.":"Crie uma casa separada para organizar outro endereço, imóvel ou grupo familiar."}</p>
+      <label>{language==='en'?"Household name":"Nome da casa"}<input autoFocus value={newHouseName} maxLength={15} onChange={e=>{setNewHouseName(e.target.value);setCreateHouseError('');}} placeholder={language==='en'?"E.g. Beach house":"Ex.: Casa de praia"}/></label>
+      <small className="household-create-hint">{language==='en'?"Choose a name with up to 15 characters.":"Escolha um nome com até 15 caracteres."}</small>
       {createHouseError&&<p className="form-error" role="alert">{createHouseError}</p>}
       <div className="household-rename-actions">
         <button type="button" disabled={busy} onClick={()=>{setCreateHouseOpen(false);setNewHouseName('');setCreateHouseError('');}}>Cancelar</button>
-        <button type="button" className="primary" disabled={busy||!newHouseName.trim()||newHouseName.trim().length>15} onClick={()=>{void onCreateHousehold(newHouseName).then(ok=>{if(ok){setNewHouseName('');setCreateHouseOpen(false);setCreateHouseError('');}else setCreateHouseError('Não foi possível criar a casa. Tente novamente.');});}}>{busy?'Criando…':'Criar casa'}</button>
+        <button type="button" className="primary" disabled={busy||!newHouseName.trim()||newHouseName.trim().length>15} onClick={()=>{void onCreateHousehold(newHouseName).then(ok=>{if(ok){setNewHouseName('');setCreateHouseOpen(false);setCreateHouseError('');}else setCreateHouseError(language==='en'?'Could not create household. Please try again.':'Não foi possível criar a casa. Tente novamente.');});}}>{busy?(language==='en'?'Creating…':'Criando…'):(language==='en'?'Create household':'Criar casa')}</button>
       </div>
     </div>:<>
-    <p className="modal-help">Veja quem participa desta casa e compartilhe o estoque com as pessoas que moram com você.</p>
-    {households.length>1&&<label>Casa ativa<select value={activeHouseholdId||''} disabled={busy} onChange={e=>onSwitch(e.target.value)}>{households.map(h=><option key={h.id} value={h.id}>{h.name}{h.is_personal?' · pessoal':''}</option>)}</select></label>}
+    <p className="modal-help">{language==='en'?"See who belongs to this household and share inventory with the people you live with.":"Veja quem participa desta casa e compartilhe o estoque com as pessoas que moram com você."}</p>
+    {households.length>1&&<label>{language==='en'?"Active household":"Casa ativa"}<select value={activeHouseholdId||''} disabled={busy} onChange={e=>onSwitch(e.target.value)}>{households.map(h=><option key={h.id} value={h.id}>{h.name}{h.is_personal?(language==='en'?' · personal':' · pessoal'):''}</option>)}</select></label>}
     <div className="household-panel">
-      <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||'Sua casa'}</strong></div>
+      <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||(language==='en'?'Your household':'Sua casa')}</strong></div>
       {active&&(nameEditing?<div className="household-rename">
         <label>Nome da casa<input value={houseName} maxLength={15} onChange={event=>{setHouseName(event.target.value);setNameMessage('');}} placeholder="Ex.: Minha casa"/></label>
         <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage('Nome da casa alterado com sucesso.');}});}}>Salvar nome</button></div>
@@ -2853,32 +2854,32 @@ function HouseholdModal({busy,households,activeHouseholdId,invite,joinCode,copie
       {nameMessage&&<p className="household-rename-success" role="status" aria-live="polite">✓ {nameMessage}</p>}
       <p>{active?.is_personal?'Esta é sua casa pessoal. Você pode convidar familiares para compartilhar o mesmo estoque.':'Você está vendo o estoque compartilhado desta casa.'}</p>
       <div className="household-members">
-        <div className="household-members-heading"><strong>Quem está nesta casa</strong><span>{membersLoading?'Carregando…':members.length+' '+(members.length===1?'pessoa':'pessoas')}</span></div>
-        {membersLoading?<div className="household-members-state">Buscando os membros da família…</div>:membersError?<div className="household-members-state error">{membersError}<button type="button" onClick={()=>{setMembersError('');setMembersLoading(true);void (async()=>{try{const{data,error}=await supabase.rpc('get_household_members',{target_household_id:active?.id});if(error){setMembersError('Não foi possível carregar os membros.');setMembers([]);}else{setMembers((data||[]) as HouseholdMember[]);setMembersError('');}}catch{setMembersError('Não foi possível carregar os membros.');setMembers([]);}finally{setMembersLoading(false);}})();}}>Tentar novamente</button></div>:members.length===0?<div className="household-members-state">Ainda não há outros membros. Gere um convite para adicionar familiares.</div>:members.map(member=><div className="household-member" key={member.user_id}><span className="household-member-avatar">{(member.display_name||member.email||'M').trim().charAt(0).toLocaleUpperCase('pt-BR')}</span><span className="household-member-details"><strong>{member.display_name||'Membro da família'}</strong><small>{member.email||'E-mail não disponível'}</small></span><span className={'household-member-role '+member.role}>{roleLabel(member.role)}</span></div>)}
+        <div className="household-members-heading"><strong>{language==='en'?"Who’s in this household":"Quem está nesta casa"}</strong><span>{membersLoading?(language==='en'?'Loading…':'Carregando…'):members.length+' '+(language==='en'?(members.length===1?'person':'people'):(members.length===1?'pessoa':'pessoas'))}</span></div>
+        {membersLoading?<div className="household-members-state">{language==='en'?"Loading household members…":"Buscando os membros da família…"}</div>:membersError?<div className="household-members-state error">{membersError}<button type="button" onClick={()=>{setMembersError('');setMembersLoading(true);void (async()=>{try{const{data,error}=await supabase.rpc('get_household_members',{target_household_id:active?.id});if(error){setMembersError('Não foi possível carregar os membros.');setMembers([]);}else{setMembers((data||[]) as HouseholdMember[]);setMembersError('');}}catch{setMembersError('Não foi possível carregar os membros.');setMembers([]);}finally{setMembersLoading(false);}})();}}>Tentar novamente</button></div>:members.length===0?<div className="household-members-state">{language==='en'?"There are no other members yet. Create an invite to add family members.":"Ainda não há outros membros. Gere um convite para adicionar familiares."}</div>:members.map(member=><div className="household-member" key={member.user_id}><span className="household-member-avatar">{(member.display_name||member.email||'M').trim().charAt(0).toLocaleUpperCase('pt-BR')}</span><span className="household-member-details"><strong>{member.display_name||'Membro da família'}</strong><small>{member.email||'E-mail não disponível'}</small></span><span className={'household-member-role '+member.role}>{roleLabel(member.role)}</span></div>)}
       </div>
       {canInvite?<>
-        <button className="primary full" disabled={busy} onClick={onCreateInvite}><Users size={16}/> {busy?'Aguarde...':'Gerar convite para familiares'}</button>
+        <button className="primary full" disabled={busy} onClick={onCreateInvite}><Users size={16}/> {busy?(language==='en'?'Please wait…':'Aguarde...'):(language==='en'?'Create family invite':'Gerar convite para familiares')}</button>
         {invite&&<div className="household-invite">
-          <span>Código de convite</span>
-          <div><strong>{invite.code}</strong><button type="button" onClick={()=>onCopy(invite.code)} aria-label="Copiar código de convite"><Copy size={16}/>{copied?'Copiado':'Copiar'}</button></div>
-          <small>Expira em {new Date(invite.expiresAt).toLocaleDateString('pt-BR')} · até 10 usos</small>
+          <span>{language==='en'?"Invite code":"Código de convite"}</span>
+          <div><strong>{invite.code}</strong><button type="button" onClick={()=>onCopy(invite.code)} aria-label={language==='en'?"Copy invite code":"Copiar código de convite"}><Copy size={16}/>{copied?(language==='en'?'Copied':'Copiado'):(language==='en'?'Copy':'Copiar')}</button></div>
+          <small>{language==='en'?`Expires ${new Date(invite.expiresAt).toLocaleDateString('en-CA')} · up to 10 uses`:`Expira em ${new Date(invite.expiresAt).toLocaleDateString('pt-BR')} · até 10 usos`}</small>
         </div>}
-      </>:<p className="household-note">Entre em uma casa para gerar um convite.</p>}
+      </>:<p className="household-note">{language==='en'?"Join a household to create an invite.":"Entre em uma casa para gerar um convite."}</p>}
     </div>
     <div className="household-join household-create">
       <button type="button" className="secondary full" disabled={busy} onClick={()=>{setNewHouseName('');setCreateHouseError('');setCreateHouseOpen(true);}}><Plus size={16}/> Criar outra casa</button>
     </div>
     {active&&!(active.is_personal&&active.created_by===currentUserId&&members.length<=1)&&<div className="household-leave">
       {leaveConfirm?<div className="household-leave-confirm">
-        <strong>Sair desta casa?</strong>
+        <strong>{language==='en'?"Leave this household?":"Sair desta casa?"}</strong>
         <p>{active.is_personal&&active.created_by===currentUserId?'Sua casa pessoal será convertida em uma casa compartilhada para os outros membros. Seus dados pessoais e as outras casas serão mantidos.':'Você perderá acesso ao estoque e à lista desta casa. Sua conta e os dados dos outros membros continuarão preservados.'}</p>
         <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>setLeaveConfirm(false)}>Cancelar</button><button type="button" className="danger-button" disabled={busy} onClick={()=>void onLeave(active.id).then(ok=>{if(ok){setLeaveConfirm(false);onClose();}})}>{busy?'Saindo…':'Confirmar saída'}</button></div>
       </div>:<button type="button" className="household-leave-trigger" disabled={busy} onClick={()=>setLeaveConfirm(true)}>Sair desta casa</button>}
     </div>}
     <div className="household-join">
-      <strong>Entrar em outra casa</strong>
-      <p>Digite o código de convite que um familiar compartilhou com você.</p>
-      <label>Código<input value={joinCode} onChange={e=>onJoinCodeChange(e.target.value.toUpperCase())} placeholder="Ex.: A1B2C3D4E5" autoComplete="off"/></label>
+      <strong>{language==='en'?"Join another household":"Entrar em outra casa"}</strong>
+      <p>{language==='en'?"Enter the invite code shared with you by a household member.":"Digite o código de convite que um familiar compartilhou com você."}</p>
+      <label>{language==='en'?"Invite code":"Código"}<input value={joinCode} onChange={e=>onJoinCodeChange(e.target.value.toUpperCase())} placeholder="Ex.: A1B2C3D4E5" autoComplete="off"/></label>
       <button className="primary full" disabled={busy||joinCode.trim().length<6} onClick={onJoin}>{busy?'Aguarde...':'Entrar na casa'}</button>
     </div>
     </>}
