@@ -2290,6 +2290,7 @@ function App(){
       {authModal&&<AuthModal language={language} initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal language={language} recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
+         language={language}
         food={places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods)).find(food=>food.id===consumptionRuleModal.foodId)}
         rule={consumptionRules.find(rule=>rule.food_id===consumptionRuleModal.foodId)}
         onClose={()=>setConsumptionRuleModal(null)}
@@ -2325,7 +2326,7 @@ function App(){
         onCopy={async code=>{try{await navigator.clipboard.writeText(code);setHouseholdCopied(true)}catch{setAuthMessage('Não foi possível copiar automaticamente. Selecione o código para copiá-lo.')}}}
       />}
       {signOutConfirm&&<Modal title="Sair da conta?" onClose={()=>setSignOutConfirm(false)}><p className="modal-help">Tem certeza de que deseja sair do ShelfSpace neste dispositivo? Seus dados sincronizados continuarão salvos.</p><div className="household-rename-actions"><button type="button" disabled={authBusy} onClick={()=>setSignOutConfirm(false)}>Cancelar</button><button type="button" className="primary" disabled={authBusy} onClick={()=>{setSignOutConfirm(false);void signOut();}}>{authBusy?'Saindo…':'Sim, sair da conta'}</button></div></Modal>}
-      {passwordRecovery&&<PasswordRecoveryModal busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
+      {passwordRecovery&&<PasswordRecoveryModal language={language} busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
       {passwordChangeModal&&<AccountPasswordModal busy={authBusy} onClose={()=>setPasswordChangeModal(false)} onSubmit={changeAccountPassword}/>}
        {deleteAccountConfirm&&<AccountDeletionModal busy={authBusy} onClose={()=>setDeleteAccountConfirm(false)} onSubmit={deleteAccount}/>}
       {deletePlaceConfirm&&<Modal title="Excluir local permanentemente?" onClose={()=>setDeletePlaceConfirm(null)}>
@@ -2448,7 +2449,7 @@ function AccountPasswordModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>
   };
   return <Modal title="Alterar senha" onClose={onClose}>
     <p className="modal-help">Crie uma nova senha com pelo menos 8 caracteres. Sua sessão atual será mantida.</p>
-    <label>Nova senha<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder="Mínimo de 8 caracteres" autoComplete="new-password"/></label>
+    <label>{language==='en'?"New password":"Nova senha"}<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder="Mínimo de 8 caracteres" autoComplete="new-password"/></label>
     <label>Confirmar nova senha<input type={showPassword?'text':'password'} value={confirm} onChange={e=>{setConfirm(e.target.value);setError(null)}} placeholder="Digite a nova senha novamente" autoComplete="new-password"/></label>
     <label className="password-show-option"><input type="checkbox" checked={showPassword} onChange={e=>setShowPassword(e.target.checked)}/> Mostrar senhas</label>
     {confirm&&password!==confirm&&<p className="password-mismatch" role="status">As senhas não coincidem.</p>}
@@ -2457,16 +2458,16 @@ function AccountPasswordModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>
   </Modal>
 }
 
-function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>void}){
+function PasswordRecoveryModal({language,busy,onClose,onSubmit}:{language:'pt-BR'|'en';busy:boolean;onClose:()=>void;onSubmit:(password:string)=>void}){
   const[password,setPassword]=useState('');
   const[confirm,setConfirm]=useState('');
   const canSave=password.length>=6&&password===confirm;
-  return <Modal title="Criar nova senha" onClose={onClose}>
-    <p className="modal-help">Escolha uma nova senha para continuar usando sua conta.</p>
+  return <Modal title={language==='en'?"Create a new password":"Criar nova senha"} onClose={onClose}>
+    <p className="modal-help">{language==='en'?"Choose a new password to keep using your account.":"Escolha uma nova senha para continuar usando sua conta."}</p>
     <label>Nova senha<input type="password" autoFocus value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete="new-password"/></label>
-    <label>Confirmar senha<input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Digite a senha novamente" autoComplete="new-password"/></label>
-    {confirm&&password!==confirm&&<p className="password-mismatch">As senhas não coincidem.</p>}
-    <button className="primary full" disabled={busy||!canSave} onClick={()=>onSubmit(password)}>{busy?'Aguarde...':'Salvar nova senha'}</button>
+    <label>{language==='en'?"Confirm password":"Confirmar senha"}<input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder={language==='en'?"Enter your password again":"Digite a senha novamente"} autoComplete="new-password"/></label>
+    {confirm&&password!==confirm&&<p className="password-mismatch">{language==='en'?"Passwords do not match.":"As senhas não coincidem."}</p>}
+    <button className="primary full" disabled={busy||!canSave} onClick={()=>onSubmit(password)}>{busy?(language==='en'?'Please wait…':'Aguarde...'):(language==='en'?'Save new password':'Salvar nova senha')}</button>
   </Modal>
 }
 
@@ -2611,18 +2612,18 @@ function RecipeCookModal({language,recipe,onClose,onConfirm}:{language:'pt-BR'|'
   </Modal>
 }
 
-function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;rule?:ConsumptionRule;onClose:()=>void;onSave:(foodId:string,daysPerUnit:number)=>void;onDelete:()=>void}){
+function ConsumptionRuleModal({language,food,rule,onClose,onSave,onDelete}:{language:'pt-BR'|'en';food?:Food;rule?:ConsumptionRule;onClose:()=>void;onSave:(foodId:string,daysPerUnit:number)=>void;onDelete:()=>void}){
   const initialDays=rule?Math.max(1,Math.round(rule.period_days/Math.max(1,rule.amount))):7;
   const[daysPerUnit,setDaysPerUnit]=useState(initialDays);
-  if(!food)return <Modal title="Programar consumo" onClose={onClose}><p className="modal-help">Este alimento não está mais no estoque.</p></Modal>;
+  if(!food)return <Modal title={language==='en'?'Schedule consumption':'Programar consumo'} onClose={onClose}><p className="modal-help">{language==='en'?'This food is no longer in your inventory.':'Este alimento não está mais no estoque.'}</p></Modal>;
   const totalDays=Number.isInteger(daysPerUnit)&&daysPerUnit>0?Math.round(food.quantity*daysPerUnit):0;
-  return <Modal title={rule?'Editar consumo previsto':'Programar consumo'} onClose={onClose}>
-    <div className="move-current"><span>Alimento</span><strong>{food.name}</strong><small>Estoque atual: {formatQuantity(food.quantity,food.unit)}</small></div>
-    <p className="modal-help">Informe por quantos dias uma unidade costuma durar. Na data prevista, perguntaremos se você consumiu uma unidade. O estoque só muda quando confirmar.</p>
-    <label>Quantos dias dura uma unidade?<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
-    <div className="consumption-rule-help">Com {formatQuantity(food.quantity,food.unit)} em estoque, a duração estimada é de {totalDays} dias. Exemplo: 3 caixas, 7 dias por caixa = 21 dias.</div>
-    <button className="primary full" disabled={!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365} onClick={()=>onSave(food.id,daysPerUnit)}>{rule?'Salvar programação':'Ativar consumo previsto'}</button>
-    {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> Remover programação</button>}
+  return <Modal title={rule?(language==='en'?'Edit expected consumption':'Editar consumo previsto'):(language==='en'?'Schedule consumption':'Programar consumo')} onClose={onClose}>
+    <div className="move-current"><span>{language==='en'?"Food":"Alimento"}</span><strong>{food.name}</strong><small>{language==='en'?"Current inventory:":"Estoque atual:"} {formatQuantity(food.quantity,food.unit)}</small></div>
+    <p className="modal-help">{language==='en'?"Enter how many days one unit usually lasts. On the scheduled date, we’ll ask whether you used one unit. Inventory changes only after you confirm.":"Informe por quantos dias uma unidade costuma durar. Na data prevista, perguntaremos se você consumiu uma unidade. O estoque só muda quando confirmar."}</p>
+    <label>{language==='en'?"How many days does one unit last?":"Quantos dias dura uma unidade?"}<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
+    <div className="consumption-rule-help">{language==='en'?`With ${formatQuantity(food.quantity,food.unit)} in inventory, the estimated duration is ${totalDays} days. Example: 3 boxes, 7 days per box = 21 days.`:`Com ${formatQuantity(food.quantity,food.unit)} em estoque, a duração estimada é de ${totalDays} dias. Exemplo: 3 caixas, 7 dias por caixa = 21 dias.`}</div>
+    <button className="primary full" disabled={!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365} onClick={()=>onSave(food.id,daysPerUnit)}>{rule?(language==='en'?'Save schedule':'Salvar programação'):(language==='en'?'Enable expected consumption':'Ativar consumo previsto')}</button>
+    {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> {language==='en'?"Remove schedule":"Remover programação"}</button>}
   </Modal>
 }
 function ShoppingPage({language,places,items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onEdit,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{language:'pt-BR'|'en';places:Place[];items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onEdit:(item:ShoppingItem,quantity:number,unit:Unit)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
