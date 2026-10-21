@@ -204,7 +204,7 @@ function writeActiveHousehold(userId:string,householdId:string){
 
 async function fetchHouseholdContext(userId:string,preferredId?:string|null){
   const{data:personalId,error:personalError}=await supabase.rpc('ensure_personal_household');
-  if(personalError||!personalId)throw personalError||new Error(language==='en'?"Could not prepare your household.":'Não foi possível preparar sua casa.');
+  if(personalError||!personalId)throw personalError||new Error('Não foi possível preparar sua casa.');
   const{data,error}=await supabase.from('households')
     .select('id,name,created_by,is_personal,household_members!inner(user_id,role)')
     .eq('household_members.user_id',userId)
@@ -216,7 +216,7 @@ async function fetchHouseholdContext(userId:string,preferredId?:string|null){
   });
   const requested=preferredId||readActiveHousehold(userId);
   const chosen=list.some(h=>h.id===requested)?requested:(list.some(h=>h.id===personalId)?personalId:list[0]?.id);
-  if(!chosen)throw new Error(language==='en'?"No household is available for this account.":'Nenhuma casa disponível para esta conta.');
+  if(!chosen)throw new Error('Nenhuma casa disponível para esta conta.');
   return{households:list,personalId:personalId as string,householdId:chosen,household:list.find(h=>h.id===chosen)!};
 }
 
@@ -2236,7 +2236,7 @@ function App(){
                             else{setSearch(recent.name);setWorkspace('inventory');setSelected(null);setSelectedSub(null);}
                           }}>
                             <span className={'home-recent-thumb thumb-'+(index%4)} aria-hidden="true">{recent.name.trim().split(/\s+/).slice(0,2).map(part=>part.charAt(0)).join('').toLocaleUpperCase('pt-BR')}</span>
-                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:(language==='en'?'Recently added':'Adicionado recentemente')}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit,language):unitLabel(recent.unit,language,recent.quantity)}</small></span>
+                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:(language==='en'?'Recently added':'Adicionado recentemente')}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit,language):unitLabel(recent.unit,language)}</small></span>
                             <ChevronRight size={17}/>
                           </button>
                         );
