@@ -1940,6 +1940,7 @@ function App(){
           </section>
         ):workspace==='shopping'?(
           <ShoppingPage
+            language={language}
             places={places}
             items={shoppingItems}
             loading={shoppingLoading}
@@ -2014,7 +2015,7 @@ function App(){
             <p className="settings-footer">ShelfSpace · {language==='en'?'Your home, organized.':'Sua casa, organizada.'}</p>
           </section>
         ):workspace==='recipes'?(
-          <RecipePage places={places} onAddMissing={addRecipeMissing} onCook={recipe=>setCookConfirmRecipe(recipe)}/>
+          <RecipePage language={language} places={places} onAddMissing={addRecipeMissing} onCook={recipe=>setCookConfirmRecipe(recipe)}/>
         ):workspace==='report'?(
           <section className="inventory-report">
             <div className="hero report-hero">
@@ -2501,7 +2502,7 @@ function AuthModal({busy,onClose,onSubmit,onReset,onClearMessage,message,initial
     <button className="auth-switch" disabled={busy} onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');onClearMessage();}}>{mode==='signin'?'Ainda não tenho uma conta':'Já tenho uma conta'}</button>
   </Modal>
 }
-function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(items:Pick<RecipeIngredient,'name'|'quantity'|'unit'|'measureText'>[])=>void;onCook:(recipe:Recipe)=>void}){
+function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en';places:Place[];onAddMissing:(items:Pick<RecipeIngredient,'name'|'quantity'|'unit'|'measureText'>[])=>void;onCook:(recipe:Recipe)=>void}){
   const[query,setQuery]=useState('');
   const[filter,setFilter]=useState<'all'|'ready'|'needs'>('all');
   const[expanded,setExpanded]=useState<string|null>(null);
@@ -2548,43 +2549,43 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
   return <section className="recipe-page">
     <div className="hero recipe-hero">
       <div className="hero-copy">
-        <p className="eyebrow">COZINHE COM O QUE JÁ TEM</p>
-        <div className="recipe-title-row"><h2>Ideias para cozinhar</h2><span className="recipe-beta-badge" title="As recomendações ainda estão em aprimoramento">BETA</span></div>
-        <p>Receitas com o que você já tem e ingredientes próximos da validade. O que faltar pode ir para a lista de compras.</p>
+        <p className="eyebrow">{language==='en'?'COOK WITH WHAT YOU HAVE':'COZINHE COM O QUE JÁ TEM'}</p>
+        <div className="recipe-title-row"><h2>{language==='en'?'Ideas for cooking':'Ideias para cozinhar'}</h2><span className="recipe-beta-badge" title="As recomendações ainda estão em aprimoramento">BETA</span></div>
+        <p>{language==='en'?'Recipes based on what you have and ingredients nearing expiration. Add anything missing to your shopping list.':'Receitas com o que você já tem e ingredientes próximos da validade. O que faltar pode ir para a lista de compras.'}</p>
       </div>
     </div>
     <div className="recipe-online-controls">
-      <button className="secondary-action" onClick={()=>void loadOnlineRecipes()} disabled={onlineLoading}><BookOpen size={16}/>{onlineLoading?'Atualizando receitas...':'Atualizar receitas'}</button>
+      <button className="secondary-action" onClick={()=>void loadOnlineRecipes()} disabled={onlineLoading}><BookOpen size={16}/>{onlineLoading?(language==='en'?'Refreshing recipes...':'Atualizando receitas...'):(language==='en'?'Refresh recipes':'Atualizar receitas')}</button>
       
     </div>
     {onlineError&&<p className="recipe-online-message" role="status">{onlineError}</p>}
-    <div className="recipe-search search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar receita ou ingrediente" aria-label="Buscar receita ou ingrediente"/>{query&&<button onClick={()=>setQuery('')} aria-label="Limpar busca"><X size={16}/></button>}</div>
-    <div className="recipe-filters" aria-label="Filtrar receitas">
-      <button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>Todas ({options.length})</button>
-      <button className={filter==='ready'?'active':''} onClick={()=>setFilter('ready')}>Tenho tudo ({options.filter(option=>option.ready).length})</button>
-      <button className={filter==='needs'?'active':''} onClick={()=>setFilter('needs')}>Faltam itens ({options.filter(option=>!option.ready).length})</button>
+    <div className="recipe-search search"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={language==='en'?'Search recipes or ingredients':'Buscar receita ou ingrediente'} aria-label={language==='en'?'Search recipes or ingredients':'Buscar receita ou ingrediente'}/>{query&&<button onClick={()=>setQuery('')} aria-label="Limpar busca"><X size={16}/></button>}</div>
+    <div className="recipe-filters" aria-label={language==='en'?'Filter recipes':'Filtrar receitas'}>
+      <button className={filter==='all'?'active':''} onClick={()=>setFilter('all')}>{language==='en'?'All':'Todas'} ({options.length})</button>
+      <button className={filter==='ready'?'active':''} onClick={()=>setFilter('ready')}>{language==='en'?'I have everything':'Tenho tudo'} ({options.filter(option=>option.ready).length})</button>
+      <button className={filter==='needs'?'active':''} onClick={()=>setFilter('needs')}>{language==='en'?'Missing items':'Faltam itens'} ({options.filter(option=>!option.ready).length})</button>
     </div>
-    {filtered.length===0?<div className="shopping-empty"><BookOpen size={25}/><strong>Nenhuma receita encontrada</strong><span>Tente outra busca ou selecione outro filtro.</span></div>:<div className="recipe-grid">
+    {filtered.length===0?<div className="shopping-empty"><BookOpen size={25}/><strong>{language==='en'?'No recipes found':'Nenhuma receita encontrada'}</strong><span>{language==='en'?'Try another search or choose a different filter.':'Tente outra busca ou selecione outro filtro.'}</span></div>:<div className="recipe-grid">
       {filtered.map(({recipe,statuses,ready,available,unknown,missing,expiring})=>{
         const isExpanded=expanded===recipe.id;
         const missingItems=missing.map(status=>({name:status.ingredient.name,quantity:Number(status.missingQuantity.toFixed(3)),unit:status.ingredient.unit,...(status.ingredient.measureText?{measureText:status.ingredient.measureText}:{})}));
         return <article className="recipe-card" key={recipe.id}>
-          <div className="recipe-card-top"><div><p className="eyebrow">{ready?'PRONTO PARA PREPARAR':expiring?'USE O QUE VENCE PRIMEIRO':'IDEIA PARA HOJE'}</p><h3>{recipe.name}</h3></div><span className={'recipe-status '+(ready?'ready':'')}>{ready?'Você tem tudo':available+'/'+recipe.ingredients.length+' itens'}</span></div>
+          <div className="recipe-card-top"><div><p className="eyebrow">{ready?(language==='en'?'READY TO MAKE':'PRONTO PARA PREPARAR'):expiring?(language==='en'?'USE WHAT EXPIRES FIRST':'USE O QUE VENCE PRIMEIRO'):(language==='en'?'IDEA FOR TODAY':'IDEIA PARA HOJE')}</p><h3>{recipe.name}</h3></div><span className={'recipe-status '+(ready?'ready':'')}>{ready?(language==='en'?'You have everything':'Você tem tudo'):available+'/'+recipe.ingredients.length+(language==='en'?' items':' itens')}</span></div>
           <p className="recipe-description">{recipe.description}</p>
-          <div className="recipe-meta"><span>{recipe.minutes>0?recipe.minutes+' min':'Tempo não informado'}</span><span>{recipe.servings>0?recipe.servings+' '+(recipe.servings===1?'porção':'porções'):'Porções não informadas'}</span><span>{available} de {recipe.ingredients.length} ingredientes encontrados</span></div>
+          <div className="recipe-meta"><span>{recipe.minutes>0?recipe.minutes+' min':(language==='en'?'Time not provided':'Tempo não informado')}</span><span>{recipe.servings>0?recipe.servings+' '+(language==='en'?(recipe.servings===1?'serving':'servings'):(recipe.servings===1?'porção':'porções')):(language==='en'?'Servings not provided':'Porções não informadas')}</span><span>{language==='en'?`${available} of ${recipe.ingredients.length} ingredients available`:`${available} de ${recipe.ingredients.length} ingredientes encontrados`}</span></div>
           <div className="recipe-progress"><span style={{width:Math.round(available/recipe.ingredients.length*100)+'%'}}/></div>
           {unknown>0&&<p className="recipe-hint">{unknown} ingrediente(s) está(ão) no estoque, mas a quantidade não pode ser confirmada por diferença de unidade. Confira antes de cozinhar.</p>}
-          <button className="recipe-detail-toggle" onClick={()=>setExpanded(isExpanded?null:recipe.id)}>{isExpanded?'Ocultar receita':'Ver ingredientes e preparo'} <ChevronRight size={16}/></button>
+          <button className="recipe-detail-toggle" onClick={()=>setExpanded(isExpanded?null:recipe.id)}>{isExpanded?(language==='en'?'Hide recipe':'Ocultar receita'):(language==='en'?'View ingredients and instructions':'Ver ingredientes e preparo')} <ChevronRight size={16}/></button>
           {isExpanded&&<div className="recipe-detail">
-            <div className="recipe-ingredients"><strong>Ingredientes</strong>
+            <div className="recipe-ingredients"><strong>{language==='en'?'Ingredients':'Ingredientes'}</strong>
               {statuses.map(status=><div className="recipe-ingredient" key={status.ingredient.name}>
                 <span className={'recipe-ingredient-icon '+(status.enough===true?'available':status.enough===false?'missing':'unknown')}>{status.enough===true?'✓':status.enough===false?'!':'?'}</span>
                 <div><strong>{status.ingredient.name}</strong><small>{recipe.presenceOnly?(status.ingredient.measureText||'Quantidade não informada')+(status.enough===true?' · presente no estoque; confira a quantidade':status.enough===false?' · não encontrado no estoque':'') : formatQuantity(status.ingredient.quantity,status.ingredient.unit)+(status.enough===true?' · disponível':status.enough===false?' · falta '+formatQuantity(status.missingQuantity,status.ingredient.unit):' · confira a unidade')}{status.expiredMatches.length>0?(status.matches.length?' · também há item vencido':' · só há item vencido'):''}</small></div>
               </div>)}
             </div>
-            <div className="recipe-steps"><strong>Modo de preparo</strong><ol>{recipe.instructions.map((step,index)=><li key={index}>{step}</li>)}</ol></div>
+            <div className="recipe-steps"><strong>{language==='en'?'Instructions':'Modo de preparo'}</strong><ol>{recipe.instructions.map((step,index)=><li key={index}>{step}</li>)}</ol></div>
             <div className="recipe-actions">
-              {missingItems.length>0&&<button className="secondary-action" onClick={()=>onAddMissing(missingItems)}><ShoppingCart size={15}/> Adicionar faltantes à lista</button>}
+              {missingItems.length>0&&<button className="secondary-action" onClick={()=>onAddMissing(missingItems)}><ShoppingCart size={15}/> {language==='en'?'Add missing items to list':'Adicionar faltantes à lista'}</button>}
               {!recipe.presenceOnly&&<button className="primary" disabled={!ready} onClick={()=>onCook(recipe)}>Marcar como preparada</button>}
               {recipe.presenceOnly&&<small>Receita externa: confira as medidas na fonte. O estoque não será descontado automaticamente.</small>}
               {!ready&&!recipe.presenceOnly&&<small>Para descontar o estoque, todos os ingredientes precisam estar disponíveis em quantidade e unidade comparáveis.</small>}
@@ -2593,8 +2594,8 @@ function RecipePage({places,onAddMissing,onCook}:{places:Place[];onAddMissing:(i
         </article>;
       })}
     </div>}
-    {onlineHasMore&&<div className="recipe-load-more"><button className="secondary-action" onClick={()=>void loadOnlineRecipes(true)} disabled={onlineLoading}>{onlineLoading?'Carregando receitas...':'Mostrar mais 10 receitas'}</button></div>}
-    <p className="recipe-disclaimer">As sugestões online vêm de uma base de receitas em português. Confira as quantidades e o modo de preparo antes de cozinhar.</p>
+    {onlineHasMore&&<div className="recipe-load-more"><button className="secondary-action" onClick={()=>void loadOnlineRecipes(true)} disabled={onlineLoading}>{onlineLoading?(language==='en'?'Loading recipes...':'Carregando receitas...'):(language==='en'?'Show 10 more recipes':'Mostrar mais 10 receitas')}</button></div>}
+    <p className="recipe-disclaimer">{language==='en'?'Online suggestions come from a Portuguese-language recipe database. Check quantities and instructions before cooking.':'As sugestões online vêm de uma base de receitas em português. Confira as quantidades e o modo de preparo antes de cozinhar.'}</p>
   </section>
 }
 
@@ -2621,7 +2622,7 @@ function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;ru
     {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> Remover programação</button>}
   </Modal>
 }
-function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onEdit,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{places:Place[];items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onEdit:(item:ShoppingItem,quantity:number,unit:Unit)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
+function ShoppingPage({language,places,items,loading,signedIn,recurringRules,recurringBusy,onAdd,onToggle,onDelete,onEdit,onStock,onSignIn,onSaveRecurring,onToggleRecurring,onDeleteRecurring}:{language:'pt-BR'|'en';places:Place[];items:ShoppingItem[];loading:boolean;signedIn:boolean;recurringRules:RecurringShoppingRule[];recurringBusy:boolean;onAdd:(name:string,quantity:number,unit:Unit)=>void;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onEdit:(item:ShoppingItem,quantity:number,unit:Unit)=>void;onStock:(item:ShoppingItem)=>void;onSignIn:()=>void;onSaveRecurring:(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string})=>void;onToggleRecurring:(rule:RecurringShoppingRule)=>void;onDeleteRecurring:(rule:RecurringShoppingRule)=>void}){
   const[name,setName]=useState('');
   const[quantity,setQuantity]=useState(1);
   const[unit,setUnit]=useState<Unit>('unidades');
@@ -2671,37 +2672,37 @@ function ShoppingPage({places,items,loading,signedIn,recurringRules,recurringBus
   return <section className="shopping-page">
     <div className="hero shopping-hero">
       <div className="hero-copy">
-        <p className="eyebrow">SUA CASA</p>
-        <h2>Lista de compras</h2>
-        <p>Uma lista compartilhada com sua casa, ligada ao estoque para facilitar a reposição.</p>
+        <p className="eyebrow">{language==='en'?'YOUR HOUSEHOLD':'SUA CASA'}</p>
+        <h2>{language==='en'?'Shopping list':'Lista de compras'}</h2>
+        <p>{language==='en'?'A shared list for your household, connected to your inventory to make restocking easier.':'Uma lista compartilhada com sua casa, ligada ao estoque para facilitar a reposição.'}</p>
       </div>
     </div>
     {!signedIn?(
       <div className="no-places shopping-signin">
         <div className="no-places-icon"><Users size={22}/></div>
-        <h3>Compartilhe suas compras</h3>
-        <p>Entre na sua conta para manter a lista sincronizada entre os membros da casa.</p>
-        <button className="primary" onClick={onSignIn}>Entrar ou criar conta</button>
+        <h3>{language==='en'?'Share your shopping list':'Compartilhe suas compras'}</h3>
+        <p>{language==='en'?'Sign in to keep the list synced across household members.':'Entre na sua conta para manter a lista sincronizada entre os membros da casa.'}</p>
+        <button className="primary" onClick={onSignIn}>{language==='en'?'Sign in or create an account':'Entrar ou criar conta'}</button>
       </div>
     ):<>
       <form className={'shopping-add-form '+(!isAddFormOpen?'is-collapsed':'')} onSubmit={submit}>
         <div className="shopping-form-heading">
           <button type="button" className="shopping-form-toggle" aria-expanded={isAddFormOpen} aria-controls="shopping-add-fields" onClick={()=>setIsAddFormOpen(open=>!open)}>
-            <strong>Adicionar à lista</strong><ChevronDown size={19} aria-hidden="true"/>
+            <strong>{language==='en'?'Add to list':'Adicionar à lista'}</strong><ChevronDown size={19} aria-hidden="true"/>
           </button>
-          {isAddFormOpen&&<span>Itens repetidos com a mesma unidade são somados.</span>}
+          {isAddFormOpen&&<span>{language==='en'?'Repeated items with the same unit are combined.':'Itens repetidos com a mesma unidade são somados.'}</span>}
         </div>
         <div id="shopping-add-fields" className="shopping-add-fields" hidden={!isAddFormOpen}>
-          <label>Produto<input list="shopping-pantry-suggestions" value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/><datalist id="shopping-pantry-suggestions">{Array.from(new Map(places.flatMap(place=>place.subdivisions.flatMap(sub=>sub.foods)).map(food=>[searchKey(food.name),food])).values()).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(food=><option key={food.id} value={food.name}/>)}</datalist></label>
+          <label>{language==='en'?'Item':'Produto' }<input list="shopping-pantry-suggestions" value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?'e.g., Whole milk':'Ex.: Leite integral'} maxLength={120}/><datalist id="shopping-pantry-suggestions">{Array.from(new Map(places.flatMap(place=>place.subdivisions.flatMap(sub=>sub.foods)).map(food=>[searchKey(food.name),food])).values()).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(food=><option key={food.id} value={food.name}/>)}</datalist></label>
           <div className="shopping-form-row">
-            <label>Quantidade<input type="number" min="0.01" step={unit==='kg'||unit==='L'?0.1:1} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
-            <label>Unidade<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
-            <button className="primary shopping-add-button" type="submit" disabled={!name.trim()||!Number.isFinite(quantity)||quantity<=0||loading}><Plus size={17}/> Adicionar</button>
+            <label>{language==='en'?'Quantity':'Quantidade' }<input type="number" min="0.01" step={unit==='kg'||unit==='L'?0.1:1} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
+            <label>{language==='en'?'Unit':'Unidade' }<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+            <button className="primary shopping-add-button" type="submit" disabled={!name.trim()||!Number.isFinite(quantity)||quantity<=0||loading}><Plus size={17}/> {language==='en'?'Add':'Adicionar'}</button>
           </div>
         </div>
       </form>
       <details className="recurring-panel">
-        <summary><span className="recurring-summary-icon" aria-hidden="true"><ClipboardList size={20}/></span><span className="recurring-summary-copy"><strong>Reposições recorrentes</strong><small>Repor itens em intervalos definidos</small></span><b>{recurringRules.filter(rule=>rule.is_active).length}</b><ChevronRight className="recurring-summary-chevron" size={18} aria-hidden="true"/></summary>
+        <summary><span className="recurring-summary-icon" aria-hidden="true"><ClipboardList size={20}/></span><span className="recurring-summary-copy"><strong>{language==='en'?'Recurring restocks':'Reposições recorrentes'}</strong><small>{language==='en'?'Restock items at set intervals':'Repor itens em intervalos definidos'}</small></span><b>{recurringRules.filter(rule=>rule.is_active).length}</b><ChevronRight className="recurring-summary-chevron" size={18} aria-hidden="true"/></summary>
         <form id="recurring-shopping-form" className="recurring-form" onSubmit={submitRecurring}>
           <strong>{editingRecurringId?'Editar reposição':'Criar uma reposição programada'}</strong>
           <label>Produto<input value={recurringName} onChange={e=>setRecurringName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/></label>
