@@ -2024,28 +2024,28 @@ function App(){
                 <h2>{language==='en'?'Inventory':'Estoque'}</h2>
                 <p>{language==='en'?'Your food, organized by location and expiration date.':'Seus alimentos, organizados por local e validade.'}</p>
               </div>
-              <p className="report-total-inline"><strong>{reportFoods.length}</strong> {reportFoods.length===1?'alimento':'alimentos'} <span>{reportSearch||reportLocation!=='all'?'encontrados':'cadastrados'}</span></p>
+              <p className="report-total-inline"><strong>{reportFoods.length}</strong> {language==='en'?(reportFoods.length===1?'item':'items'):(reportFoods.length===1?'alimento':'alimentos')} <span>{language==='en'?(reportSearch||reportLocation!=='all'?'found':'in inventory'):(reportSearch||reportLocation!=='all'?'encontrados':'cadastrados')}</span></p>
             </div>
             <div className="report-filters">
-              <label className="report-search"><Search size={18}/><input value={reportSearch} onChange={e=>setReportSearch(e.target.value)} placeholder="Buscar alimento..." aria-label="Buscar alimento no estoque"/></label>
-              <label className="report-location-filter"><span>Local</span><select value={reportLocation} onChange={e=>setReportLocation(e.target.value)}><option value="all">Todos os locais</option>{places.map(place=><option key={place.id} value={place.id}>{place.name}</option>)}</select></label>
-              <label className="report-sort-filter"><span>Ordenar por</span><select value={reportSort} onChange={e=>setReportSort(e.target.value as typeof reportSort)} aria-label="Ordenar estoque"><option value="name">Alfabética (A–Z)</option><option value="expiry">Validade (mais próxima)</option><option value="location">Local (A–Z)</option><option value="quantity-asc">Quantidade (menor primeiro)</option><option value="quantity-desc">Quantidade (maior primeiro)</option></select></label>
+              <label className="report-search"><Search size={18}/><input value={reportSearch} onChange={e=>setReportSearch(e.target.value)} placeholder={language==='en'?"Search food…":"Buscar alimento..."} aria-label={language==='en'?"Search inventory":"Buscar alimento no estoque"}/></label>
+              <label className="report-location-filter"><span>{language==='en'?"Location":"Local"}</span><select value={reportLocation} onChange={e=>setReportLocation(e.target.value)}><option value="all">{language==='en'?"All locations":"Todos os locais"}</option>{places.map(place=><option key={place.id} value={place.id}>{place.name}</option>)}</select></label>
+              <label className="report-sort-filter"><span>{language==='en'?"Sort by":"Ordenar por"}</span><select value={reportSort} onChange={e=>setReportSort(e.target.value as typeof reportSort)} aria-label={language==='en'?"Sort inventory":"Ordenar estoque"}><option value="name">{language==='en'?"Alphabetical (A–Z)":"Alfabética (A–Z)"}</option><option value="expiry">{language==='en'?"Expiration (soonest)":"Validade (mais próxima)"}</option><option value="location">{language==='en'?"Location (A–Z)":"Local (A–Z)"}</option><option value="quantity-asc">{language==='en'?"Quantity (lowest first)":"Quantidade (menor primeiro)"}</option><option value="quantity-desc">{language==='en'?"Quantity (highest first)":"Quantidade (maior primeiro)"}</option></select></label>
             </div>
             <div className="report-results-bar">
-              <span>Alimentos</span>
-              <div className="report-view-toggle" role="group" aria-label="Visualização do estoque">
-                <button type="button" className={reportView==='list'?'active':''} aria-pressed={reportView==='list'} onClick={()=>setReportView('list')}><List size={16}/> Lista</button>
-                <button type="button" className={reportView==='details'?'active':''} aria-pressed={reportView==='details'} onClick={()=>setReportView('details')}><LayoutGrid size={16}/> Detalhes</button>
+              <span>{language==='en'?"Items":"Alimentos"}</span>
+              <div className="report-view-toggle" role="group" aria-label={language==='en'?"Inventory view":"Visualização do estoque"}>
+                <button type="button" className={reportView==='list'?'active':''} aria-pressed={reportView==='list'} onClick={()=>setReportView('list')}><List size={16}/> {language==='en'?"List":"Lista"}</button>
+                <button type="button" className={reportView==='details'?'active':''} aria-pressed={reportView==='details'} onClick={()=>setReportView('details')}><LayoutGrid size={16}/> {language==='en'?"Details":"Detalhes"}</button>
               </div>
             </div>
             {reportFoods.length?(
               reportView==='list'?(
-                <div className="report-list" aria-label="Alimentos em lista">
+                <div className="report-list" aria-label={language==='en'?"Inventory items list":"Alimentos em lista"}>
                   {reportFoods.map(food=><div className="report-list-row" key={food.id}>
                     <div className="report-list-copy">
                       <strong>{food.name}</strong>
                       <div className="report-list-meta"><button type="button" className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={13}/></button></div>
-                      {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on)}</small>:<small className="report-list-expiry no-date">Validade não informada</small>}
+                      {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on)}</small>:<small className="report-list-expiry no-date">{language==='en'?"Expiration date not provided":"Validade não informada"}</small>}
                     </div>
                     <span className="report-list-quantity" aria-label={'Quantidade: '+formatQuantity(food.quantity,food.unit)}>{formatQuantity(food.quantity,food.unit)}</span>
                   </div>)}
@@ -2053,18 +2053,18 @@ function App(){
               ):(
                 <div className="report-table-wrap">
                   <table className="report-table">
-                    <thead><tr><th>Alimento</th><th>Onde está</th><th>Quantidade</th><th>Validade</th></tr></thead>
+                    <thead><tr><th>{language==='en'?"Item":"Alimento"}</th><th>{language==='en'?"Location":"Onde está"}</th><th>{language==='en'?"Quantity":"Quantidade"}</th><th>{language==='en'?"Expiration":"Validade"}</th></tr></thead>
                     <tbody>{reportFoods.map(food=><tr key={food.id}>
-                      <td data-label="Alimento"><strong>{food.name}</strong></td>
-                      <td data-label="Onde está"><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={14}/></button></td>
-                      <td data-label="Quantidade"><span className="report-quantity">{formatQuantity(food.quantity,food.unit)}</span>{food.quantity===0&&<small className="report-out">Sem estoque</small>}</td>
-                      <td data-label="Validade">{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on)}</small></span>:<span className="report-no-expiry">Não informada</span>}</td>
+                      <td data-label={language==='en'?"Item":"Alimento"}><strong>{food.name}</strong></td>
+                      <td data-label={language==='en'?"Location":"Onde está"}><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={14}/></button></td>
+                      <td data-label={language==='en'?"Quantity":"Quantidade"}><span className="report-quantity">{formatQuantity(food.quantity,food.unit)}</span>{food.quantity===0&&<small className="report-out">{language==='en'?"Out of stock":"Sem estoque"}</small>}</td>
+                      <td data-label={language==='en'?"Expiration":"Validade"}>{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on)}</small></span>:<span className="report-no-expiry">{language==='en'?"Not provided":"Não informada"}</span>}</td>
                     </tr>)}</tbody>
                   </table>
                 </div>
               )
             ):(
-              <div className="report-empty"><ClipboardList size={28}/><strong>{total===0?'Seu estoque ainda está vazio':'Nenhum alimento encontrado'}</strong><span>{total===0?'Cadastre alimentos nos locais para que eles apareçam neste relatório.':'Tente mudar a busca ou selecionar outro local.'}</span>{(reportSearch||reportLocation!=='all')&&<button className="secondary-action" onClick={()=>{setReportSearch('');setReportLocation('all')}}>Limpar filtros</button>}</div>
+              <div className="report-empty"><ClipboardList size={28}/><strong>{total===0?(language==='en'?'Your inventory is empty':'Seu estoque ainda está vazio'):(language==='en'?'No items found':'Nenhum alimento encontrado')}</strong><span>{total===0?(language==='en'?'Add food to your locations to see it in this report.':'Cadastre alimentos nos locais para que eles apareçam neste relatório.'):(language==='en'?'Try changing your search or selecting another location.':'Tente mudar a busca ou selecionar outro local.')}</span>{(reportSearch||reportLocation!=='all')&&<button className="secondary-action" onClick={()=>{setReportSearch('');setReportLocation('all')}}>{language==='en'?"Clear filters":"Limpar filtros"}</button>}</div>
             )}
           </section>
         ):(
