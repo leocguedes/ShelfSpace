@@ -2240,17 +2240,17 @@ function App(){
 
       </nav>
 
-      {addActionModal&&<Modal title="Adicionar à sua casa" onClose={()=>setAddActionModal(false)}>
-        <p className="modal-help">Como você gostaria de adicionar seus alimentos?</p>
+      {addActionModal&&<Modal title={language==='en'?"Add to your household":"Adicionar à sua casa"} onClose={()=>setAddActionModal(false)}>
+        <p className="modal-help">{language==='en'?"How would you like to add your food?":"Como você gostaria de adicionar seus alimentos?"}</p>
         <div className="add-action-choices">
           <button type="button" className="add-action-choice" onClick={()=>{setAddActionModal(false);openAddFoodFromHome()}}>
             <span className="add-action-choice-icon individual"><Plus size={19}/></span>
-            <span><strong>Adicionar um alimento</strong><small>Cadastre nome, quantidade, unidade e local.</small></span>
+            <span><strong>{language==='en'?"Add a food item":"Adicionar um alimento"}</strong><small>{language==='en'?"Enter the name, quantity, unit, and location.":"Cadastre nome, quantidade, unidade e local."}</small></span>
             <ChevronRight size={17}/>
           </button>
           <button type="button" className="add-action-choice" onClick={()=>{setAddActionModal(false);if(!userId){promptAccount('importar alimentos para o estoque');return;}setImportModal(true)}}>
             <span className="add-action-choice-icon import"><ClipboardList size={19}/></span>
-            <span><strong>Importar lista</strong><small>Adicione vários alimentos de uma só vez.</small></span>
+            <span><strong>{language==='en'?"Import a list":"Importar lista"}</strong><small>{language==='en'?"Add multiple food items at once.":"Adicione vários alimentos de uma só vez."}</small></span>
             <ChevronRight size={17}/>
           </button>
         </div>
@@ -2266,7 +2266,7 @@ function App(){
           rememberFood(food.name,food.unit);
         }
         setImportModal(false);
-        setAuthMessage(imported.length+' '+(imported.length===1?'produto importado':'produtos importados')+' para '+place.name+'.');
+        setAuthMessage(language==='en'?`${imported.length} ${imported.length===1?'item imported':'items imported'} to ${place.name}.`:imported.length+' '+(imported.length===1?'produto importado':'produtos importados')+' para '+place.name+'.');
       }}/>} 
       {foodModal&&(
         <FoodModal
@@ -2280,7 +2280,7 @@ function App(){
           onAddToExisting={(placeId,subId,existingId,amount,unit)=>addToExistingFood(placeId,subId,existingId,amount,unit)}
         />
       )}
-      {zeroQtyConfirm&&<div className="overlay" role="presentation"><section className="modal zero-stock-modal" role="alertdialog" aria-modal="true" aria-labelledby="zero-stock-title" aria-describedby="zero-stock-description"><div className="modal-head"><h2 id="zero-stock-title">O que deseja fazer?</h2><button type="button" onClick={()=>setZeroQtyConfirm(null)} aria-label="Fechar"><X size={18}/></button></div><p id="zero-stock-description" className="modal-help">A quantidade de <strong>{zeroQtyConfirm.food.name}</strong> chegou a zero. Você pode removê-lo do estoque ou já adicioná-lo à lista de compras.</p><div className="zero-stock-actions"><button type="button" className="secondary-action" onClick={()=>setZeroQtyConfirm(null)}>Cancelar</button><button type="button" className="secondary-action" onClick={()=>{const target=zeroQtyConfirm;setZeroQtyConfirm(null);void removeFood(target.placeId,target.subId,target.food.id);}}>Excluir</button><button type="button" className="primary" onClick={()=>{const target=zeroQtyConfirm;if(!userId||!householdId){setZeroQtyConfirm(null);setAuthMessage('Entre na sua conta para adicionar alimentos à lista de compras compartilhada.');setAuthModal(true);return;}setZeroQtyConfirm(null);void (async()=>{await addShoppingItem(target.food.name,quantityStep(target.food.unit),target.food.unit,'low_stock');await removeFood(target.placeId,target.subId,target.food.id);})();}}>Excluir e adicionar à lista de compras</button></div></section></div>}
+      {zeroQtyConfirm&&<div className="overlay" role="presentation"><section className="modal zero-stock-modal" role="alertdialog" aria-modal="true" aria-labelledby="zero-stock-title" aria-describedby="zero-stock-description"><div className="modal-head"><h2 id="zero-stock-title">{language==='en'?"What would you like to do?":"O que deseja fazer?"}</h2><button type="button" onClick={()=>setZeroQtyConfirm(null)} aria-label="Fechar"><X size={18}/></button></div><p id="zero-stock-description" className="modal-help">{language==='en'?<>The quantity of <strong>{zeroQtyConfirm.food.name}</strong> has reached zero. You can remove it from your inventory or add it to your shopping list.</>:<>A quantidade de <strong>{zeroQtyConfirm.food.name}</strong> chegou a zero. Você pode removê-lo do estoque ou já adicioná-lo à lista de compras.</>}</p><div className="zero-stock-actions"><button type="button" className="secondary-action" onClick={()=>setZeroQtyConfirm(null)}>{language==='en'?"Cancel":"Cancelar"}</button><button type="button" className="secondary-action" onClick={()=>{const target=zeroQtyConfirm;setZeroQtyConfirm(null);void removeFood(target.placeId,target.subId,target.food.id);}}>{language==='en'?"Delete":"Excluir"}</button><button type="button" className="primary" onClick={()=>{const target=zeroQtyConfirm;if(!userId||!householdId){setZeroQtyConfirm(null);setAuthMessage('Entre na sua conta para adicionar alimentos à lista de compras compartilhada.');setAuthModal(true);return;}setZeroQtyConfirm(null);void (async()=>{await addShoppingItem(target.food.name,quantityStep(target.food.unit),target.food.unit,'low_stock');await removeFood(target.placeId,target.subId,target.food.id);})();}}>{language==='en'?"Delete and add to shopping list":"Excluir e adicionar à lista de compras"}</button></div></section></div>}
       {moveModal&&<MoveModal data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>} 
       {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
