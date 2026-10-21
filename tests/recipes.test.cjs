@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { unitLabel, formatQuantity } = require('../.test-dist/domain.js');
 const {
   convertRecipeQuantity,
   getRecipeIngredientStatuses,
@@ -105,4 +106,19 @@ test('external recipes match ingredients by presence without guessing quantities
   assert.equal(statuses[0].enough, true);
   assert.equal(statuses[0].comparable, false);
   assert.equal(statuses[0].missingQuantity, 0);
+});
+
+
+test('localizes unit labels and quantity formatting without changing stored unit values', () => {
+  assert.equal(unitLabel('unidades', 'en', 1), 'unit');
+  assert.equal(unitLabel('unidades', 'en', 3), 'units');
+  assert.equal(unitLabel('caixas', 'en', 1), 'box');
+  assert.equal(unitLabel('caixas', 'en', 2), 'boxes');
+  assert.equal(unitLabel('garrafas', 'en', 1), 'bottle');
+  assert.equal(unitLabel('garrafas', 'en', 2), 'bottles');
+  assert.equal(unitLabel('caixas', 'pt-BR', 1), 'caixa');
+  assert.equal(unitLabel('caixas', 'pt-BR', 2), 'caixas');
+  assert.equal(formatQuantity(1, 'caixas', 'en'), '1 box');
+  assert.equal(formatQuantity(3, 'caixas', 'en'), '3 boxes');
+  assert.equal(formatQuantity(3, 'caixas', 'pt-BR'), '3 caixas');
 });
