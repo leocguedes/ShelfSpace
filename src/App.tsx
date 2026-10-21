@@ -2168,15 +2168,15 @@ function App(){
                     <h3>{language==='en'?"Your locations":"Seus locais"}</h3>
                     <p className="section-caption">{total} {language==='en'?(total===1?'food item':'food items'):(total===1?'alimento':'alimentos')} {language==='en'?'in':'em'} {places.length} {language==='en'?(places.length===1?'location':'locations'):(places.length===1?'local':'locais')}</p>
                   </div>
-                  <button onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}}><Plus size={17}/> Novo local</button>
+                  <button onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}}><Plus size={17}/> {language==='en'?"New location":"Novo local"}</button>
                 </div>
 
                 {places.length===0?(
                   <div className="no-places">
                     <div className="no-places-icon"><Box size={22}/></div>
-                    <h3>Comece pelo primeiro local</h3>
-                    <p>Crie uma geladeira, despensa ou outro lugar para começar a organizar seus alimentos.</p>
-                    <button className="primary" onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}}><Plus size={18}/> Criar primeiro local</button>
+                    <h3>{language==='en'?"Start with your first location":"Comece pelo primeiro local"}</h3>
+                    <p>{language==='en'?"Create a fridge, pantry, or another place to start organizing your food.":"Crie uma geladeira, despensa ou outro lugar para começar a organizar seus alimentos."}</p>
+                    <button className="primary" onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}}><Plus size={18}/> {language==='en'?"Create first location":"Criar primeiro local"}</button>
                   </div>
                 ):(
                   <div className="places">
@@ -2185,7 +2185,7 @@ function App(){
                         className="place-card"
                         key={p.id}
                         role="button"
-                        aria-label={'Abrir '+p.name}
+                        aria-label={(language==='en'?'Open ':'Abrir ')+p.name}
                         tabIndex={0}
                         onClick={()=>openPlace(p.id)}
                         onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPlace(p.id)}}}
@@ -2194,19 +2194,19 @@ function App(){
                         </div>
                         <h3>{p.name}</h3>
                         <div className="place-card-summary">
-                          <p>{p.subdivisions.reduce((n,s)=>n+s.foods.length,0)} {p.subdivisions.reduce((n,s)=>n+s.foods.length,0)===1?'alimento':'alimentos'}</p>
+                          <p>{p.subdivisions.reduce((n,s)=>n+s.foods.length,0)} {language==='en'?(p.subdivisions.reduce((n,s)=>n+s.foods.length,0)===1?'food item':'food items'):(p.subdivisions.reduce((n,s)=>n+s.foods.length,0)===1?'alimento':'alimentos')}</p>
                         </div>
-                        {p.subdivisions.some(s=>s.foods.some(food=>food.quantity===0))&&<div className="place-stock-note"><span/>{p.subdivisions.reduce((n,s)=>n+s.foods.filter(food=>food.quantity===0).length,0)} {p.subdivisions.reduce((n,s)=>n+s.foods.filter(food=>food.quantity===0).length,0)===1?'item sem estoque':'itens sem estoque'}</div>}
+                        {p.subdivisions.some(s=>s.foods.some(food=>food.quantity===0))&&<div className="place-stock-note"><span/>{p.subdivisions.reduce((n,s)=>n+s.foods.filter(food=>food.quantity===0).length,0)} {language==='en'?(p.subdivisions.reduce((n,s)=>n+s.foods.filter(food=>food.quantity===0).length,0)===1?'item out of stock':'items out of stock'):(p.subdivisions.reduce((n,s)=>n+s.foods.filter(food=>food.quantity===0).length,0)===1?'item sem estoque':'itens sem estoque')}</div>}
                       </div>
                     ))}
                   </div>
                 )}
 
                 {recentFoods.length>0&&places.length>0&&(
-                  <section className="home-recent" aria-label="Alimentos recentes">
+                  <section className="home-recent" aria-label={language==='en'?"Recently added food":"Alimentos recentes"}>
                     <div className="section-title home-recent-heading">
-                      <div><h3>Adicionados recentemente</h3><p className="section-caption">Continue de onde você parou</p></div>
-                      <button onClick={()=>{setWorkspace('report');setSelected(null);setSelectedSub(null)}}>Ver estoque <ChevronRight size={16}/></button>
+                      <div><h3>{language==='en'?"Recently added":"Adicionados recentemente"}</h3><p className="section-caption">{language==='en'?"Pick up where you left off":"Continue de onde você parou"}</p></div>
+                      <button onClick={()=>{setWorkspace('report');setSelected(null);setSelectedSub(null)}}>{language==='en'?"View inventory":"Ver estoque"} <ChevronRight size={16}/></button>
                     </div>
                     <div className="home-recent-grid">
                       {recentFoods.slice(0,4).map((recent,index)=>{
@@ -2217,7 +2217,7 @@ function App(){
                             else{setSearch(recent.name);setWorkspace('inventory');setSelected(null);setSelectedSub(null);}
                           }}>
                             <span className={'home-recent-thumb thumb-'+(index%4)} aria-hidden="true">{recent.name.trim().split(/\s+/).slice(0,2).map(part=>part.charAt(0)).join('').toLocaleUpperCase('pt-BR')}</span>
-                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:'Adicionado recentemente'}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit):recent.unit}</small></span>
+                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:(language==='en'?'Recently added':'Adicionado recentemente')}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit):recent.unit}</small></span>
                             <ChevronRight size={17}/>
                           </button>
                         );
