@@ -2256,7 +2256,7 @@ function App(){
           </button>
         </div>
       </Modal>}
-      {importModal&&<ImportInventoryModal places={places} onClose={()=>setImportModal(false)} onImport={async(placeId,rows)=>{
+      {importModal&&<ImportInventoryModal language={language} places={places} onClose={()=>setImportModal(false)} onImport={async(placeId,rows)=>{
         const place=places.find(item=>item.id===placeId);
         const destination=place?.subdivisions[0];
         if(!place||!destination||!rows.length)return;
@@ -2890,7 +2890,7 @@ function Empty({title,text,action,actionLabel}:{title:string;text:string;action?
 }
 
 type ImportRow={name:string;quantity:number;unit:Unit;expires_on:string|null};
-function ImportInventoryModal({places,onClose,onImport}:{places:Place[];onClose:()=>void;onImport:(placeId:string,rows:ImportRow[])=>Promise<void>;}) {
+function ImportInventoryModal({language,places,onClose,onImport}:{language:'pt-BR'|'en';places:Place[];onClose:()=>void;onImport:(placeId:string,rows:ImportRow[])=>Promise<void>;}) {
   const [placeId,setPlaceId]=useState(places[0]?.id||'');
   const [text,setText]=useState('');
   const [fileName,setFileName]=useState('');
@@ -2924,22 +2924,22 @@ function ImportInventoryModal({places,onClose,onImport}:{places:Place[];onClose:
   const rows=parse();
   const readFile=(file?:File)=>{
     if(!file)return;
-    if(!/\.(csv|txt)$/i.test(file.name)){setError('Use um arquivo CSV ou TXT. Para Excel, salve como CSV ou copie e cole as células aqui.');return;}
+    if(!/\.(csv|txt)$/i.test(file.name)){setError(language==='en'?'Use a CSV or TXT file. For Excel, save it as CSV or copy and paste the cells here.':'Use um arquivo CSV ou TXT. Para Excel, salve como CSV ou copie e cole as células aqui.');return;}
     const reader=new FileReader();
     reader.onload=()=>{setText(String(reader.result||''));setFileName(file.name);setError('');};
-    reader.onerror=()=>setError('Não foi possível ler esse arquivo.');
+    reader.onerror=()=>setError(language==='en'?'Could not read this file.':'Não foi possível ler esse arquivo.');
     reader.readAsText(file);
   };
-  const submit=async()=>{if(!placeId||!rows.length){setError('Escolha um local e informe pelo menos um produto.');return;}setBusy(true);setError('');try{await onImport(placeId,rows);}catch{setError('Não foi possível concluir a importação. Confira sua conexão e tente novamente.');}finally{setBusy(false);}};
-  return <Modal title="Importar lista para o estoque" onClose={onClose}>
-    <p className="modal-help">Cole uma lista copiada do Excel ou importe um arquivo CSV/TXT. Formato por linha: produto, quantidade, unidade e validade (opcional).</p>
-    <label>Local de destino<select value={placeId} onChange={event=>setPlaceId(event.target.value)}>{places.map(place=><option key={place.id} value={place.id}>{place.name}</option>)}</select></label>
-    <label>Arquivo CSV ou TXT<input type="file" accept=".csv,.txt,text/csv,text/plain" onChange={event=>readFile(event.target.files?.[0])}/></label>
-    {fileName&&<p className="field-help">Arquivo carregado: {fileName}</p>}
-    <label>Lista de produtos<textarea rows={7} value={text} onChange={event=>{setText(event.target.value);setError('');}} placeholder={'Arroz, 2, kg\nLeite, 3, unidades\nFeijão\n\nOu copie diretamente as células do Excel.'}/></label>
-    <p className="field-help">{rows.length} {rows.length===1?'produto identificado':'produtos identificados'}. Quantidade e unidade são opcionais; quando ausentes, será usada quantidade 1 e unidade “unidades”.</p>
+  const submit=async()=>{if(!placeId||!rows.length){setError(language==='en'?'Choose a location and enter at least one item.':'Escolha um local e informe pelo menos um produto.');return;}setBusy(true);setError('');try{await onImport(placeId,rows);}catch{setError(language==='en'?'Import failed. Check your connection and try again.':'Não foi possível concluir a importação. Confira sua conexão e tente novamente.');}finally{setBusy(false);}};
+  return <Modal title={language==='en'?"Import list to inventory":"Importar lista para o estoque"} onClose={onClose}>
+    <p className="modal-help">{language==='en'?"Paste a list copied from Excel or import a CSV/TXT file. One item per line: product, quantity, unit, and expiration date (optional).":"Cole uma lista copiada do Excel ou importe um arquivo CSV/TXT. Formato por linha: produto, quantidade, unidade e validade (opcional)."}</p>
+    <label>{language==='en'?"Destination location":"Local de destino"}<select value={placeId} onChange={event=>setPlaceId(event.target.value)}>{places.map(place=><option key={place.id} value={place.id}>{place.name}</option>)}</select></label>
+    <label>{language==='en'?"CSV or TXT file":"Arquivo CSV ou TXT"}<input type="file" accept=".csv,.txt,text/csv,text/plain" onChange={event=>readFile(event.target.files?.[0])}/></label>
+    {fileName&&<p className="field-help">{language==='en'?"File loaded:":"Arquivo carregado:"} {fileName}</p>}
+    <label>{language==='en'?"Item list":"Lista de produtos"}<textarea rows={7} value={text} onChange={event=>{setText(event.target.value);setError('');}} placeholder={language==='en'?'Rice, 2, kg\nMilk, 3, units\nBeans\n\nOr paste cells directly from Excel.':'Arroz, 2, kg\nLeite, 3, unidades\nFeijão\n\nOu copie diretamente as células do Excel.'}/></label>
+    <p className="field-help">{rows.length} {language==='en'?(rows.length===1?'item identified':'items identified'):(rows.length===1?'produto identificado':'produtos identificados')}. {language==='en'?'Quantity and unit are optional; if omitted, quantity 1 and unit “units” will be used.':'Quantidade e unidade são opcionais; quando ausentes, será usada quantidade 1 e unidade “unidades”.'}</p>
     {error&&<p className="auth-note" role="alert">{error}</p>}
-    <button className="primary full" disabled={busy||!rows.length||!placeId} onClick={()=>void submit()}>{busy?'Importando...':'Importar '+rows.length+' '+(rows.length===1?'produto':'produtos')}</button>
+    <button className="primary full" disabled={busy||!rows.length||!placeId} onClick={()=>void submit()}>{busy?(language==='en'?'Importing…':'Importando...'):(language==='en'?'Import '+rows.length+' '+(rows.length===1?'item':'items'):'Importar '+rows.length+' '+(rows.length===1?'produto':'produtos'))}</button>
   </Modal>;
 }
 
