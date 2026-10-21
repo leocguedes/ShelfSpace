@@ -2735,7 +2735,7 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
         {loading&&<span className="shopping-loading">{language==='en'?'Syncing…':'Sincronizando…'}</span>}
       </div>
       {pending.length? <div className="shopping-items">
-        {pending.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}
+        {pending.map(item=><ShoppingRow language={language} key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}
       </div>:<div className="shopping-empty"><ShoppingCart size={25}/><strong>{language==='en'?'Your list is empty':'Sua lista está vazia'}</strong><span>{language==='en'?'Add an item or use restock suggestions when available.':'Adicione um item ou aproveite as sugestões de reposição quando estiverem disponíveis.'}</span></div>}
       {purchased.length>0&&<details className="shopping-purchased">
         <summary>{language==='en'?'Purchased':'Comprados'} ({purchased.length})</summary>
@@ -2746,16 +2746,16 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
   </section>
 }
 
-function ShoppingRow({item,onToggle,onDelete,onEdit,onStock}:{item:ShoppingItem;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onEdit:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void}){
+function ShoppingRow({language,item,onToggle,onDelete,onEdit,onStock}:{language:'pt-BR'|'en';item:ShoppingItem;onToggle:(item:ShoppingItem)=>void;onDelete:(item:ShoppingItem)=>void;onEdit:(item:ShoppingItem)=>void;onStock:(item:ShoppingItem)=>void}){
   const unit=units.includes(item.unit as Unit)?item.unit as Unit:'unidades';
   return <div className={'shopping-row '+(item.is_purchased?'purchased':'')}>
-    <label className="shopping-check"><input type="checkbox" checked={item.is_purchased} onChange={()=>onToggle(item)} aria-label={(item.is_purchased?'Desmarcar ':'Marcar como comprado ')+item.name}/><span className="shopping-checkmark"/></label>
-    <div className="shopping-row-name"><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}{item.category?' · '+item.category:''}{item.source!=='manual'?' · sugestão automática':''}</small></div>
+    <label className="shopping-check"><input type="checkbox" checked={item.is_purchased} onChange={()=>onToggle(item)} aria-label={(item.is_purchased?(language==='en'?'Unmark ':'Desmarcar '):(language==='en'?'Mark as purchased ':'Marcar como comprado '))+item.name}/><span className="shopping-checkmark"/></label>
+    <div className="shopping-row-name"><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}{item.category?' · '+item.category:''}{item.source!=='manual'?(language==='en'?' · auto-suggested':' · sugestão automática'):''}</small></div>
     <div className="shopping-row-actions">
-      <button type="button" className="shopping-edit" onClick={()=>onEdit(item)} aria-label={'Editar '+item.name} title="Editar quantidade e unidade"><Edit3 size={16}/></button>
-      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title="Adicionar ao estoque">Adicionar ao estoque</button>}
-      {item.linked_food_id&&<span className="shopping-stock-linked">No estoque</span>}
-      <button type="button" className="shopping-delete" onClick={()=>onDelete(item)} aria-label={'Excluir '+item.name} title="Excluir item"><Trash2 size={16}/></button>
+      <button type="button" className="shopping-edit" onClick={()=>onEdit(item)} aria-label={(language==='en'?'Edit ':'Editar ')+item.name} title={language==='en'?'Edit quantity and unit':'Editar quantidade e unidade'}><Edit3 size={16}/></button>
+      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title="Adicionar ao estoque">{language==='en'?'Add to inventory':'Adicionar ao estoque'}</button>}
+      {item.linked_food_id&&<span className="shopping-stock-linked">{language==='en'?'In inventory':'No estoque'}</span>}
+      <button type="button" className="shopping-delete" onClick={()=>onDelete(item)} aria-label={(language==='en'?'Delete ':'Excluir ')+item.name} title={language==='en'?'Delete item':'Excluir item'}><Trash2 size={16}/></button>
     </div>
   </div>
 }
@@ -3080,7 +3080,7 @@ function Modal({title,onClose,children}:{title:string;onClose:()=>void;children:
     document.addEventListener('keydown',onKey);
     return()=>document.removeEventListener('keydown',onKey);
   },[onClose]);
-  return <div className="overlay" role="dialog" aria-modal="true" aria-label={title} onMouseDown={onClose}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><h2>{title}</h2><button onClick={onClose} aria-label="Fechar"><X/></button></div>{children}</div></div>
+  return <div className="overlay" role="dialog" aria-modal="true" aria-label={title} onMouseDown={onClose}><div className="modal" onMouseDown={e=>e.stopPropagation()}><div className="modal-head"><h2>{title}</h2><button onClick={onClose} aria-label={document.documentElement.lang==='en'?'Close':'Fechar'}><X/></button></div>{children}</div></div>
 }
 
 export default App;
