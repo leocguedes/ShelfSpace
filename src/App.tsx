@@ -896,8 +896,8 @@ function App(){
     feedbackTimer.current=window.setTimeout(()=>setActionFeedback(null),2200);
   }
 
-  function syncError(message='Não foi possível sincronizar esta alteração.'){
-    setAuthMessage(message+' O dado local foi preservado.');
+  function syncError(message?:string){
+    setAuthMessage(message||(language==='en'?"Could not sync this change. Your local data has been preserved.":'Não foi possível sincronizar esta alteração. O dado local foi preservado.'));
   }
 
   async function activateHousehold(targetHouseholdId?:string|null,targetUserId=userId,showMessage=false,initializeDefaultLocations=false){
@@ -1374,8 +1374,8 @@ function App(){
         const{data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:authRedirectUrl()}});
         if(error){
           setAuthMessage(error.message==='User already registered'
-            ?'Este e-mail já tem uma conta. Entre ou use “Esqueci minha senha”.'
-            :error.message);
+            ?(language==='en'?"An account already exists for this email. Sign in or reset your password.":'Este e-mail já tem uma conta. Entre ou use “Esqueci minha senha”.')
+            :(language==='en'?"Could not create your account. Please try again.":error.message));
           return false;
         }
         if(data.user?.identities?.length===0){
@@ -1392,8 +1392,8 @@ function App(){
         const{data,error}=await supabase.auth.signInWithPassword({email,password});
         if(error){
           setAuthMessage(error.message==='Invalid login credentials'
-            ?'E-mail ou senha incorretos. Se acabou de criar a conta, confirme se ela precisa ser ativada pelo e-mail antes de entrar.'
-            :error.message);
+            ?(language==='en'?"Incorrect email or password. If you just created your account, check whether email confirmation is required before signing in.":'E-mail ou senha incorretos. Se acabou de criar a conta, confirme se ela precisa ser ativada pelo e-mail antes de entrar.')
+            :(language==='en'?"Could not sign in. Please try again.":error.message));
           return false;
         }
         if(!data.user){
@@ -1813,7 +1813,20 @@ function App(){
   }
 
   function promptAccount(action:string){
-    setAuthMessage('Crie uma conta gratuita para '+action+'. Seus locais de exemplo continuarão disponíveis.');
+    const englishActions:Record<string,string>={
+      'atualizar seu estoque ao preparar uma receita':'update your inventory when preparing a recipe',
+      'adicionar alimentos ao estoque':'add food to your inventory',
+      'alterar quantidades do estoque':'change inventory quantities',
+      'editar seu estoque':'edit your inventory',
+      'mover alimentos entre locais':'move food between locations',
+      'criar ou alterar locais de armazenamento':'create or edit storage locations',
+      'alterar seus locais de armazenamento':'edit your storage locations',
+      'organizar seus locais':'organize your locations',
+      'alterar a organização dos seus locais':'change how your locations are organized',
+      'criar e alterar locais de armazenamento':'create and edit storage locations',
+      'importar alimentos para o estoque':'import food into your inventory'
+    };
+    setAuthMessage(language==='en'?\`Create a free account to \${englishActions[action]||'manage your inventory'}. Your example locations will remain available.\`:'Crie uma conta gratuita para '+action+'. Seus locais de exemplo continuarão disponíveis.');
     setAuthModal(true);
   }
 
