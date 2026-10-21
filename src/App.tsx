@@ -1731,7 +1731,7 @@ function App(){
       if(!ok)syncError(language==='en'?"Location removed on this device. The deletion will sync when the connection returns.":'Local removido neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
     }
     if(selected===id){setSelected(null);setSelectedSub(null)}
-    offerUndo('Local removido',()=>{
+    offerUndo(language==='en'?'Location removed':'Local removido',()=>{
       setPlaces(ps=>{
         if(ps.some(p=>p.id===removed.id))return ps;
         const next=[...ps];
@@ -1844,8 +1844,8 @@ function App(){
           <div><h1>ShelfSpace</h1><span>{language==='en'?'Your home, organized.':'Sua casa, organizada.'}</span></div>
         </div>
         <div className="header-actions">
-          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={(language==='en'?'Switch household. Active household: ':'Alternar casa. Casa ativa: ')+(households.find(h=>h.id===householdId)?.name||(language==='en'?'House':'Casa'))} title={language==='en'?'Switch household':'Alternar casa'}><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
-          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title={language==='en'?'Notifications':'Notificações'}>
+          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={(language==='en'?'Switch household. Active household: ':'Alternar casa. Casa ativa: ')+(households.find(h=>h.id===householdId)?.name||(language==='en'?'House':'Casa'))} title={language==='en'?'Switch household':'Alternar casa'}><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||(language==='en'?'House':'Casa')}</span><ChevronDown size={14}/></button>}
+          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={(language==='en'?'Notifications: ':'Notificações: ')+(notificationCount+' pendentes'} title={language==='en'?'Notifications':'Notificações'}>
             <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
           </button>
         </div>
@@ -1856,7 +1856,7 @@ function App(){
           <div className="notification-center-head"><div><p className="eyebrow">{language==='en'?'ALERT CENTER':'CENTRAL DE ALERTAS'}</p><h3>{language==='en'?'Notifications':'Notificações'}</h3><p>{notificationCount?`${notificationCount} ${notificationCount===1?'item precisa':'itens precisam'} da sua atenção`:'Tudo em dia por aqui.'}</p></div><button className="notification-close" onClick={()=>setNotificationCenterOpen(false)} aria-label={language==='en'?'Close notifications':'Fechar notificações'}><X size={17}/></button></div>
           {notificationCount===0?<div className="notification-empty"><Check size={19}/><span>{language==='en'?'No pending actions.':'Nenhuma decisão pendente.'}</span></div>:<div className="notification-list">
             {expiredNotifications.map(({food,place,subdivision,key})=><article className="notification-item expiry-notification" key={key}><span className="notification-dot expiry-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expiration date':food.name+' atingiu a validade'}</strong><small>{place.name} · validade {food.expires_on?.split('-').reverse().join('/')}</small><p>{language==='en'?'Remove it from inventory?':'Deseja retirar do estoque?'}</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void removeFood(place.id,subdivision.id,food.id)}>{language==='en'?'Remove':'Retirar'}</button><button onClick={()=>handleNotification(key)}>{language==='en'?'Keep':'Manter'}</button></div></article>)}
-            {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expected consumption date':food.name+' atingiu o consumo previsto'}</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>Consumiu uma unidade? Estoque atual: {formatQuantity(food.quantity,food.unit,language)}.</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>{language==='en'?'Update inventory':'Atualizar estoque'}</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>{language==='en'?'Snooze':'Adiar'}</button></div></article>)}
+            {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expected consumption date':food.name+' atingiu o consumo previsto'}</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>{language==='en'?`Used one unit? Current inventory: ${formatQuantity(food.quantity,food.unit,language)}.`:`Consumiu uma unidade? Estoque atual: ${formatQuantity(food.quantity,food.unit,language)}.`}</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>{language==='en'?'Update inventory':'Atualizar estoque'}</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>{language==='en'?'Snooze':'Adiar'}</button></div></article>)}
           </div>}
         </section>}
         {authMessage&&!authModal&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
@@ -1913,7 +1913,7 @@ function App(){
                         
                         <div className="food-name">
                           <strong>{f.name}</strong>
-                          <span>{f.quantity===0?(language==='en'?'Out of stock · ':'Sem estoque · '):''}{f.unit}</span>
+                          <span>{f.quantity===0?(language==='en'?'Out of stock · ':'Sem estoque · '):''}{unitLabel(f.unit,language,f.quantity)}</span>
                           {f.expires_on&&<small className={'expiry-label '+(daysUntilExpiry(f.expires_on)<0?'expired':daysUntilExpiry(f.expires_on)<=3?'urgent':'')}>{expiryCaption(f.expires_on,language)}</small>}
                           {dueConsumptionSuggestions.some(item=>item.food.id===f.id)&&<small className="consumption-due-label">{language==='en'?"Expected consumption today":"Consumo previsto para hoje"}</small>}
                         </div>
@@ -1923,7 +1923,7 @@ function App(){
                             <Minus size={15}/>
                           </button>
                           <b>{f.quantity}</b>
-                          {f.unit!=='unidades'&&<span className="qty-unit" aria-hidden="true">{f.unit}</span>}
+                          {f.unit!=='unidades'&&<span className="qty-unit" aria-hidden="true">{unitLabel(f.unit,language,f.quantity)}</span>}
                           <button onClick={()=>changeQty(selected,selectedSub,f.id,1)} aria-label={(language==='en'?'Increase ':'Aumentar ')+f.name}>
                             <Plus size={15}/>
                           </button>
@@ -2066,7 +2066,7 @@ function App(){
                       <div className="report-list-meta"><button type="button" className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={13}/></button></div>
                       {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on,language)}</small>:<small className="report-list-expiry no-date">{language==='en'?"Expiration date not provided":"Validade não informada"}</small>}
                     </div>
-                    <span className="report-list-quantity" aria-label={'Quantidade: '+formatQuantity(food.quantity,food.unit,language)}>{formatQuantity(food.quantity,food.unit,language)}</span>
+                    <span className="report-list-quantity" aria-label={(language==='en'?'Quantity: ':'Quantidade: ')+formatQuantity(food.quantity,food.unit,language)}>{formatQuantity(food.quantity,food.unit,language)}</span>
                   </div>)}
                 </div>
               ):(
@@ -2236,7 +2236,7 @@ function App(){
                             else{setSearch(recent.name);setWorkspace('inventory');setSelected(null);setSelectedSub(null);}
                           }}>
                             <span className={'home-recent-thumb thumb-'+(index%4)} aria-hidden="true">{recent.name.trim().split(/\s+/).slice(0,2).map(part=>part.charAt(0)).join('').toLocaleUpperCase('pt-BR')}</span>
-                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:(language==='en'?'Recently added':'Adicionado recentemente')}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit,language):recent.unit}</small></span>
+                            <span className="home-recent-copy"><strong>{recent.name}</strong><small>{match?match.place.name:(language==='en'?'Recently added':'Adicionado recentemente')}</small><small>{match?formatQuantity(match.food.quantity,match.food.unit,language):unitLabel(recent.unit,language,recent.quantity)}</small></span>
                             <ChevronRight size={17}/>
                           </button>
                         );
