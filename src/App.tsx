@@ -1409,8 +1409,8 @@ function App(){
       return false;
     }catch(error){
       setAuthMessage(error instanceof Error
-        ?'A autenticação foi concluída, mas não foi possível preparar sua casa. Seus dados não foram excluídos. Tente novamente.'
-        :'Não foi possível concluir a autenticação. Tente novamente.');
+        ?(language==='en'?"Authentication succeeded, but we couldn't prepare your household. Your data was not deleted. Please try again.":'A autenticação foi concluída, mas não foi possível preparar sua casa. Seus dados não foram excluídos. Tente novamente.')
+        :(language==='en'?"Could not complete authentication. Please try again.":'Não foi possível concluir a autenticação. Tente novamente.'));
       return false;
     }finally{setAuthBusy(false)}
   }
@@ -1481,7 +1481,7 @@ function App(){
       showActionFeedback(language==='en'?"Password changed successfully.":'Senha alterada com sucesso.');
       return null;
     }catch{
-      return 'Não foi possível alterar a senha agora. Confira sua conexão e tente novamente.';
+      return language==='en'?"Could not change the password right now. Check your connection and try again.":'Não foi possível alterar a senha agora. Confira sua conexão e tente novamente.';
     }finally{setAuthBusy(false)}
   }
 
@@ -1826,7 +1826,7 @@ function App(){
       'criar e alterar locais de armazenamento':'create and edit storage locations',
       'importar alimentos para o estoque':'import food into your inventory'
     };
-    setAuthMessage(language==='en'?\`Create a free account to \${englishActions[action]||'manage your inventory'}. Your example locations will remain available.\`:'Crie uma conta gratuita para '+action+'. Seus locais de exemplo continuarão disponíveis.');
+    setAuthMessage(language==='en'?"Create a free account to "+(englishActions[action]||'manage your inventory')+". Your example locations will remain available.":'Crie uma conta gratuita para '+action+'. Seus locais de exemplo continuarão disponíveis.');
     setAuthModal(true);
   }
 
