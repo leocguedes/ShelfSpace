@@ -2461,7 +2461,7 @@ function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=
   const canSave=password.length>=6&&password===confirm;
   return <Modal title="Criar nova senha" onClose={onClose}>
     <p className="modal-help">Escolha uma nova senha para continuar usando sua conta.</p>
-    <label>Nova senha<input type="password" autoFocus value={password} onChange={e=>setPassword(e.target.value)} placeholder={language==='en'?'At least 6 characters':'Mínimo de 6 caracteres'} autoComplete="new-password"/></label>
+    <label>Nova senha<input type="password" autoFocus value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete="new-password"/></label>
     <label>Confirmar senha<input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Digite a senha novamente" autoComplete="new-password"/></label>
     {confirm&&password!==confirm&&<p className="password-mismatch">As senhas não coincidem.</p>}
     <button className="primary full" disabled={busy||!canSave} onClick={()=>onSubmit(password)}>{busy?'Aguarde...':'Salvar nova senha'}</button>
@@ -2617,7 +2617,7 @@ function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;ru
   return <Modal title={rule?'Editar consumo previsto':'Programar consumo'} onClose={onClose}>
     <div className="move-current"><span>Alimento</span><strong>{food.name}</strong><small>Estoque atual: {formatQuantity(food.quantity,food.unit)}</small></div>
     <p className="modal-help">Informe por quantos dias uma unidade costuma durar. Na data prevista, perguntaremos se você consumiu uma unidade. O estoque só muda quando confirmar.</p>
-    <label>{language==='en'?'How many days does one unit last?':'Quantos dias dura uma unidade?'}<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
+    <label>Quantos dias dura uma unidade?<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
     <div className="consumption-rule-help">Com {formatQuantity(food.quantity,food.unit)} em estoque, a duração estimada é de {totalDays} dias. Exemplo: 3 caixas, 7 dias por caixa = 21 dias.</div>
     <button className="primary full" disabled={!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365} onClick={()=>onSave(food.id,daysPerUnit)}>{rule?'Salvar programação':'Ativar consumo previsto'}</button>
     {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> Remover programação</button>}
@@ -2764,7 +2764,7 @@ function EditShoppingItemModal({item,onClose,onSave}:{item:ShoppingItem;onClose:
   const valid=quantity.trim()!==''&&Number.isFinite(Number(quantity))&&Number(quantity)>0;
   return <Modal title={'Editar '+item.name} onClose={onClose}>
     <label>Quantidade<input type="number" min="0.001" step="any" value={quantity} onChange={event=>setQuantity(event.target.value)}/></label>
-    <label>{language==='en'?'Unit':'Unidade'}<select value={unit} onChange={event=>setUnit(event.target.value as Unit)}>{units.map(option=><option key={option} value={option}>{option[0].toUpperCase()+option.slice(1)}</option>)}</select></label>
+    <label>Unidade<select value={unit} onChange={event=>setUnit(event.target.value as Unit)}>{units.map(option=><option key={option} value={option}>{option[0].toUpperCase()+option.slice(1)}</option>)}</select></label>
     <button type="button" className="primary full" disabled={!valid} onClick={()=>onSave(Number(quantity),unit)}>Salvar alterações</button>
   </Modal>
 }
@@ -2790,7 +2790,7 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
     {places.length?<>
       <p className="modal-help">Escolha onde guardar o que você comprou.</p>
       <label>Local<select value={placeId} onChange={e=>setPlaceId(e.target.value)}>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
-      <label>{language==='en'?'Expiration date (optional)':'Validade (opcional)'}<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)}/></label>
+      <label>Validade (opcional)<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)}/></label>
       {destination?.foods.some(f=>searchKey(f.name)===searchKey(item.name)&&f.unit===unit&&(f.expires_on||'')===expiresOn)&&<p className="modal-help">Esse alimento já existe neste local com a mesma validade. A quantidade será somada ao estoque atual.</p>}
       <button className="primary full" disabled={!place||!destination} onClick={()=>onConfirm(item,placeId,destination!.id,expiresOn||null)}>Adicionar {formatQuantity(item.quantity,unit)}</button>
     </>:<>
