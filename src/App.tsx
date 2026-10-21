@@ -2422,7 +2422,7 @@ function OnboardingModal({language,step,onStep,onFinish,onCreateAccount,onSignIn
           <button type="button" className="primary" onClick={onCreateAccount}>{language==='en'?"Create free account":"Criar conta gratuita"} <ChevronRight size={16}/></button>
         </div>
         <button type="button" className="onboarding-signin" onClick={onSignIn}>{language==='en'?"I already have an account":"Já tenho conta"}</button>
-        <button type="button" className="onboarding-demo-link" onClick={()=>onStep(4)}>Explorar demonstração</button>
+        <button type="button" className="onboarding-demo-link" onClick={()=>onStep(4)}>{language==='en'?'Explore demo':'Explorar demonstração'}</button>
       </>}
     </section>
   </div>;
@@ -2530,7 +2530,7 @@ function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en'
   const[onlineHasMore,setOnlineHasMore]=useState(false);
   const pantry:RecipePantryItem[]=places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods));
   async function loadOnlineRecipes(loadMore=false){
-    if(!pantry.length){setOnlineError('Adicione alguns alimentos ao estoque para atualizar as receitas.');return;}
+    if(!pantry.length){setOnlineError(language==='en'?'Add some food to your inventory to refresh recipe suggestions.':'Adicione alguns alimentos ao estoque para atualizar as receitas.');return;}
     setOnlineLoading(true);setOnlineError('');
     const offset=loadMore?onlineRecipes.length:0;
     try{
@@ -2540,10 +2540,10 @@ function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en'
       setOnlineRecipes(current=>loadMore?[...current,...found.filter(recipe=>!current.some(item=>item.id===recipe.id))]:found);
       setOnlineHasMore(Boolean(data?.hasMore));
       setOnlineLoaded(true);
-      if(!found.length&&!loadMore)setOnlineError('Não encontramos novas receitas compatíveis com os alimentos cadastrados.');
+      if(!found.length&&!loadMore)setOnlineError(language==='en'?'No more recipes matching your inventory were found.':'Não encontramos novas receitas compatíveis com os alimentos cadastrados.');
       else if(!found.length&&loadMore)setOnlineHasMore(false);
     }catch{
-      setOnlineError('Não foi possível atualizar as receitas agora. Tente novamente em instantes.');
+      setOnlineError(language==='en'?'Could not refresh recipes right now. Please try again shortly.':'Não foi possível atualizar as receitas agora. Tente novamente em instantes.');
     }finally{setOnlineLoading(false);}
   }
   const allRecipes=[...recipes,...onlineRecipes];
@@ -2591,21 +2591,21 @@ function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en'
           <p className="recipe-description">{recipe.description}</p>
           <div className="recipe-meta"><span>{recipe.minutes>0?recipe.minutes+' min':(language==='en'?'Time not provided':'Tempo não informado')}</span><span>{recipe.servings>0?recipe.servings+' '+(language==='en'?(recipe.servings===1?'serving':'servings'):(recipe.servings===1?'porção':'porções')):(language==='en'?'Servings not provided':'Porções não informadas')}</span><span>{language==='en'?`${available} of ${recipe.ingredients.length} ingredients available`:`${available} de ${recipe.ingredients.length} ingredientes encontrados`}</span></div>
           <div className="recipe-progress"><span style={{width:Math.round(available/recipe.ingredients.length*100)+'%'}}/></div>
-          {unknown>0&&<p className="recipe-hint">{unknown} ingrediente(s) está(ão) no estoque, mas a quantidade não pode ser confirmada por diferença de unidade. Confira antes de cozinhar.</p>}
+          {unknown>0&&<p className="recipe-hint">{language==='en'?`${unknown} ingredient(s) are in your inventory, but the quantity cannot be confirmed because the units differ. Check before cooking.`:`${unknown} ingrediente(s) está(ão) no estoque, mas a quantidade não pode ser confirmada por diferença de unidade. Confira antes de cozinhar.`}</p>}
           <button className="recipe-detail-toggle" onClick={()=>setExpanded(isExpanded?null:recipe.id)}>{isExpanded?(language==='en'?'Hide recipe':'Ocultar receita'):(language==='en'?'View ingredients and instructions':'Ver ingredientes e preparo')} <ChevronRight size={16}/></button>
           {isExpanded&&<div className="recipe-detail">
             <div className="recipe-ingredients"><strong>{language==='en'?'Ingredients':'Ingredientes'}</strong>
               {statuses.map(status=><div className="recipe-ingredient" key={status.ingredient.name}>
                 <span className={'recipe-ingredient-icon '+(status.enough===true?'available':status.enough===false?'missing':'unknown')}>{status.enough===true?'✓':status.enough===false?'!':'?'}</span>
-                <div><strong>{status.ingredient.name}</strong><small>{recipe.presenceOnly?(status.ingredient.measureText||'Quantidade não informada')+(status.enough===true?' · presente no estoque; confira a quantidade':status.enough===false?' · não encontrado no estoque':'') : formatQuantity(status.ingredient.quantity,status.ingredient.unit)+(status.enough===true?' · disponível':status.enough===false?' · falta '+formatQuantity(status.missingQuantity,status.ingredient.unit):' · confira a unidade')}{status.expiredMatches.length>0?(status.matches.length?' · também há item vencido':' · só há item vencido'):''}</small></div>
+                <div><strong>{status.ingredient.name}</strong><small>{recipe.presenceOnly?(status.ingredient.measureText||(language==='en'?'Quantity not provided':'Quantidade não informada'))+(status.enough===true?(language==='en'?' · in inventory; check quantity':' · presente no estoque; confira a quantidade'):status.enough===false?(language==='en'?' · not found in inventory':' · não encontrado no estoque'):' ') : formatQuantity(status.ingredient.quantity,status.ingredient.unit)+(status.enough===true?(language==='en'?' · available':' · disponível'):status.enough===false?(language==='en'?' · missing ':' · falta ')+formatQuantity(status.missingQuantity,status.ingredient.unit):(language==='en'?' · check unit':' · confira a unidade'))}{status.expiredMatches.length>0?(status.matches.length?(language==='en'?' · an expired item also exists':' · também há item vencido'):(language==='en'?' · only expired items found':' · só há item vencido')):''}</small></div>
               </div>)}
             </div>
             <div className="recipe-steps"><strong>{language==='en'?'Instructions':'Modo de preparo'}</strong><ol>{recipe.instructions.map((step,index)=><li key={index}>{step}</li>)}</ol></div>
             <div className="recipe-actions">
               {missingItems.length>0&&<button className="secondary-action" onClick={()=>onAddMissing(missingItems)}><ShoppingCart size={15}/> {language==='en'?'Add missing items to list':'Adicionar faltantes à lista'}</button>}
-              {!recipe.presenceOnly&&<button className="primary" disabled={!ready} onClick={()=>onCook(recipe)}>Marcar como preparada</button>}
-              {recipe.presenceOnly&&<small>Receita externa: confira as medidas na fonte. O estoque não será descontado automaticamente.</small>}
-              {!ready&&!recipe.presenceOnly&&<small>Para descontar o estoque, todos os ingredientes precisam estar disponíveis em quantidade e unidade comparáveis.</small>}
+              {!recipe.presenceOnly&&<button className="primary" disabled={!ready} onClick={()=>onCook(recipe)}>{language==='en'?"Mark as prepared":"Marcar como preparada"}</button>}
+              {recipe.presenceOnly&&<small>{language==='en'?"External recipe: check measurements at the source. Inventory will not be deducted automatically.":"Receita externa: confira as medidas na fonte. O estoque não será descontado automaticamente."}</small>}
+              {!ready&&!recipe.presenceOnly&&<small>{language==='en'?"To deduct inventory, all ingredients must be available in comparable quantities and units.":"Para descontar o estoque, todos os ingredientes precisam estar disponíveis em quantidade e unidade comparáveis."}</small>}
             </div>
           </div>}
         </article>;
