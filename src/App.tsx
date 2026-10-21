@@ -1030,7 +1030,7 @@ function App(){
       const newHouseholdId=String(data);
       await activateHousehold(newHouseholdId,userId,true);
       setHouseholdModal(false);
-      showActionFeedback('Casa criada. Você pode alternar entre suas casas pelo seletor.');
+      showActionFeedback(language==='en'?"Household created. You can switch between households using the selector.":'Casa criada. Você pode alternar entre suas casas pelo seletor.');
       return true;
     }catch{
       setAuthMessage(language==='en'?"Could not create the household right now. Check the name and try again.":'Não foi possível criar a casa agora. Confira o nome e tente novamente.');
@@ -1049,7 +1049,7 @@ function App(){
       });
       if(error)throw error;
       const invite=Array.isArray(data)?data[0]:data;
-      if(!invite?.invite_code)throw new Error('O convite não foi retornado.');
+      if(!invite?.invite_code)throw new Error(language==='en'?"The invitation was not returned.":'O convite não foi retornado.');
       setHouseholdInvite({code:invite.invite_code,expiresAt:invite.invite_expires_at});
       setAuthMessage(null);
     }catch{
