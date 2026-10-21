@@ -509,7 +509,7 @@ function App(){
         context=await fetchHouseholdContext(current.id);
       }catch{
         if(!active||request!==authRequest.current)return;
-        setAuthMessage('Não foi possível carregar as casas compartilhadas. Seus dados locais continuam preservados.');
+        setAuthMessage((language==='en'?"Could not load shared households. Your local data has been preserved.":'Não foi possível carregar as casas compartilhadas. Seus dados locais continuam preservados.');
         setPlaces(readLocalPlaces(current.id));
         setSynced(false);
         setCacheReady(true);
@@ -525,7 +525,7 @@ function App(){
       if(!active||request!==authRequest.current)return;
       if(!pendingOk){
         setSynced(false);
-        setAuthMessage('Há alterações aguardando sincronização. Seus dados locais continuam disponíveis.');
+        setAuthMessage((language==='en'?"Changes are waiting to sync. Your local data is still available.":'Há alterações aguardando sincronização. Seus dados locais continuam disponíveis.');
         setCacheReady(true);
         return;
       }
@@ -535,7 +535,7 @@ function App(){
         .order('created_at');
       if(!active||request!==authRequest.current)return;
       if(error){
-        setAuthMessage('Não foi possível sincronizar agora. Seus dados locais continuam disponíveis.');
+        setAuthMessage((language==='en'?"Could not sync right now. Your local data is still available.":'Não foi possível sincronizar agora. Seus dados locais continuam disponíveis.');
         setCacheReady(true);
         return;
       }
@@ -559,7 +559,7 @@ function App(){
         }catch{
           if(!active||request!==authRequest.current)return;
           setSynced(false);
-          setAuthMessage('Seus dados locais foram preservados enquanto a sincronização é recuperada.');
+          setAuthMessage((language==='en'?"Your local data has been preserved while sync is restored.":'Seus dados locais foram preservados enquanto a sincronização é recuperada.');
         }
       }else{
         setPlaces([]);
@@ -620,14 +620,14 @@ function App(){
       try{
         const{error:recurringError}=await supabase.rpc('materialize_due_recurring_shopping_items',{target_household_id:activeHouse});
         if(!active)return;
-        if(recurringError)setAuthMessage('Não foi possível atualizar as reposições recorrentes agora.');
+        if(recurringError)setAuthMessage((language==='en'?"Could not update recurring restocks right now.":'Não foi possível atualizar as reposições recorrentes agora.');
         const{data,error}=await supabase.from('shopping_items').select('*')
           .eq('household_id',activeHouse)
           .order('is_purchased',{ascending:true})
           .order('created_at',{ascending:false});
         if(!active)return;
         if(error){
-          setAuthMessage('A lista de compras está disponível em cache, mas não foi possível sincronizá-la agora.');
+          setAuthMessage((language==='en'?"Your shopping list is available from cache, but could not be synced right now.":'A lista de compras está disponível em cache, mas não foi possível sincronizá-la agora.');
           const fallbackItems=readShoppingCache(accountId,activeHouse);
           shoppingItemsRef.current=fallbackItems;
           setShoppingItems(fallbackItems);
@@ -754,7 +754,7 @@ function App(){
     }catch{
       if(request!==authRequest.current||userIdToLoad!==userId||householdIdToLoad!==householdId)return;
       setSynced(false);
-      setAuthMessage('Seus dados locais foram preservados enquanto a sincronização é recuperada.');
+      setAuthMessage((language==='en'?"Your local data has been preserved while sync is restored.":'Seus dados locais foram preservados enquanto a sincronização é recuperada.');
     }
   }
 
@@ -769,14 +769,14 @@ function App(){
       .order('created_at',{ascending:false});
     if(request!==authRequest.current||targetUser!==userId||targetHouse!==householdId)return;
     if(error){
-      setAuthMessage('A lista de compras está em cache; a sincronização será retomada quando estiver disponível.');
+      setAuthMessage((language==='en'?"Your shopping list is cached; syncing will resume when available.":'A lista de compras está em cache; a sincronização será retomada quando estiver disponível.');
       return;
     }
     const items=mapShoppingItems(data||[]);
     shoppingItemsRef.current=items;
     setShoppingItems(items);
     writeShoppingCache(targetUser,targetHouse,items);
-    if(recurringError)setAuthMessage('A lista atualizou, mas não foi possível processar todas as reposições recorrentes.');
+    if(recurringError)setAuthMessage((language==='en'?"The list was updated, but not all recurring restocks could be processed.":'A lista atualizou, mas não foi possível processar todas as reposições recorrentes.');
   }
 
   async function refreshRecurringRules(targetUser=userId,targetHouse=householdId){
@@ -918,7 +918,7 @@ function App(){
       if(request!==authRequest.current)return;
       if(!pendingOk){
         setSynced(false);
-        setAuthMessage('Há alterações aguardando sincronização. Os dados locais desta casa foram preservados.');
+        setAuthMessage((language==='en'?"Changes are waiting to sync. This household's local data has been preserved.":'Há alterações aguardando sincronização. Os dados locais desta casa foram preservados.');
         setCacheReady(true);
         return;
       }
@@ -929,7 +929,7 @@ function App(){
       if(request!==authRequest.current)return;
       if(error){
         setSynced(false);
-        setAuthMessage('Não foi possível sincronizar esta casa agora. Os dados locais foram preservados.');
+        setAuthMessage((language==='en'?"Could not sync this household right now. Local data has been preserved.":'Não foi possível sincronizar esta casa agora. Os dados locais foram preservados.');
         setCacheReady(true);
         return;
       }
@@ -947,11 +947,11 @@ function App(){
           if(request!==authRequest.current)return;
           clearLegacyCachesIfMatching(targetUserId,fallback);
           setSynced(true);
-          if(showMessage)setAuthMessage('Casa carregada e estoque sincronizado.');
+          if(showMessage)setAuthMessage((language==='en'?"Household loaded and inventory synced.":'Casa carregada e estoque sincronizado.');
         }catch{
           if(request!==authRequest.current)return;
           setSynced(false);
-          setAuthMessage('Os dados locais desta casa foram preservados, mas ainda não foi possível sincronizá-los.');
+          setAuthMessage((language==='en'?"This household's local data has been preserved, but could not be synced yet.":'Os dados locais desta casa foram preservados, mas ainda não foi possível sincronizá-los.');
         }
       }else if(initializeDefaultLocations&&context.household.is_personal){
         const starterPlaces:Place[]=[
@@ -978,7 +978,7 @@ function App(){
     }catch{
       if(request!==authRequest.current)return;
       setSynced(false);
-      setAuthMessage('Não foi possível abrir esta casa. Os dados locais foram preservados.');
+      setAuthMessage((language==='en'?"Could not open this household. Local data has been preserved.":'Não foi possível abrir esta casa. Os dados locais foram preservados.');
       setCacheReady(true);
     }finally{
       if(request===authRequest.current)setHouseholdBusy(false);
@@ -996,7 +996,7 @@ function App(){
       setHouseholds(current=>current.map(h=>h.id===targetId?{...h,name:clean}:h));
       return true;
     }catch{
-      setAuthMessage('Não foi possível alterar o nome desta casa. Verifique suas permissões e tente novamente.');
+      setAuthMessage((language==='en'?"Could not change this household's name. Check your permissions and try again.":'Não foi possível alterar o nome desta casa. Verifique suas permissões e tente novamente.');
       return false;
     }finally{setHouseholdBusy(false)}
   }
@@ -1012,10 +1012,10 @@ function App(){
       const personalHouse=households.find(h=>h.is_personal&&h.id!==targetId);
       const nextHouse=households.find(h=>h.id!==targetId);
       await activateHousehold(personalHouse?.id||nextHouse?.id||null,userId,true);
-      setAuthMessage('Você saiu da casa compartilhada. Sua conta e seus dados pessoais foram mantidos.');
+      setAuthMessage((language==='en'?"You left the shared household. Your account and personal data have been kept.":'Você saiu da casa compartilhada. Sua conta e seus dados pessoais foram mantidos.');
       return true;
     }catch{
-      setAuthMessage('Não foi possível sair desta casa agora. Nenhum dado foi excluído; tente novamente.');
+      setAuthMessage((language==='en'?"Could not leave this household right now. No data was deleted; please try again.":'Não foi possível sair desta casa agora. Nenhum dado foi excluído; tente novamente.');
       return false;
     }finally{setHouseholdBusy(false)}
   }
@@ -1033,7 +1033,7 @@ function App(){
       showActionFeedback('Casa criada. Você pode alternar entre suas casas pelo seletor.');
       return true;
     }catch{
-      setAuthMessage('Não foi possível criar a casa agora. Confira o nome e tente novamente.');
+      setAuthMessage((language==='en'?"Could not create the household right now. Check the name and try again.":'Não foi possível criar a casa agora. Confira o nome e tente novamente.');
       return false;
     }finally{setHouseholdBusy(false)}
   }
@@ -1053,7 +1053,7 @@ function App(){
       setHouseholdInvite({code:invite.invite_code,expiresAt:invite.invite_expires_at});
       setAuthMessage(null);
     }catch{
-      setAuthMessage('Não foi possível gerar o convite. Verifique se você ainda faz parte desta casa e tente novamente.');
+      setAuthMessage((language==='en'?"Could not create the invite. Make sure you're still a member of this household and try again.":'Não foi possível gerar o convite. Verifique se você ainda faz parte desta casa e tente novamente.');
     }finally{setHouseholdBusy(false)}
   }
 
@@ -1068,13 +1068,13 @@ function App(){
       await activateHousehold(String(data),userId,true);
       setHouseholdModal(false);
     }catch{
-      setAuthMessage('Esse convite é inválido, expirou ou atingiu o limite de usos.');
+      setAuthMessage((language==='en'?"This invite is invalid, has expired, or has reached its usage limit.":'Esse convite é inválido, expirou ou atingiu o limite de usos.');
     }finally{setHouseholdBusy(false)}
   }
 
   async function addRecipeMissing(items:Pick<RecipeIngredient,'name'|'quantity'|'unit'|'measureText'>[]){
     if(!userId||!householdId){
-      setAuthMessage('Entre na sua conta para adicionar ingredientes à lista de compras.');
+      setAuthMessage((language==='en'?"Sign in to add ingredients to your shopping list.":'Entre na sua conta para adicionar ingredientes à lista de compras.');
       setAuthModal(true);
       return;
     }
@@ -1092,14 +1092,14 @@ function App(){
     }
     if(recipe.presenceOnly){
       setCookConfirmRecipe(null);
-      setAuthMessage('Receitas externas não descontam o estoque automaticamente, pois as quantidades precisam ser conferidas na fonte.');
+      setAuthMessage((language==='en'?"External recipes do not automatically deduct inventory because quantities must be checked at the source.":'Receitas externas não descontam o estoque automaticamente, pois as quantidades precisam ser conferidas na fonte.');
       return;
     }
     const pantry:RecipePantryItem[]=places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods));
     const statuses=getRecipeIngredientStatuses(recipe,pantry);
     if(statuses.some(status=>status.enough!==true||!status.comparable)){
       setCookConfirmRecipe(null);
-      setAuthMessage('Ainda faltam ingredientes ou há unidades que não podem ser comparadas com segurança.');
+      setAuthMessage((language==='en'?"Some ingredients are still missing, or some units cannot be safely compared.":'Ainda faltam ingredientes ou há unidades que não podem ser comparadas com segurança.');
       return;
     }
 
@@ -1136,19 +1136,19 @@ function App(){
     for(const update of updates.values()){
       if(userId){
         const ok=await writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:update.food.id,data:{quantity:update.quantity}});
-        if(!ok)syncError('Receita registrada localmente; o estoque será sincronizado quando a conexão voltar.');
+        if(!ok)syncError((language==='en'?"Recipe saved locally; inventory will sync when the connection returns.":'Receita registrada localmente; o estoque será sincronizado quando a conexão voltar.');
       }
       const rule=consumptionRules.find(item=>item.food_id===update.food.id);
       if(userId&&rule?.low_stock_threshold!==null&&rule?.low_stock_threshold!==undefined&&rule.restock_quantity!==null&&rule.restock_quantity!==undefined&&update.quantity<=rule.low_stock_threshold){
         await addShoppingItem(update.food.name,rule.restock_quantity,update.food.unit,'low_stock');
       }
     }
-    setAuthMessage('Receita marcada como preparada. O estoque foi atualizado.');
+    setAuthMessage((language==='en'?"Recipe marked as prepared. Inventory has been updated.":'Receita marcada como preparada. O estoque foi atualizado.');
   }
 
   async function saveRecurringRule(input:{name:string;quantity:number;unit:Unit;frequencyDays:number;nextDueOn:string;id?:string}){
     if(!userId||!householdId){
-      setAuthMessage('Entre na sua conta para configurar reposições recorrentes.');
+      setAuthMessage((language==='en'?"Sign in to set up recurring restocks.":'Entre na sua conta para configurar reposições recorrentes.');
       setAuthModal(true);
       return;
     }
@@ -1168,7 +1168,7 @@ function App(){
     const ok=await writeOrQueue(userId,{userId,table:'recurring_shopping_items',action:existing?'update':'upsert',rowId:rule.id,data:existing?{
       name:rule.name,quantity:rule.quantity,unit:rule.unit,frequency_days:rule.frequency_days,next_due_on:rule.next_due_on,is_active:true
     }:rule as unknown as Record<string,unknown>});
-    if(!ok)syncError('Reposição recorrente salva localmente; será sincronizada quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Recurring restock saved locally; it will sync when the connection returns.":'Reposição recorrente salva localmente; será sincronizada quando a conexão voltar.');
     else if(rule.next_due_on<=localDateString()){
       void refreshShoppingList(userId,householdId);
       void refreshRecurringRules(userId,householdId);
@@ -1181,20 +1181,20 @@ function App(){
     const isActive=!rule.is_active;
     setRecurringRules(current=>current.map(item=>item.id===rule.id?{...item,is_active:isActive}:item));
     const ok=await writeOrQueue(userId,{userId,table:'recurring_shopping_items',action:'update',rowId:rule.id,data:{is_active:isActive}});
-    if(!ok)syncError('Estado da reposição atualizado localmente; será sincronizado quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Restock status updated locally; it will sync when the connection returns.":'Estado da reposição atualizado localmente; será sincronizado quando a conexão voltar.');
   }
 
   async function deleteRecurringRule(rule:RecurringShoppingRule){
     if(!userId||!householdId)return;
     setRecurringRules(current=>current.filter(item=>item.id!==rule.id));
     const ok=await writeOrQueue(userId,{userId,table:'recurring_shopping_items',action:'delete',rowId:rule.id});
-    if(!ok)syncError('Reposição recorrente removida localmente; será sincronizada quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Recurring restock removed locally; it will sync when the connection returns.":'Reposição recorrente removida localmente; será sincronizada quando a conexão voltar.');
   }
 
   async function saveConsumptionRule(foodId:string,daysPerUnit:number){
     if(!userId||!householdId){
       setAuthModal(true);
-      setAuthMessage('Entre na sua conta para programar o consumo deste alimento.');
+      setAuthMessage((language==='en'?"Sign in to schedule consumption for this food.":'Entre na sua conta para programar o consumo deste alimento.');
       return;
     }
     const existing=consumptionRules.find(rule=>rule.food_id===foodId);
@@ -1221,7 +1221,7 @@ function App(){
         amount:1,period_days:daysPerUnit,next_suggestion_on:rule.next_suggestion_on,is_active:true
       }:rule as unknown as Record<string,unknown>
     });
-    if(!ok)syncError('Programação salva neste dispositivo; será sincronizada quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Schedule saved on this device; it will sync when the connection returns.":'Programação salva neste dispositivo; será sincronizada quando a conexão voltar.');
   }
 
   async function removeConsumptionRule(foodId:string){
@@ -1231,7 +1231,7 @@ function App(){
     setConsumptionRules(current=>current.filter(item=>item.food_id!==foodId));
     setConsumptionRuleModal(null);
     const ok=await writeOrQueue(userId,{userId,table:'food_consumption_rules',action:'delete',rowId:rule.id});
-    if(!ok)syncError('Programação removida localmente; a alteração será sincronizada quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Schedule removed locally; the change will sync when the connection returns.":'Programação removida localmente; a alteração será sincronizada quando a conexão voltar.');
   }
 
   async function handleConsumptionSuggestion(rule:ConsumptionRule,confirm:boolean){
@@ -1251,7 +1251,7 @@ function App(){
         })
       }));
       const stockOk=await writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:food.id,data:{quantity:nextQuantity}});
-      if(!stockOk)syncError('Consumo registrado localmente; a quantidade será sincronizada quando a conexão voltar.');
+      if(!stockOk)syncError((language==='en'?"Consumption recorded locally; the quantity will sync when the connection returns.":'Consumo registrado localmente; a quantidade será sincronizada quando a conexão voltar.');
     }
 
     const eventId=uid();
@@ -1267,7 +1267,7 @@ function App(){
     const ruleOk=await writeOrQueue(userId,{userId,table:'food_consumption_rules',action:'update',rowId:rule.id,data:{
       next_suggestion_on:nextDate,last_confirmed_at:updatedRule.last_confirmed_at
     }});
-    if(!eventOk||!ruleOk)syncError('A revisão foi registrada localmente e será sincronizada quando a conexão voltar.');
+    if(!eventOk||!ruleOk)syncError((language==='en'?"Update recorded locally and will sync when the connection returns.":'A revisão foi registrada localmente e será sincronizada quando a conexão voltar.');
 
     if(confirm&&rule.low_stock_threshold!==null&&rule.restock_quantity!==null&&nextQuantity<=rule.low_stock_threshold){
       await addShoppingItem(food.name,rule.restock_quantity,food.unit,'low_stock');
@@ -1275,7 +1275,7 @@ function App(){
     }else if(confirm){
       setAuthMessage('Consumo de '+food.name+' confirmado. O estoque foi atualizado.');
     }else{
-      setAuthMessage('Sugestão de consumo adiada para amanhã.');
+      setAuthMessage((language==='en'?"Consumption suggestion postponed until tomorrow.":'Sugestão de consumo adiada para amanhã.');
     }
   }
 
@@ -1289,7 +1289,7 @@ function App(){
     const clean=name.trim();
     if(!clean||!Number.isFinite(quantity)||quantity<=0)return;
     if(!userId||!householdId){
-      setAuthMessage('Entre na sua conta para usar a lista de compras compartilhada.');
+      setAuthMessage((language==='en'?"Sign in to use the shared shopping list.":'Entre na sua conta para usar a lista de compras compartilhada.');
       setAuthModal(true);
       return;
     }
@@ -1300,7 +1300,7 @@ function App(){
       const next=currentItems.map(item=>item.id===duplicate.id?{...item,quantity:nextQuantity,source:source==='manual'?item.source:source,...(notes?{notes}:{})}:item);
       persistShopping(next);
       const ok=await writeOrQueue(userId,{userId,table:'shopping_items',action:'update',rowId:duplicate.id,data:{quantity:nextQuantity,...(source!=='manual'?{source}:{}),...(notes?{notes}:{})}});
-      if(!ok)syncError('Quantidade atualizada na lista deste dispositivo; será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Quantity updated in this device's list; it will sync when the connection returns.":'Quantidade atualizada na lista deste dispositivo; será sincronizada quando a conexão voltar.');
       return;
     }
     const item:ShoppingItem={
@@ -1309,7 +1309,7 @@ function App(){
     };
     persistShopping([item,...currentItems]);
     const ok=await writeOrQueue(userId,{userId,table:'shopping_items',action:'upsert',rowId:item.id,data:item as unknown as Record<string,unknown>});
-    if(!ok)syncError('Item adicionado à lista local; será sincronizado quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Item added to the local list; it will sync when the connection returns.":'Item adicionado à lista local; será sincronizado quando a conexão voltar.');
   }
 
   async function toggleShoppingItem(item:ShoppingItem){
@@ -1325,7 +1325,7 @@ function App(){
     const ok=await writeOrQueue(userId,{userId,table:'shopping_items',action:'update',rowId:item.id,data:{
       is_purchased:updated.is_purchased,purchased_by:updated.purchased_by,purchased_at:updated.purchased_at
     }});
-    if(!ok)syncError('Estado atualizado localmente; será sincronizado quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Status updated locally; it will sync when the connection returns.":'Estado atualizado localmente; será sincronizado quando a conexão voltar.');
     if(isPurchased)setShoppingStockItem(updated);
   }
 
@@ -1334,14 +1334,14 @@ function App(){
     const updated={...item,quantity:Number(quantity.toFixed(3)),unit};
     persistShopping(shoppingItemsRef.current.map(row=>row.id===item.id?updated:row));
     const ok=await writeOrQueue(userId,{userId,table:'shopping_items',action:'update',rowId:item.id,data:{quantity:updated.quantity,unit:updated.unit}});
-    if(!ok)syncError('Quantidade e unidade atualizadas neste dispositivo; serão sincronizadas quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Quantity and unit updated on this device; they will sync when the connection returns.":'Quantidade e unidade atualizadas neste dispositivo; serão sincronizadas quando a conexão voltar.');
   }
 
   async function deleteShoppingItem(item:ShoppingItem){
     if(!userId||!householdId||item.household_id!==householdId)return;
     persistShopping(shoppingItemsRef.current.filter(row=>row.id!==item.id));
     const ok=await writeOrQueue(userId,{userId,table:'shopping_items',action:'delete',rowId:item.id});
-    if(!ok)syncError('Item removido localmente; a exclusão será sincronizada quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Item removed locally; the deletion will sync when the connection returns.":'Item removido localmente; a exclusão será sincronizada quando a conexão voltar.');
   }
 
   async function addPurchasedShoppingToStock(item:ShoppingItem,placeId:string,subId:string,expiresOn:string|null){
@@ -1362,7 +1362,7 @@ function App(){
     const updated=shoppingItemsRef.current.map(row=>row.id===item.id?{...row,linked_food_id:targetFoodId}:row);
     persistShopping(updated);
     const ok=await writeOrQueue(userId,{userId,table:'shopping_items',action:'update',rowId:item.id,data:{linked_food_id:targetFoodId}});
-    if(!ok)syncError('O alimento foi adicionado ao estoque. A lista será sincronizada quando a conexão voltar.');
+    if(!ok)syncError((language==='en'?"Food added to inventory. The list will sync when the connection returns.":'O alimento foi adicionado ao estoque. A lista será sincronizada quando a conexão voltar.');
     setShoppingStockItem(null);
   }
 
@@ -1379,7 +1379,7 @@ function App(){
           return false;
         }
         if(data.user?.identities?.length===0){
-          setAuthMessage('Não foi possível criar a conta com esse e-mail. Se você já se cadastrou, entre ou recupere sua senha.');
+          setAuthMessage((language==='en'?"Could not create an account with this email. If you've already registered, sign in or reset your password.":'Não foi possível criar a conta com esse e-mail. Se você já se cadastrou, entre ou recupere sua senha.');
           return false;
         }
         if(!data.session||!data.user)return true;
@@ -1397,7 +1397,7 @@ function App(){
           return false;
         }
         if(!data.user){
-          setAuthMessage('Não foi possível carregar esta conta. Tente entrar novamente.');
+          setAuthMessage((language==='en'?"Could not load this account. Please sign in again.":'Não foi possível carregar esta conta. Tente entrar novamente.');
           return false;
         }
         setUser(data.user);
@@ -1430,7 +1430,7 @@ function App(){
     ++authRequest.current;
     try{
       const{error}=await supabase.auth.signOut();
-      if(error){setAuthMessage('Não foi possível sair da conta agora.');return}
+      if(error){setAuthMessage((language==='en'?"Could not sign out right now.":'Não foi possível sair da conta agora.');return}
       setLocalOwner(user?.id||null);
       setCacheReady(true);
       setPlaces(readAnonymousPlaces());
@@ -1492,7 +1492,7 @@ function App(){
       const{error}=await supabase.auth.updateUser({password});
       if(error){setAuthMessage(error.message);return}
       setPasswordRecovery(false);
-      setAuthMessage('Senha atualizada com sucesso.');
+      setAuthMessage((language==='en'?"Password updated successfully.":'Senha atualizada com sucesso.');
     }finally{setAuthBusy(false)}
   }
 
@@ -1597,7 +1597,7 @@ function App(){
     setPlaces(next);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'foods',action:'upsert',rowId:food.id,data:{id:food.id,user_id:userId,subdivision_id:subId,name:food.name,quantity:food.quantity,unit:food.unit,expires_on:food.expires_on}});
-      if(!ok)syncError('Alimento salvo neste dispositivo. Ele será sincronizado quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Food saved on this device. It will sync when the connection returns.":'Alimento salvo neste dispositivo. Ele será sincronizado quando a conexão voltar.');
     }
     rememberFood(food.name,food.unit);
     setFoodModal(null);
@@ -1614,7 +1614,7 @@ function App(){
     setPlaces(next);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:existingId,data:{quantity:nextQty}});
-      if(!ok)syncError('Quantidade salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Quantity saved on this device. It will sync when the connection returns.":'Quantidade salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
     }
     setFoodModal(null);
     setAuthMessage(null);
@@ -1629,12 +1629,12 @@ function App(){
     setPlaces(next);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'foods',action:'delete',rowId:id});
-      if(!ok)syncError('Alimento removido neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Food removed on this device. The deletion will sync when the connection returns.":'Alimento removido neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
     }
     setFoodMenu(null);
     offerUndo('Alimento removido',()=>{
       setPlaces(ps=>ps.map(p=>p.id!==placeId?p:{...p,subdivisions:p.subdivisions.map(s=>s.id!==subId?s:{...s,foods:s.foods.some(f=>f.id===removed.id)?s.foods:[...s.foods,removed]})}));
-      if(userId)void writeOrQueue(userId,{userId,table:'foods',action:'upsert',rowId:removed.id,data:{id:removed.id,user_id:userId,subdivision_id:subId,name:removed.name,quantity:removed.quantity,unit:removed.unit,expires_on:removed.expires_on||null}}).then(ok=>{if(!ok)syncError('O alimento foi restaurado neste dispositivo e será sincronizado quando a conexão voltar.')});
+      if(userId)void writeOrQueue(userId,{userId,table:'foods',action:'upsert',rowId:removed.id,data:{id:removed.id,user_id:userId,subdivision_id:subId,name:removed.name,quantity:removed.quantity,unit:removed.unit,expires_on:removed.expires_on||null}}).then(ok=>{if(!ok)syncError((language==='en'?"Food restored on this device. It will sync when the connection returns.":'O alimento foi restaurado neste dispositivo e será sincronizado quando a conexão voltar.')});
     });
   }
 
@@ -1652,7 +1652,7 @@ function App(){
     showActionFeedback(`${food.name}: quantidade atualizada`);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:id,data:{quantity:nextQty}});
-      if(!ok)syncError('Quantidade salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Quantity saved on this device. It will sync when the connection returns.":'Quantidade salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
     }
   }
 
@@ -1679,7 +1679,7 @@ function App(){
     setMoveModal(null);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:foodId,data:{subdivision_id:toSubId}});
-      if(!ok)syncError('Alimento movido neste dispositivo. A mudança será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Food moved on this device. The change will sync when the connection returns.":'Alimento movido neste dispositivo. A mudança será sincronizada quando a conexão voltar.');
     }
     const destinationPlace=places.find(p=>p.id===toPlaceId);
     const destinationSub=destinationPlace?.subdivisions.find(s=>s.id===toSubId);
@@ -1689,7 +1689,7 @@ function App(){
         if(p.id===fromPlaceId)return{...p,subdivisions:p.subdivisions.map(s=>s.id===fromSubId?{...s,foods:s.foods.some(f=>f.id===foodId)?s.foods:[...s.foods,food]}:s)};
         return p;
       }));
-      if(userId)void writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:foodId,data:{subdivision_id:fromSubId}}).then(ok=>{if(!ok)syncError('O alimento foi restaurado neste dispositivo e será sincronizado quando a conexão voltar.')});
+      if(userId)void writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:foodId,data:{subdivision_id:fromSubId}}).then(ok=>{if(!ok)syncError((language==='en'?"Food restored on this device. It will sync when the connection returns.":'O alimento foi restaurado neste dispositivo e será sincronizado quando a conexão voltar.')});
     });
     setFoodMenu(null);
     if(destinationPlace&&destinationSub)setAuthMessage(null);
@@ -1700,7 +1700,7 @@ function App(){
     const clean=name.trim();
     if(!clean)return false;
     const duplicate=places.some(p=>p.id!==id&&searchKey(p.name)===searchKey(clean));
-    if(duplicate){setAuthMessage('Já existe um local com esse nome.');return false;}
+    if(duplicate){setAuthMessage((language==='en'?"A location with this name already exists.":'Já existe um local com esse nome.');return false;}
     const placeId=id||uid();
     const newSub=id?null:makeSub('Geral');
     const snapshot=places;
@@ -1708,10 +1708,10 @@ function App(){
     setPlaces(next);
     if(userId){
       const locationOk=await writeOrQueue(userId,{userId,table:'locations',action:'upsert',rowId:placeId,data:{id:placeId,user_id:userId,name:clean,...(householdId?{household_id:householdId}:{})}});
-      if(!locationOk)syncError('Local salvo neste dispositivo. Ele será sincronizado quando a conexão voltar.');
+      if(!locationOk)syncError((language==='en'?"Location saved on this device. It will sync when the connection returns.":'Local salvo neste dispositivo. Ele será sincronizado quando a conexão voltar.');
       if(newSub){
         const subOk=await writeOrQueue(userId,{userId,table:'subdivisions',action:'upsert',rowId:newSub.id,data:{id:newSub.id,user_id:userId,location_id:placeId,name:newSub.name}});
-        if(!subOk)syncError('Local salvo neste dispositivo. O local será sincronizado quando a conexão voltar.');
+        if(!subOk)syncError((language==='en'?"Location saved on this device. It will sync when the connection returns.":'Local salvo neste dispositivo. O local será sincronizado quando a conexão voltar.');
       }
     }
     setPlaceModal(false);
@@ -1728,7 +1728,7 @@ function App(){
     setPlaces(ps=>ps.filter(p=>p.id!==id));
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'locations',action:'delete',rowId:id});
-      if(!ok)syncError('Local removido neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Location removed on this device. The deletion will sync when the connection returns.":'Local removido neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
     }
     if(selected===id){setSelected(null);setSelectedSub(null)}
     offerUndo('Local removido',()=>{
@@ -1741,7 +1741,7 @@ function App(){
       if(userId){
         for(const p of [removed]){
           void writeOrQueue(userId,{userId,table:'locations',action:'upsert',rowId:p.id,data:{id:p.id,user_id:userId,name:p.name,...(householdId?{household_id:householdId}:{})}}).then(async ok=>{
-            if(!ok){syncError('O local foi restaurado neste dispositivo e será sincronizado quando a conexão voltar.');return}
+            if(!ok){syncError((language==='en'?"Location restored on this device. It will sync when the connection returns.":'O local foi restaurado neste dispositivo e será sincronizado quando a conexão voltar.');return}
             for(const s of p.subdivisions){
               const subOk=await writeOrQueue(userId,{userId,table:'subdivisions',action:'upsert',rowId:s.id,data:{id:s.id,user_id:userId,location_id:p.id,name:s.name}});
               if(!subOk)return;
@@ -1761,14 +1761,14 @@ function App(){
     const place=places.find(p=>p.id===placeId);
     if(!place)return false;
     const duplicate=place.subdivisions.some(s=>s.id!==id&&searchKey(s.name)===searchKey(clean));
-    if(duplicate){setAuthMessage('Já existe uma divisão com esse nome neste local.');return false;}
+    if(duplicate){setAuthMessage((language==='en'?"A section with this name already exists in this location.":'Já existe uma divisão com esse nome neste local.');return false;}
     const subId=id||uid();
     const snapshot=places;
     const next=id?places.map(p=>p.id!==placeId?p:{...p,subdivisions:p.subdivisions.map(s=>s.id===id?{...s,name:clean}:s)}):places.map(p=>p.id===placeId?{...p,subdivisions:[...p.subdivisions,{id:subId,name:clean,foods:[]}]}:p);
     setPlaces(next);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'subdivisions',action:'upsert',rowId:subId,data:{id:subId,user_id:userId,location_id:placeId,name:clean}});
-      if(!ok)syncError('Divisão salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Section saved on this device. It will sync when the connection returns.":'Divisão salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
     }
     setSubModal(null);
     return true;
@@ -1783,7 +1783,7 @@ function App(){
     setPlaces(ps=>ps.map(p=>p.id!==placeId?p:{...p,subdivisions:p.subdivisions.filter(s=>s.id!==id)}));
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'subdivisions',action:'delete',rowId:id});
-      if(!ok)syncError('Divisão removida neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
+      if(!ok)syncError((language==='en'?"Section removed on this device. The deletion will sync when the connection returns.":'Divisão removida neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
     }
     if(selectedSub===id)setSelectedSub(null);
     offerUndo('Divisão removida',()=>{
@@ -1793,7 +1793,7 @@ function App(){
         next.splice(Math.min(Math.max(index,0),next.length),0,removed);
         return{...p,subdivisions:next};
       }));
-      if(userId)void writeOrQueue(userId,{userId,table:'subdivisions',action:'upsert',rowId:removed.id,data:{id:removed.id,user_id:userId,location_id:placeId,name:removed.name}}).then(ok=>{if(!ok)syncError('A divisão foi restaurada neste dispositivo e será sincronizada quando a conexão voltar.')});
+      if(userId)void writeOrQueue(userId,{userId,table:'subdivisions',action:'upsert',rowId:removed.id,data:{id:removed.id,user_id:userId,location_id:placeId,name:removed.name}}).then(ok=>{if(!ok)syncError((language==='en'?"Section restored on this device. It will sync when the connection returns.":'A divisão foi restaurada neste dispositivo e será sincronizada quando a conexão voltar.')});
     });
     return true;
   }
