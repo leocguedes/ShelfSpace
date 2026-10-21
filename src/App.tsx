@@ -1490,7 +1490,7 @@ function App(){
     setAuthMessage(null);
     try{
       const{error}=await supabase.auth.updateUser({password});
-      if(error){setAuthMessage(error.message);return}
+      if(error){setAuthMessage(language==='en'?"Could not update the password. Please try again.":error.message);return}
       setPasswordRecovery(false);
       setAuthMessage(language==='en'?"Password updated successfully.":'Senha atualizada com sucesso.');
     }finally{setAuthBusy(false)}
