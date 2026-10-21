@@ -51,8 +51,14 @@ function daysUntilExpiry(dateText:string){
   const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
   return Math.round((expiry.getTime()-today.getTime())/86400000);
 }
-function expiryCaption(dateText:string){
+function expiryCaption(dateText:string,language:'pt-BR'|'en'='pt-BR'){
   const days=daysUntilExpiry(dateText);
+  if(language==='en'){
+    if(days<0)return 'Expired '+Math.abs(days)+' '+(Math.abs(days)===1?'day':'days')+' ago';
+    if(days===0)return 'Expires today';
+    if(days===1)return 'Expires tomorrow';
+    return 'Expires in '+days+' days';
+  }
   if(days<0)return 'Vencido há '+Math.abs(days)+' '+(Math.abs(days)===1?'dia':'dias');
   if(days===0)return 'Vence hoje';
   if(days===1)return 'Vence amanhã';
@@ -1895,7 +1901,7 @@ function App(){
                         <div className="food-name">
                           <strong>{f.name}</strong>
                           <span>{f.quantity===0?(language==='en'?'Out of stock · ':'Sem estoque · '):''}{f.unit}</span>
-                          {f.expires_on&&<small className={'expiry-label '+(daysUntilExpiry(f.expires_on)<0?'expired':daysUntilExpiry(f.expires_on)<=3?'urgent':'')}>{expiryCaption(f.expires_on)}</small>}
+                          {f.expires_on&&<small className={'expiry-label '+(daysUntilExpiry(f.expires_on)<0?'expired':daysUntilExpiry(f.expires_on)<=3?'urgent':'')}>{expiryCaption(f.expires_on,language)}</small>}
                           {dueConsumptionSuggestions.some(item=>item.food.id===f.id)&&<small className="consumption-due-label">{language==='en'?"Expected consumption today":"Consumo previsto para hoje"}</small>}
                         </div>
                         {f.quantity===0&&<button className="restock-shortcut" onClick={()=>setShoppingAddFood(f)} title={(language==='en'?'Add ':'Adicionar ')+f.name+(language==='en'?' to shopping list':' à lista de compras')}><ShoppingCart size={15}/><span>{language==='en'?"Shop":"Comprar"}</span></button>}
@@ -2045,7 +2051,7 @@ function App(){
                     <div className="report-list-copy">
                       <strong>{food.name}</strong>
                       <div className="report-list-meta"><button type="button" className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={13}/></button></div>
-                      {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on)}</small>:<small className="report-list-expiry no-date">{language==='en'?"Expiration date not provided":"Validade não informada"}</small>}
+                      {food.expires_on?<small className={'report-list-expiry '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{food.expires_on.split('-').reverse().join('/')} · {expiryCaption(food.expires_on,language)}</small>:<small className="report-list-expiry no-date">{language==='en'?"Expiration date not provided":"Validade não informada"}</small>}
                     </div>
                     <span className="report-list-quantity" aria-label={'Quantidade: '+formatQuantity(food.quantity,food.unit)}>{formatQuantity(food.quantity,food.unit)}</span>
                   </div>)}
@@ -2058,7 +2064,7 @@ function App(){
                       <td data-label={language==='en'?"Item":"Alimento"}><strong>{food.name}</strong></td>
                       <td data-label={language==='en'?"Location":"Onde está"}><button className="report-place-link" onClick={()=>{setSelected(food.placeId);setSelectedSub(food.subId)}}>{food.placeName}<ChevronRight size={14}/></button></td>
                       <td data-label={language==='en'?"Quantity":"Quantidade"}><span className="report-quantity">{formatQuantity(food.quantity,food.unit)}</span>{food.quantity===0&&<small className="report-out">{language==='en'?"Out of stock":"Sem estoque"}</small>}</td>
-                      <td data-label={language==='en'?"Expiration":"Validade"}>{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on)}</small></span>:<span className="report-no-expiry">{language==='en'?"Not provided":"Não informada"}</span>}</td>
+                      <td data-label={language==='en'?"Expiration":"Validade"}>{food.expires_on?<span className="report-expiry"><strong>{food.expires_on.split('-').reverse().join('/')}</strong><small className={'expiry-label '+(daysUntilExpiry(food.expires_on)<0?'expired':daysUntilExpiry(food.expires_on)<=3?'urgent':'')}>{expiryCaption(food.expires_on,language)}</small></span>:<span className="report-no-expiry">{language==='en'?"Not provided":"Não informada"}</span>}</td>
                     </tr>)}</tbody>
                   </table>
                 </div>
