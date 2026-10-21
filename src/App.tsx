@@ -1878,12 +1878,12 @@ function App(){
                     {localFoodSearch&&<button type="button" onClick={()=>setLocalFoodSearch('')} aria-label="Limpar busca local"><X size={16}/></button>}
                   </div>
                   <div className="inventory-sort-bar">
-                    <span><ArrowDownUp size={15}/> Ordenar alimentos</span>
-                    <select aria-label="Ordenar alimentos deste local" value={foodSort} onChange={e=>setFoodSort(e.target.value as typeof foodSort)}>
-                      <option value="name">Alfabética (A–Z)</option>
-                      <option value="expiry">Validade (mais próxima)</option>
-                      <option value="quantity-asc">Quantidade (menor primeiro)</option>
-                      <option value="quantity-desc">Quantidade (maior primeiro)</option>
+                    <span><ArrowDownUp size={15}/> {language==='en'?"Sort items":"Ordenar alimentos"}</span>
+                    <select aria-label={language==='en'?"Sort items in this location":"Ordenar alimentos deste local"} value={foodSort} onChange={e=>setFoodSort(e.target.value as typeof foodSort)}>
+                      <option value="name">{language==='en'?"Alphabetical (A–Z)":"Alfabética (A–Z)"}</option>
+                      <option value="expiry">{language==='en'?"Expiration (soonest)":"Validade (mais próxima)"}</option>
+                      <option value="quantity-asc">{language==='en'?"Quantity (lowest first)":"Quantidade (menor primeiro)"}</option>
+                      <option value="quantity-desc">{language==='en'?"Quantity (highest first)":"Quantidade (maior primeiro)"}</option>
                     </select>
                   </div>
                 </div>
@@ -1894,33 +1894,33 @@ function App(){
                         
                         <div className="food-name">
                           <strong>{f.name}</strong>
-                          <span>{f.quantity===0?'Sem estoque · ':''}{f.unit}</span>
+                          <span>{f.quantity===0?(language==='en'?'Out of stock · ':'Sem estoque · '):''}{f.unit}</span>
                           {f.expires_on&&<small className={'expiry-label '+(daysUntilExpiry(f.expires_on)<0?'expired':daysUntilExpiry(f.expires_on)<=3?'urgent':'')}>{expiryCaption(f.expires_on)}</small>}
-                          {dueConsumptionSuggestions.some(item=>item.food.id===f.id)&&<small className="consumption-due-label">Consumo previsto para hoje</small>}
+                          {dueConsumptionSuggestions.some(item=>item.food.id===f.id)&&<small className="consumption-due-label">{language==='en'?"Expected consumption today":"Consumo previsto para hoje"}</small>}
                         </div>
-                        {f.quantity===0&&<button className="restock-shortcut" onClick={()=>setShoppingAddFood(f)} title={'Adicionar '+f.name+' à lista de compras'}><ShoppingCart size={15}/><span>Comprar</span></button>}
+                        {f.quantity===0&&<button className="restock-shortcut" onClick={()=>setShoppingAddFood(f)} title={(language==='en'?'Add ':'Adicionar ')+f.name+(language==='en'?' to shopping list':' à lista de compras')}><ShoppingCart size={15}/><span>{language==='en'?"Shop":"Comprar"}</span></button>}
                         <div className="qty">
-                          <button disabled={f.quantity===0} onClick={()=>changeQty(selected,selectedSub,f.id,-1)} aria-label={'Diminuir '+f.name}>
+                          <button disabled={f.quantity===0} onClick={()=>changeQty(selected,selectedSub,f.id,-1)} aria-label={(language==='en'?'Decrease ':'Diminuir ')+f.name}>
                             <Minus size={15}/>
                           </button>
                           <b>{f.quantity}</b>
                           {f.unit!=='unidades'&&<span className="qty-unit" aria-hidden="true">{f.unit}</span>}
-                          <button onClick={()=>changeQty(selected,selectedSub,f.id,1)} aria-label={'Aumentar '+f.name}>
+                          <button onClick={()=>changeQty(selected,selectedSub,f.id,1)} aria-label={(language==='en'?'Increase ':'Aumentar ')+f.name}>
                             <Plus size={15}/>
                           </button>
                         </div>
-                        {foodHasAlert(f)&&<button className="food-alert-indicator" onClick={()=>setNotificationCenterOpen(true)} aria-label={'Ver notificação de '+f.name} title="Este item tem uma notificação"><span/></button>}
+                        {foodHasAlert(f)&&<button className="food-alert-indicator" onClick={()=>setNotificationCenterOpen(true)} aria-label={(language==='en'?'View notification for ':'Ver notificação de ')+f.name} title={language==='en'?"This item has a notification":"Este item tem uma notificação"}><span/></button>}
                         <div className="food-actions">
-                          <button className="small action-trigger" title="Mais ações" aria-label={'Mais ações para '+f.name} onClick={e=>{e.stopPropagation();setFoodMenu(foodMenu===f.id?null:f.id)}}>
+                          <button className="small action-trigger" title={language==='en'?"More actions":"Mais ações"} aria-label={(language==='en'?"More actions for ":"Mais ações para ")+f.name} onClick={e=>{e.stopPropagation();setFoodMenu(foodMenu===f.id?null:f.id)}}>
                             <MoreHorizontal size={18}/>
                           </button>
                           {foodMenu===f.id&&(
                             <div className="action-menu" onClick={e=>e.stopPropagation()}>
-                              <button onClick={()=>{setFoodModal({place:selected,sub:selectedSub,food:f});setFoodMenu(null)}}><Edit3 size={16}/> Editar</button>
-                              <button onClick={()=>{setShoppingAddFood(f);setFoodMenu(null)}}><ShoppingCart size={16}/> Adicionar à lista de compras</button>
-                              <button onClick={()=>{setMoveModal({place:selected,sub:selectedSub,food:f});setFoodMenu(null)}}><MoveRight size={16}/> Mover para...</button>
-                              <button onClick={()=>{setConsumptionRuleModal({foodId:f.id});setFoodMenu(null)}}><CalendarClock size={16}/> {consumptionRules.some(rule=>rule.food_id===f.id)?'Editar consumo previsto':'Programar consumo'}</button>
-                              <button className="danger" onClick={()=>removeFood(selected,selectedSub,f.id)}><Trash2 size={16}/> Excluir</button>
+                              <button onClick={()=>{setFoodModal({place:selected,sub:selectedSub,food:f});setFoodMenu(null)}}><Edit3 size={16}/> {language==='en'?"Edit":"Editar"}</button>
+                              <button onClick={()=>{setShoppingAddFood(f);setFoodMenu(null)}}><ShoppingCart size={16}/> {language==='en'?"Add to shopping list":"Adicionar à lista de compras"}</button>
+                              <button onClick={()=>{setMoveModal({place:selected,sub:selectedSub,food:f});setFoodMenu(null)}}><MoveRight size={16}/> {language==='en'?"Move to…":"Mover para..."}</button>
+                              <button onClick={()=>{setConsumptionRuleModal({foodId:f.id});setFoodMenu(null)}}><CalendarClock size={16}/> {consumptionRules.some(rule=>rule.food_id===f.id)?(language==='en'?'Edit expected consumption':'Editar consumo previsto'):(language==='en'?'Schedule consumption':'Programar consumo')}</button>
+                              <button className="danger" onClick={()=>removeFood(selected,selectedSub,f.id)}><Trash2 size={16}/> {language==='en'?"Delete":"Excluir"}</button>
                             </div>
                           )}
                         </div>
@@ -1929,10 +1929,10 @@ function App(){
                   </div>
                 ):(
                   <Empty
-                    title={localFoodSearch?'Nenhum alimento encontrado':'Nenhum alimento neste local'}
-                    text={localFoodSearch?'Tente outro nome ou limpe a busca para ver todos os alimentos deste local.':'Adicione os alimentos que ficam neste local.'}
+                    title={localFoodSearch?(language==='en'?'No items found':'Nenhum alimento encontrado'):(language==='en'?'No items in this location':'Nenhum alimento neste local')}
+                    text={localFoodSearch?(language==='en'?'Try another name or clear the search to see all items in this location.':'Tente outro nome ou limpe a busca para ver todos os alimentos deste local.'):(language==='en'?'Add the items you keep in this location.':'Adicione os alimentos que ficam neste local.')}
                     action={localFoodSearch?()=>setLocalFoodSearch(''):()=>setFoodModal({place:selected,sub:selectedSub})}
-                    actionLabel={localFoodSearch?'Limpar busca':'Adicionar alimento'}
+                    actionLabel={localFoodSearch?(language==='en'?'Clear search':'Limpar busca'):(language==='en'?'Add food':'Adicionar alimento')}
                   />
                 )}
               </>
@@ -1984,20 +1984,20 @@ function App(){
                   <option value="en">English</option>
                 </select>
               </div>
-              <p className="settings-group-hint">{language==='en'?'More screens will be translated in upcoming localization steps.':'A tradução das demais telas será implementada nas próximas etapas.'}</p>
+              <p className="settings-group-hint">{language==='en'?'Choose your preferred language for the entire app.':'Escolha o idioma de sua preferência para todo o aplicativo.'}</p>
             </div>
             <div className="settings-group">
               <p className="settings-group-label">{language==='en'?'YOUR ACCOUNT':'SUA CONTA'}</p>
-              {user&&!user.is_anonymous&&<div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user.email||'Conta conectada'}</strong><small>{language==='en'?'Your account email':'E-mail da sua conta'}</small></span></div>}
+              {user&&!user.is_anonymous&&<div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user.email||(language==='en'?'Connected account':'Conta conectada')}</strong><small>{language==='en'?'Your account email':'E-mail da sua conta'}</small></span></div>}
               {user&&!user.is_anonymous&&<button className="settings-row" onClick={()=>{setAuthMessage(null);setPasswordChangeModal(true)}}><span className="settings-row-icon"><LockKeyhole size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?'Change password':'Alterar senha'}</strong><small>{language==='en'?'Update the password you use to sign in to ShelfSpace':'Atualize a senha usada para entrar no ShelfSpace'}</small></span><ChevronRight size={17}/></button>}
               <button className="settings-row" onClick={user&&!user.is_anonymous?()=>setSignOutConfirm(true):()=>setAuthModal(true)} disabled={authBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{user&&!user.is_anonymous?(language==='en'?'Sign out':'Sair da conta'):(language==='en'?'Sign in or create account':'Entrar ou criar conta')}</strong><small>{user&&!user.is_anonymous?(language==='en'?'Sign out of this session':'Desconectar esta sessão'):(language==='en'?'Access your data on all your devices':'Acesse seus dados em todos os dispositivos')}</small></span><ChevronRight size={17}/></button>
 <button className="settings-row" onClick={()=>{setOnboardingStep(0);setOnboardingOpen(true)}}><span className="settings-row-icon"><BookOpen size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?'About ShelfSpace':'Conhecer o ShelfSpace'}</strong><small>{language==='en'?'Review the getting started guide':'Rever o guia de primeiros passos'}</small></span><ChevronRight size={17}/></button>
             </div>
             {settingsHouseholdId&&households.some(h=>h.id===settingsHouseholdId)?(
               <div className="settings-group">
-                <button className="settings-row" onClick={()=>setSettingsHouseholdId(null)}><span className="settings-row-icon"><ChevronRight size={17} style={{transform:'rotate(180deg)'}}/></span><span className="settings-row-copy"><strong>Minhas casas</strong><small>Voltar para a lista de casas</small></span></button>
+                <button className="settings-row" onClick={()=>setSettingsHouseholdId(null)}><span className="settings-row-icon"><ChevronRight size={17} style={{transform:'rotate(180deg)'}}/></span><span className="settings-row-copy"><strong>{language==='en'?"My households":"Minhas casas"}</strong><small>{language==='en'?"Back to household list":"Voltar para a lista de casas"}</small></span></button>
                 <p className="settings-group-label">{language==='en'?'HOUSEHOLD SETTINGS':'CONFIGURAÇÕES DA CASA'}</p>
-                <div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{households.find(h=>h.id===settingsHouseholdId)?.name}</strong><small>{households.find(h=>h.id===settingsHouseholdId)?.is_personal?'Casa pessoal':'Casa compartilhada'}{settingsHouseholdId===householdId?' · Selecionada':''}</small></span></div>
+                <div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{households.find(h=>h.id===settingsHouseholdId)?.name}</strong><small>{households.find(h=>h.id===settingsHouseholdId)?.is_personal?(language==='en'?'Personal household':'Casa pessoal'):(language==='en'?'Shared household':'Casa compartilhada')}{settingsHouseholdId===householdId?(language==='en'?' · Selected':' · Selecionada'):''}</small></span></div>
                 <button className="settings-row" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} disabled={householdBusy||settingsHouseholdId!==householdId}><span className="settings-row-icon"><Users size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?'Family and sharing':'Família e compartilhamento'}</strong><small>{language==='en'?'Manage members and invite people to this household':'Gerencie membros e convide pessoas para esta casa'}</small></span><ChevronRight size={17}/></button>
                 <button className="settings-row" onClick={()=>{if(!userId){promptAccount('criar e alterar locais de armazenamento');return;}setPlaceToEdit(null);setPlaceModal(true)}} disabled={householdBusy||settingsHouseholdId!==householdId}><span className="settings-row-icon"><Box size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?'Storage locations':'Locais de armazenamento'}</strong><small>{language==='en'?'Manage your fridge, freezer, pantry, and other locations':'Gerencie geladeira, freezer, despensa e outros locais'}</small></span><ChevronRight size={17}/></button>
                 <button className="settings-row" onClick={()=>{if(!userId){promptAccount('adicionar alimentos ao estoque');return;}setImportModal(true)}} disabled={householdBusy||settingsHouseholdId!==householdId}><span className="settings-row-icon"><Copy size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?'Import food':'Importar alimentos'}</strong><small>{language==='en'?'Add a list to this household inventory':'Adicione uma lista ao estoque desta casa'}</small></span><ChevronRight size={17}/></button>
@@ -2005,7 +2005,7 @@ function App(){
             ):(
               <div className="settings-group">
                 <p className="settings-group-label">{language==='en'?'MY HOUSEHOLDS':'MINHAS CASAS'}</p>
-                {households.length>0?households.map(h=><button key={h.id} className="settings-row" onClick={()=>{setSettingsHouseholdId(h.id);if(h.id!==householdId){void activateHousehold(h.id,userId);setWorkspace('settings');}}} disabled={householdBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{h.name}</strong><small>{h.id===householdId?'Casa selecionada · ':''}{h.is_personal?'Casa pessoal':'Casa compartilhada'}</small></span><ChevronRight size={17}/></button>):<div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>Nenhuma casa disponível</strong><small>{userId?'Crie uma casa para começar a organizar seu estoque.':'Entre ou crie uma conta para gerenciar suas casas.'}</small></span></div>}
+                {households.length>0?households.map(h=><button key={h.id} className="settings-row" onClick={()=>{setSettingsHouseholdId(h.id);if(h.id!==householdId){void activateHousehold(h.id,userId);setWorkspace('settings');}}} disabled={householdBusy}><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{h.name}</strong><small>{h.id===householdId?(language==='en'?'Selected · ':'Casa selecionada · '):''}{h.is_personal?(language==='en'?'Personal household':'Casa pessoal'):(language==='en'?'Shared household':'Casa compartilhada')}</small></span><ChevronRight size={17}/></button>):<div className="settings-row settings-static-row"><span className="settings-row-icon"><Home size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?"No households available":"Nenhuma casa disponível"}</strong><small>{userId?(language==='en'?"Create a household to start organizing your inventory.":"Crie uma casa para começar a organizar seu estoque."):(language==='en'?"Sign in or create an account to manage your households.":"Entre ou crie uma conta para gerenciar suas casas.")}</small></span></div>}
                 <button className="settings-row" onClick={()=>{if(!userId){setAuthModal(true);return;}setHouseholdCreateOnly(true);setHouseholdModal(true)}}><span className="settings-row-icon"><Plus size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?'Add household':'Adicionar casa'}</strong><small>{language==='en'?'Create a household or join a shared one':'Crie uma casa ou entre em uma casa compartilhada'}</small></span><ChevronRight size={17}/></button>
               </div>
             )}
@@ -2072,8 +2072,8 @@ function App(){
             <div className="home-tools">
               <div className="search">
                 <Search size={19}/>
-                <input aria-label="Buscar alimento" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Onde está o seu alimento?"/>
-                {search&&<button onClick={()=>setSearch('')} aria-label="Limpar busca"><X size={17}/></button>}
+                <input aria-label={language==='en'?"Search food":"Buscar alimento"} value={search} onChange={e=>setSearch(e.target.value)} placeholder={language==='en'?"Where is your food?":"Onde está o seu alimento?"}/>
+                {search&&<button onClick={()=>setSearch('')} aria-label={language==='en'?"Clear search":"Limpar busca"}><X size={17}/></button>}
               </div>
               {!search&&(
                 <button type="button" className="home-add" onClick={()=>setAddActionModal(true)}>
