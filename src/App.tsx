@@ -2424,13 +2424,13 @@ function AccountDeletionModal({language,busy,onClose,onSubmit}:{language:'pt-BR'
     const result=await onSubmit(password);
     if(result)setError(result);
   };
-  return <Modal title="Excluir minha conta?" onClose={busy?()=>{}:onClose}>
-    <p className="modal-help">Esta ação é permanente. Sua conta e seus dados pessoais de autenticação serão excluídos. Os dados de uma casa compartilhada serão preservados para os outros membros; se você for a última pessoa da casa, os dados dessa casa também serão excluídos.</p>
-    <label>Confirme sua senha<input type="password" value={password} onChange={event=>setPassword(event.target.value)} autoComplete="current-password" required/></label>
+  return <Modal title={language==='en'?'Delete my account?':'Excluir minha conta?'} onClose={busy?()=>{}:onClose}>
+    <p className="modal-help">{language==='en'?'This action is permanent. Your account and personal authentication data will be deleted. Shared household data will be preserved for other members; if you are the last person in the household, its data will also be deleted.':'Esta ação é permanente. Sua conta e seus dados pessoais de autenticação serão excluídos. Os dados de uma casa compartilhada serão preservados para os outros membros; se você for a última pessoa da casa, os dados dessa casa também serão excluídos.'}</p>
+    <label>{language==='en'?"Confirm your password":"Confirme sua senha"}<input type="password" value={password} onChange={event=>setPassword(event.target.value)} autoComplete="current-password" required/></label>
     {error&&<p className="form-error" role="alert">{error}</p>}
     <div className="household-rename-actions">
-      <button type="button" disabled={busy} onClick={onClose}>Cancelar</button>
-      <button type="button" className="danger-button" disabled={busy||!password} onClick={()=>void submit()}>{busy?'Excluindo…':'Excluir conta permanentemente'}</button>
+      <button type="button" disabled={busy} onClick={onClose}>{language==='en'?"Cancel":"Cancelar"}</button>
+      <button type="button" className="danger-button" disabled={busy||!password} onClick={()=>void submit()}>{busy?(language==='en'?'Deleting…':'Excluindo…'):(language==='en'?'Permanently delete account':'Excluir conta permanentemente')}</button>
     </div>
   </Modal>
 }
@@ -2447,11 +2447,11 @@ function AccountPasswordModal({language,busy,onClose,onSubmit}:{language:'pt-BR'
     const result=await onSubmit(password);
     if(result)setError(result);
   };
-  return <Modal title="Alterar senha" onClose={onClose}>
-    <p className="modal-help">Crie uma nova senha com pelo menos 8 caracteres. Sua sessão atual será mantida.</p>
-    <label>Nova senha<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder="Mínimo de 8 caracteres" autoComplete="new-password"/></label>
-    <label>Confirmar nova senha<input type={showPassword?'text':'password'} value={confirm} onChange={e=>{setConfirm(e.target.value);setError(null)}} placeholder="Digite a nova senha novamente" autoComplete="new-password"/></label>
-    <label className="password-show-option"><input type="checkbox" checked={showPassword} onChange={e=>setShowPassword(e.target.checked)}/> Mostrar senhas</label>
+  return <Modal title={language==='en'?"Change password":"Alterar senha"} onClose={onClose}>
+    <p className="modal-help">{language==='en'?"Create a new password with at least 8 characters. Your current session will remain active.":"Crie uma nova senha com pelo menos 8 caracteres. Sua sessão atual será mantida."}</p>
+    <label>{language==='en'?"New password":"Nova senha"}<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder={language==='en'?"At least 8 characters":"Mínimo de 8 caracteres"} autoComplete="new-password"/></label>
+    <label>{language==='en'?"Confirm new password":"Confirmar nova senha"}<input type={showPassword?'text':'password'} value={confirm} onChange={e=>{setConfirm(e.target.value);setError(null)}} placeholder={language==='en'?"Enter your new password again":"Digite a nova senha novamente"} autoComplete="new-password"/></label>
+    <label className="password-show-option"><input type="checkbox" checked={showPassword} onChange={e=>setShowPassword(e.target.checked)}/>{language==='en'?" Show passwords":" Mostrar senhas"}</label>
     {confirm&&password!==confirm&&<p className="password-mismatch" role="status">As senhas não coincidem.</p>}
     {error&&<p className="password-form-error" role="alert">{error}</p>}
     <button className="primary full" disabled={!canSave} onClick={()=>void submit()}>{busy?'Salvando…':'Salvar nova senha'}</button>
