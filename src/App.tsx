@@ -2347,12 +2347,19 @@ function App(){
 }
 
 function OnboardingModal({language,step,onStep,onFinish,onCreateAccount,onSignIn}:{language:'pt-BR'|'en';step:number;onStep:(step:number)=>void;onFinish:()=>void;onCreateAccount:()=>void;onSignIn:()=>void}){
-  const pages=[
+  const portuguesePages=[
     {eyebrow:'CONHEÇA O SHELFSPACE',title:'Saiba o que tem em casa.',body:'Organize seus alimentos, acompanhe seu estoque e planeje melhor as compras do dia a dia.',detail:'Tudo começa com uma visão mais clara do que você já tem.'},
     {eyebrow:'ORGANIZE SUA CASA',title:'Cada alimento no seu lugar.',body:'Separe seus alimentos por locais como geladeira, freezer e despensa.',detail:'Encontre o que procura sem precisar conferir tudo de novo.'},
     {eyebrow:'CADASTRE SEU ESTOQUE',title:'Comece do seu jeito.',body:'Adicione alimentos um a um ou importe uma lista para preencher o estoque com mais facilidade.',detail:'Você pode informar quantidades, unidades e validades.'},
     {eyebrow:'PLANEJE A ROTINA',title:'Aproveite melhor o que já tem.',body:'Acompanhe validades, programe o consumo e encontre receitas com seus alimentos.',detail:'Use a lista de compras para organizar o que está faltando.'}
   ];
+  const englishPages=[
+    {eyebrow:'MEET SHELFSPACE',title:'Know what you have at home.',body:'Organize your food, track inventory, and plan everyday shopping more easily.',detail:'It all starts with a clearer view of what you already have.'},
+    {eyebrow:'ORGANIZE YOUR HOME',title:'Everything in its place.',body:'Sort food by location, such as fridge, freezer, and pantry.',detail:'Find what you need without checking everything again.'},
+    {eyebrow:'ADD YOUR INVENTORY',title:'Start your way.',body:'Add food one item at a time or import a list to fill your inventory faster.',detail:'You can enter quantities, units, and expiration dates.'},
+    {eyebrow:'PLAN YOUR ROUTINE',title:'Make better use of what you have.',body:'Track expiration dates, schedule consumption, and discover recipes using your food.',detail:'Use your shopping list to organize what you’re running low on.'}
+  ];
+  const pages=language==='en'?englishPages:portuguesePages;
   const isDemo=step===4;
   const isSignup=step===5;
   const page=pages[Math.min(step,3)];
