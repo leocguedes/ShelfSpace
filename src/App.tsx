@@ -1649,7 +1649,7 @@ function App(){
     const snapshot=places;
     const next=places.map(p=>p.id!==placeId?p:{...p,subdivisions:p.subdivisions.map(s=>s.id!==subId?s:{...s,foods:s.foods.map(f=>f.id===id?{...f,quantity:nextQty}:f)})});
     setPlaces(next);
-    showActionFeedback(`${food.name}: quantidade atualizada`);
+    showActionFeedback(language==='en'?`${food.name}: quantity updated`:`${food.name}: quantidade atualizada`);
     if(userId){
       const ok=await writeOrQueue(userId,{userId,table:'foods',action:'update',rowId:id,data:{quantity:nextQty}});
       if(!ok)syncError(language==='en'?"Quantity saved on this device. It will sync when the connection returns.":'Quantidade salva neste dispositivo. Ela será sincronizada quando a conexão voltar.');
@@ -1786,7 +1786,7 @@ function App(){
       if(!ok)syncError(language==='en'?"Section removed on this device. The deletion will sync when the connection returns.":'Divisão removida neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
     }
     if(selectedSub===id)setSelectedSub(null);
-    offerUndo('Divisão removida',()=>{
+    offerUndo(language==='en'?'Section removed':'Divisão removida',()=>{
       setPlaces(ps=>ps.map(p=>{
         if(p.id!==placeId||p.subdivisions.some(s=>s.id===removed.id))return p;
         const next=[...p.subdivisions];
@@ -2726,7 +2726,7 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
           <label>{language==='en'?'Item':'Produto' }<input list="shopping-pantry-suggestions" value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?'e.g., Whole milk':'Ex.: Leite integral'} maxLength={120}/><datalist id="shopping-pantry-suggestions">{Array.from(new Map(places.flatMap(place=>place.subdivisions.flatMap(sub=>sub.foods)).map(food=>[searchKey(food.name),food])).values()).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(food=><option key={food.id} value={food.name}/>)}</datalist></label>
           <div className="shopping-form-row">
             <label>{language==='en'?'Quantity':'Quantidade' }<input type="number" min="0.01" step={unit==='kg'||unit==='L'?0.1:1} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
-            <label>{language==='en'?'Unit':'Unidade' }<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{language==='en'?(({unidades:'units',unidade:'unit',unidades_plural:'units',g:'g',kg:'kg',ml:'mL',L:'L',pacote:'pack',pacotes:'packs',caixa:'box',caixas:'boxes',lata:'can',latas:'cans',garrafa:'bottle',garrafas:'bottles',dúzia:'dozen',dúzias:'dozens'} as Record<string,string>)[value]||value):value}</option>)}</select></label>
+            <label>{language==='en'?'Unit':'Unidade' }<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{unitLabel(value,language)}</option>)}</select></label>
             <button className="primary shopping-add-button" type="submit" disabled={!name.trim()||!Number.isFinite(quantity)||quantity<=0||loading}><Plus size={17}/> {language==='en'?'Add':'Adicionar'}</button>
           </div>
         </div>
@@ -2802,7 +2802,7 @@ function AddFoodToShoppingModal({language,food,onClose,onConfirm}:{language:'pt-
   const[quantity,setQuantity]=useState(1);
   const step=quantityStep(food.unit);
   return <Modal title={language==='en'?"Add to shopping list":"Adicionar à lista de compras"} onClose={onClose}>
-    <div className="move-current"><span>{language==='en'?"Food":"Alimento"}</span><strong>{food.name}</strong><small>{language==='en'?"Unit":"Unidade"}: {food.unit}</small></div>
+    <div className="move-current"><span>{language==='en'?"Food":"Alimento"}</span><strong>{food.name}</strong><small>{language==='en'?"Unit":"Unidade"}: {unitLabel(food.unit,language,quantity)}</small></div>
     <label>{language==='en'?"Quantity to buy":"Quantidade para comprar"}<input type="number" min={step} step={step} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
     <button className="primary full" disabled={!Number.isFinite(quantity)||quantity<=0} onClick={()=>onConfirm(Number(quantity))}>{language==='en'?"Add ":"Adicionar "}{Number.isFinite(quantity)&&quantity>0?formatQuantity(quantity,food.unit,language):''} {language==='en'?"to list":"à lista"}</button>
   </Modal>
