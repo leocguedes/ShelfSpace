@@ -2739,7 +2739,7 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
       </div>:<div className="shopping-empty"><ShoppingCart size={25}/><strong>{language==='en'?'Your list is empty':'Sua lista está vazia'}</strong><span>{language==='en'?'Add an item or use restock suggestions when available.':'Adicione um item ou aproveite as sugestões de reposição quando estiverem disponíveis.'}</span></div>}
       {purchased.length>0&&<details className="shopping-purchased">
         <summary>{language==='en'?'Purchased':'Comprados'} ({purchased.length})</summary>
-        <div className="shopping-items">{purchased.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}</div>
+        <div className="shopping-items">{purchased.map(item=><ShoppingRow language={language} key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}</div>
       </details>}
     </>}
     {editingShoppingItem&&<EditShoppingItemModal language={language} item={editingShoppingItem} onClose={()=>setEditingShoppingItem(null)} onSave={(quantity,unit)=>{onEdit(editingShoppingItem,quantity,unit);setEditingShoppingItem(null);}}/>}
