@@ -2286,7 +2286,7 @@ function App(){
       {moveModal&&<MoveModal language={language} data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>} 
       {placeModal&&<PlaceModal language={language} places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal language={language} data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
-      {onboardingOpen&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
+      {onboardingOpen&&<OnboardingModal language={language} step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
       {authModal&&<AuthModal language={language} initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal language={language} recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
@@ -2325,28 +2325,28 @@ function App(){
         onJoinCodeChange={setHouseholdJoinCode}
         onCopy={async code=>{try{await navigator.clipboard.writeText(code);setHouseholdCopied(true)}catch{setAuthMessage('Não foi possível copiar automaticamente. Selecione o código para copiá-lo.')}}}
       />}
-      {signOutConfirm&&<Modal title="Sair da conta?" onClose={()=>setSignOutConfirm(false)}><p className="modal-help">Tem certeza de que deseja sair do ShelfSpace neste dispositivo? Seus dados sincronizados continuarão salvos.</p><div className="household-rename-actions"><button type="button" disabled={authBusy} onClick={()=>setSignOutConfirm(false)}>Cancelar</button><button type="button" className="primary" disabled={authBusy} onClick={()=>{setSignOutConfirm(false);void signOut();}}>{authBusy?'Saindo…':'Sim, sair da conta'}</button></div></Modal>}
+      {signOutConfirm&&<Modal title={language==='en'?"Sign out?":"Sair da conta?"} onClose={()=>setSignOutConfirm(false)}><p className="modal-help">{language==='en'?"Are you sure you want to sign out of ShelfSpace on this device? Your synced data will remain saved.":"Tem certeza de que deseja sair do ShelfSpace neste dispositivo? Seus dados sincronizados continuarão salvos."}</p><div className="household-rename-actions"><button type="button" disabled={authBusy} onClick={()=>setSignOutConfirm(false)}>{language==='en'?"Cancel":"Cancelar"}</button><button type="button" className="primary" disabled={authBusy} onClick={()=>{setSignOutConfirm(false);void signOut();}}>{authBusy?(language==='en'?'Signing out…':'Saindo…'):(language==='en'?'Yes, sign out':'Sim, sair da conta')}</button></div></Modal>}
       {passwordRecovery&&<PasswordRecoveryModal language={language} busy={authBusy} onClose={()=>setPasswordRecovery(false)} onSubmit={updatePassword}/>}
-      {passwordChangeModal&&<AccountPasswordModal busy={authBusy} onClose={()=>setPasswordChangeModal(false)} onSubmit={changeAccountPassword}/>}
-       {deleteAccountConfirm&&<AccountDeletionModal busy={authBusy} onClose={()=>setDeleteAccountConfirm(false)} onSubmit={deleteAccount}/>}
-      {deletePlaceConfirm&&<Modal title="Excluir local permanentemente?" onClose={()=>setDeletePlaceConfirm(null)}>
+      {passwordChangeModal&&<AccountPasswordModal language={language} busy={authBusy} onClose={()=>setPasswordChangeModal(false)} onSubmit={changeAccountPassword}/>}
+       {deleteAccountConfirm&&<AccountDeletionModal language={language} busy={authBusy} onClose={()=>setDeleteAccountConfirm(false)} onSubmit={deleteAccount}/>}
+      {deletePlaceConfirm&&<Modal title={language==='en'?"Permanently delete location?":"Excluir local permanentemente?"} onClose={()=>setDeletePlaceConfirm(null)}>
         <div className="delete-confirm">
           <div className="delete-confirm-icon"><Trash2 size={22}/></div>
-          <h3>Excluir “{places.find(p=>p.id===deletePlaceConfirm)?.name||'este local'}”?</h3>
-          <p>Todos os alimentos cadastrados neste local, incluindo suas quantidades e datas de validade, serão excluídos permanentemente. Esta ação não poderá ser desfeita.</p>
+          <h3>{language==='en'?`Delete “${places.find(p=>p.id===deletePlaceConfirm)?.name||'this location'}”?`:`Excluir “${places.find(p=>p.id===deletePlaceConfirm)?.name||'este local'}”?`}</h3>
+          <p>{language==='en'?"All food stored in this location, including quantities and expiration dates, will be permanently deleted. This action cannot be undone.":"Todos os alimentos cadastrados neste local, incluindo suas quantidades e datas de validade, serão excluídos permanentemente. Esta ação não poderá ser desfeita."}</p>
           <div className="delete-confirm-actions">
-            <button type="button" className="secondary" onClick={()=>setDeletePlaceConfirm(null)}>Cancelar</button>
-            <button type="button" className="danger" onClick={()=>{const id=deletePlaceConfirm;void removePlace(id).then(ok=>{if(ok){setDeletePlaceConfirm(null);setUndo(null);if(undoTimer.current)window.clearTimeout(undoTimer.current);}})}}>Excluir permanentemente</button>
+            <button type="button" className="secondary" onClick={()=>setDeletePlaceConfirm(null)}>{language==='en'?"Cancel":"Cancelar"}</button>
+            <button type="button" className="danger" onClick={()=>{const id=deletePlaceConfirm;void removePlace(id).then(ok=>{if(ok){setDeletePlaceConfirm(null);setUndo(null);if(undoTimer.current)window.clearTimeout(undoTimer.current);}})}}>{language==='en'?"Delete permanently":"Excluir permanentemente"}</button>
           </div>
         </div>
       </Modal>}
-      {undo&&<div className="undo-toast" role="status" aria-live="polite"><span>{undo.label}</span><button onClick={consumeUndo}>Desfazer</button></div>}
+      {undo&&<div className="undo-toast" role="status" aria-live="polite"><span>{undo.label}</span><button onClick={consumeUndo}>{language==='en'?"Undo":"Desfazer"}</button></div>}
       {actionFeedback&&<div className="action-feedback" role="status" aria-live="polite">✓ {actionFeedback}</div>}
     </div>
   );
 }
 
-function OnboardingModal({step,onStep,onFinish,onCreateAccount,onSignIn}:{step:number;onStep:(step:number)=>void;onFinish:()=>void;onCreateAccount:()=>void;onSignIn:()=>void}){
+function OnboardingModal({language,step,onStep,onFinish,onCreateAccount,onSignIn}:{language:'pt-BR'|'en';step:number;onStep:(step:number)=>void;onFinish:()=>void;onCreateAccount:()=>void;onSignIn:()=>void}){
   const pages=[
     {eyebrow:'CONHEÇA O SHELFSPACE',title:'Saiba o que tem em casa.',body:'Organize seus alimentos, acompanhe seu estoque e planeje melhor as compras do dia a dia.',detail:'Tudo começa com uma visão mais clara do que você já tem.'},
     {eyebrow:'ORGANIZE SUA CASA',title:'Cada alimento no seu lugar.',body:'Separe seus alimentos por locais como geladeira, freezer e despensa.',detail:'Encontre o que procura sem precisar conferir tudo de novo.'},
@@ -2415,7 +2415,7 @@ function OnboardingModal({step,onStep,onFinish,onCreateAccount,onSignIn}:{step:n
   </div>;
 }
 
-function AccountDeletionModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
+function AccountDeletionModal({language,busy,onClose,onSubmit}:{language:'pt-BR'|'en';busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
   const[password,setPassword]=useState('');
   const[error,setError]=useState('');
   const submit=async()=>{
@@ -2435,7 +2435,7 @@ function AccountDeletionModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>
   </Modal>
 }
 
-function AccountPasswordModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
+function AccountPasswordModal({language,busy,onClose,onSubmit}:{language:'pt-BR'|'en';busy:boolean;onClose:()=>void;onSubmit:(password:string)=>Promise<string|null>}){
   const[password,setPassword]=useState('');
   const[confirm,setConfirm]=useState('');
   const[error,setError]=useState<string|null>(null);
