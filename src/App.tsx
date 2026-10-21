@@ -1845,7 +1845,7 @@ function App(){
         </div>
         <div className="header-actions">
           {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={(language==='en'?'Switch household. Active household: ':'Alternar casa. Casa ativa: ')+(households.find(h=>h.id===householdId)?.name||(language==='en'?'House':'Casa'))} title={language==='en'?'Switch household':'Alternar casa'}><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||(language==='en'?'House':'Casa')}</span><ChevronDown size={14}/></button>}
-          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={(language==='en'?'Notifications: ':'Notificações: ')+(notificationCount+' pendentes'} title={language==='en'?'Notifications':'Notificações'}>
+          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={(language==='en'?'Notifications: ':'Notificações: ')+notificationCount+' '+(language==='en'?'pending':'pendentes')} title={language==='en'?'Notifications':'Notificações'}>
             <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
           </button>
         </div>
@@ -2143,7 +2143,7 @@ function App(){
               <div className="expiry-items">
                 {expiringFoods.slice(0,5).map(({food,place,subdivision,days})=><div className="expiry-item" key={food.id}>
                   <div className="expiry-item-copy"><strong>{food.name}</strong><small>{formatQuantity(food.quantity,food.unit,language)} · {place.name}</small></div>
-                  <span className={'expiry-label '+(days<0?'expired':days<=3?'urgent':'')}>{expiryCaption(food.expires_on!)}</span>
+                  <span className={'expiry-label '+(days<0?'expired':days<=3?'urgent':'')}>{expiryCaption(food.expires_on!,language)}</span>
                   <button type="button" className="tertiary-action" onClick={()=>openSearchResult(place.id,subdivision.id)}>{language==='en'?"View":"Ver"}</button>
                 </div>)}
               </div>
