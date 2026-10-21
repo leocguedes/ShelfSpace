@@ -1828,22 +1828,22 @@ function App(){
       <header>
         <div className="brand">
           <div className="logo" aria-hidden="true"><svg viewBox="0 0 498 476" role="img" preserveAspectRatio="xMidYMid meet"><path d="M 408 42.750 C 382.302 52.669, 343.116 56.005, 216.500 59.054 C 173.822 60.081, 161.061 61.093, 148 64.487 C 121.466 71.382, 97.957 86.771, 82.289 107.500 C 64.028 131.660, 55.970 157.065, 56.020 190.322 C 56.059 217.043, 60.799 239.933, 69.304 254.475 C 82.460 276.970, 98.187 288.790, 124.968 296.308 C 132.427 298.402, 133.851 298.427, 272.167 298.961 C 348.984 299.257, 412.128 299.794, 412.488 300.154 C 413.931 301.598, 405.297 316.505, 399.200 323.096 C 387.402 335.849, 376.821 342.064, 358.500 347.002 C 341.524 351.577, 329.429 351.935, 190.905 351.969 L 61.310 352 59.414 354.095 C 57.607 356.091, 57.528 358.205, 57.734 398.784 C 57.922 435.852, 58.152 441.581, 59.510 442.939 C 60.887 444.317, 69.919 444.559, 136.546 445 C 237.244 445.667, 310.565 444.732, 318 442.685 C 324.717 440.836, 332.986 438.342, 339 436.352 C 352.666 431.829, 376.892 415.462, 387.099 403.855 C 396.503 393.162, 405.953 378.239, 410.865 366.328 C 417.041 351.350, 420.798 327.982, 419.643 311.721 C 418.178 291.081, 417.900 288.296, 416.831 283.500 C 414.096 271.228, 408.388 257.934, 402.660 250.500 C 396.961 243.102, 383.546 229.814, 378 226.074 C 366.358 218.224, 353.055 213.154, 336.500 210.259 C 327.358 208.661, 315.902 208.505, 203 208.440 C 65.265 208.361, 68 208.390, 68 206.989 C 68 205.147, 72.313 196.583, 76.053 190.999 C 85.315 177.168, 104.890 164.690, 125.489 159.488 C 146.724 154.124, 159.658 153.239, 235.500 151.957 C 288.064 151.069, 297.871 150.360, 316 146.138 C 337.163 141.210, 358.682 129.201, 376.610 112.313 C 390.381 99.342, 407.120 72.909, 413.856 53.500 C 416.232 46.651, 416.968 40.829, 415.500 40.479 C 414.950 40.348, 411.575 41.370, 408 42.750"/></svg></div>
-          <div><h1>ShelfSpace</h1><span>Sua casa, organizada.</span></div>
+          <div><h1>ShelfSpace</h1><span>{language==='en'?'Your home, organized.':'Sua casa, organizada.'}</span></div>
         </div>
         <div className="header-actions">
-          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={'Alternar casa. Casa ativa: '+(households.find(h=>h.id===householdId)?.name||'Casa')} title="Alternar casa"><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
-          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title="Notificações">
+          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={'Alternar casa. Casa ativa: '+(households.find(h=>h.id===householdId)?.name||'Casa')} title={language==='en'?'Switch household':'Alternar casa'}><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
+          <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title={language==='en'?'Notifications':'Notificações'}>
             <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
           </button>
         </div>
       </header>
 
       <main>
-        {notificationCenterOpen&&<section className="notification-center" aria-label="Central de notificações">
-          <div className="notification-center-head"><div><p className="eyebrow">CENTRAL DE ALERTAS</p><h3>Notificações</h3><p>{notificationCount?`${notificationCount} ${notificationCount===1?'item precisa':'itens precisam'} da sua atenção`:'Tudo em dia por aqui.'}</p></div><button className="notification-close" onClick={()=>setNotificationCenterOpen(false)} aria-label="Fechar notificações"><X size={17}/></button></div>
-          {notificationCount===0?<div className="notification-empty"><Check size={19}/><span>Nenhuma decisão pendente.</span></div>:<div className="notification-list">
-            {expiredNotifications.map(({food,place,subdivision,key})=><article className="notification-item expiry-notification" key={key}><span className="notification-dot expiry-dot"/><div className="notification-copy"><strong>{food.name} atingiu a validade</strong><small>{place.name} · validade {food.expires_on?.split('-').reverse().join('/')}</small><p>Deseja retirar do estoque?</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void removeFood(place.id,subdivision.id,food.id)}>Retirar</button><button onClick={()=>handleNotification(key)}>Manter</button></div></article>)}
-            {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{food.name} atingiu o consumo previsto</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>Consumiu uma unidade? Estoque atual: {formatQuantity(food.quantity,food.unit)}.</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>Atualizar estoque</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>Adiar</button></div></article>)}
+        {notificationCenterOpen&&<section className="notification-center" aria-label={language==='en'?'Notification center':'Central de notificações'}>
+          <div className="notification-center-head"><div><p className="eyebrow">{language==='en'?'ALERT CENTER':'CENTRAL DE ALERTAS'}</p><h3>{language==='en'?'Notifications':'Notificações'}</h3><p>{notificationCount?`${notificationCount} ${notificationCount===1?'item precisa':'itens precisam'} da sua atenção`:'Tudo em dia por aqui.'}</p></div><button className="notification-close" onClick={()=>setNotificationCenterOpen(false)} aria-label={language==='en'?'Close notifications':'Fechar notificações'}><X size={17}/></button></div>
+          {notificationCount===0?<div className="notification-empty"><Check size={19}/><span>{language==='en'?'No pending actions.':'Nenhuma decisão pendente.'}</span></div>:<div className="notification-list">
+            {expiredNotifications.map(({food,place,subdivision,key})=><article className="notification-item expiry-notification" key={key}><span className="notification-dot expiry-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expiration date':food.name+' atingiu a validade'}</strong><small>{place.name} · validade {food.expires_on?.split('-').reverse().join('/')}</small><p>{language==='en'?'Remove it from inventory?':'Deseja retirar do estoque?'}</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void removeFood(place.id,subdivision.id,food.id)}>{language==='en'?'Remove':'Retirar'}</button><button onClick={()=>handleNotification(key)}>{language==='en'?'Keep':'Manter'}</button></div></article>)}
+            {dueConsumptionSuggestions.map(({rule,food,place})=><article className="notification-item" key={'consumption:'+rule.id+':'+rule.next_suggestion_on}><span className="notification-dot consumption-dot"/><div className="notification-copy"><strong>{language==='en'?food.name+' has reached its expected consumption date':food.name+' atingiu o consumo previsto'}</strong><small>{place.name} · 1 unidade a cada {rule.period_days} dias</small><p>Consumiu uma unidade? Estoque atual: {formatQuantity(food.quantity,food.unit)}.</p></div><div className="notification-actions"><button className="notification-remove" onClick={()=>void handleConsumptionSuggestion(rule,true)}>{language==='en'?'Update inventory':'Atualizar estoque'}</button><button onClick={()=>void handleConsumptionSuggestion(rule,false)}>{language==='en'?'Snooze':'Adiar'}</button></div></article>)}
           </div>}
         </section>}
         {authMessage&&!authModal&&<div className="auth-note" role="status" aria-live="polite">{authMessage}</div>}
@@ -1851,13 +1851,13 @@ function App(){
 
         {selected?(
           <section>
-            <button className="back" onClick={()=>{setSelected(null);setSelectedSub(null)}}>← Todos os locais</button>
+            <button className="back" onClick={()=>{setSelected(null);setSelectedSub(null)}}>{language==='en'?'← All locations':'← Todos os locais'}</button>
 
             <div className="location-hero">
               <div className="location-identity">
                 <div className="location-icon" aria-hidden="true"><Box size={20}/></div>
                 <div>
-                  <p className="eyebrow">LOCAL</p>
+                  <p className="eyebrow">{language==='en'?'LOCATION':'LOCAL'}</p>
                   <h2>{current?.name}</h2>
                   <p>
                     {current?.subdivisions.reduce((n,s)=>n+s.foods.length,0)||0}{' '}
@@ -1880,8 +1880,8 @@ function App(){
                 <div className="local-inventory-tools">
                   <div className="local-food-search">
                     <Search size={17}/>
-                    <input aria-label="Buscar alimento neste local" value={localFoodSearch} onChange={e=>setLocalFoodSearch(e.target.value)} placeholder="Buscar neste local..."/>
-                    {localFoodSearch&&<button type="button" onClick={()=>setLocalFoodSearch('')} aria-label="Limpar busca local"><X size={16}/></button>}
+                    <input aria-label={language==='en'?'Search food in this location':'Buscar alimento neste local'} value={localFoodSearch} onChange={e=>setLocalFoodSearch(e.target.value)} placeholder={language==='en'?'Search this location…':'Buscar neste local...'}/>
+                    {localFoodSearch&&<button type="button" onClick={()=>setLocalFoodSearch('')} aria-label={language==='en'?'Clear location search':'Limpar busca local'}><X size={16}/></button>}
                   </div>
                   <div className="inventory-sort-bar">
                     <span><ArrowDownUp size={15}/> {language==='en'?"Sort items":"Ordenar alimentos"}</span>
