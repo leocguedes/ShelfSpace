@@ -2700,7 +2700,7 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
           <label>{language==='en'?'Item':'Produto' }<input list="shopping-pantry-suggestions" value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?'e.g., Whole milk':'Ex.: Leite integral'} maxLength={120}/><datalist id="shopping-pantry-suggestions">{Array.from(new Map(places.flatMap(place=>place.subdivisions.flatMap(sub=>sub.foods)).map(food=>[searchKey(food.name),food])).values()).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).map(food=><option key={food.id} value={food.name}/>)}</datalist></label>
           <div className="shopping-form-row">
             <label>{language==='en'?'Quantity':'Quantidade' }<input type="number" min="0.01" step={unit==='kg'||unit==='L'?0.1:1} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
-            <label>{language==='en'?'Unit':'Unidade' }<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+            <label>{language==='en'?'Unit':'Unidade' }<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{language==='en'?(({unidades:'units',unidade:'unit',unidades_plural:'units',g:'g',kg:'kg',ml:'mL',L:'L',pacote:'pack',pacotes:'packs',caixa:'box',caixas:'boxes',lata:'can',latas:'cans',garrafa:'bottle',garrafas:'bottles',dúzia:'dozen',dúzias:'dozens'} as Record<string,string>)[value]||value):value}</option>)}</select></label>
             <button className="primary shopping-add-button" type="submit" disabled={!name.trim()||!Number.isFinite(quantity)||quantity<=0||loading}><Plus size={17}/> {language==='en'?'Add':'Adicionar'}</button>
           </div>
         </div>
@@ -2754,7 +2754,7 @@ function ShoppingRow({language,item,onToggle,onDelete,onEdit,onStock}:{language:
     <div className="shopping-row-name"><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}{item.category?' · '+item.category:''}{item.source!=='manual'?(language==='en'?' · auto-suggested':' · sugestão automática'):''}</small></div>
     <div className="shopping-row-actions">
       <button type="button" className="shopping-edit" onClick={()=>onEdit(item)} aria-label={(language==='en'?'Edit ':'Editar ')+item.name} title={language==='en'?'Edit quantity and unit':'Editar quantidade e unidade'}><Edit3 size={16}/></button>
-      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title="Adicionar ao estoque">{language==='en'?'Add to inventory':'Adicionar ao estoque'}</button>}
+      {item.is_purchased&&!item.linked_food_id&&<button type="button" onClick={()=>onStock(item)} title={language==='en'?"Add to inventory":"Adicionar ao estoque"}>{language==='en'?'Add to inventory':'Adicionar ao estoque'}</button>}
       {item.linked_food_id&&<span className="shopping-stock-linked">{language==='en'?'In inventory':'No estoque'}</span>}
       <button type="button" className="shopping-delete" onClick={()=>onDelete(item)} aria-label={(language==='en'?'Delete ':'Excluir ')+item.name} title={language==='en'?'Delete item':'Excluir item'}><Trash2 size={16}/></button>
     </div>
