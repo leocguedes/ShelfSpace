@@ -2011,7 +2011,7 @@ function App(){
             {user&&!user.is_anonymous&&<div className="settings-group settings-danger-group">
               <button className="settings-row danger" onClick={()=>setDeleteAccountConfirm(true)}><span className="settings-row-icon"><Trash2 size={19}/></span><span className="settings-row-copy"><strong>{language==='en'?'Delete my account':'Excluir minha conta'}</strong><small>{language==='en'?'Permanently delete your account':'Apague sua conta permanentemente'}</small></span><ChevronRight size={17}/></button>
             </div>}
-            <p className="settings-footer">ShelfSpace · Sua casa, organizada.</p>
+            <p className="settings-footer">ShelfSpace · {language==='en'?'Your home, organized.':'Sua casa, organizada.'}</p>
           </section>
         ):workspace==='recipes'?(
           <RecipePage places={places} onAddMissing={addRecipeMissing} onCook={recipe=>setCookConfirmRecipe(recipe)}/>
@@ -2019,9 +2019,9 @@ function App(){
           <section className="inventory-report">
             <div className="hero report-hero">
               <div className="hero-copy">
-                <p className="eyebrow">VISÃO GERAL</p>
-                <h2>Estoque</h2>
-                <p>Seus alimentos, organizados por local e validade.</p>
+                <p className="eyebrow">{language==='en'?'OVERVIEW':'VISÃO GERAL'}</p>
+                <h2>{language==='en'?'Inventory':'Estoque'}</h2>
+                <p>{language==='en'?'Your food, organized by location and expiration date.':'Seus alimentos, organizados por local e validade.'}</p>
               </div>
               <p className="report-total-inline"><strong>{reportFoods.length}</strong> {reportFoods.length===1?'alimento':'alimentos'} <span>{reportSearch||reportLocation!=='all'?'encontrados':'cadastrados'}</span></p>
             </div>
@@ -2078,7 +2078,7 @@ function App(){
                 <button type="button" className="home-add" onClick={()=>setAddActionModal(true)}>
                   <span className="home-add-icon"><Plus size={20}/></span>
                   <span>
-                    <strong>Adicionar alimento</strong>
+                    <strong>{language==='en'?'Add food':'Adicionar alimento'}</strong>
                   </span>
                   <ChevronRight size={18}/>
                 </button>
@@ -2086,31 +2086,31 @@ function App(){
             </div>
 
             {!search&&(
-              <section className="home-overview" aria-label="Resumo da casa">
+              <section className="home-overview" aria-label={language==='en'?'Household overview':'Resumo da casa'}>
                 <div className="home-overview-content">
                   <div className="home-overview-heading">
-                    <div><h3>Resumo da casa{households.find(h=>h.id===householdId)?.name&&<> {households.find(h=>h.id===householdId)!.name}</>}</h3></div>
+                    <div><h3>{language==='en'?'Household overview':'Resumo da casa'}{households.find(h=>h.id===householdId)?.name&&<> {households.find(h=>h.id===householdId)!.name}</>}</h3></div>
                   </div>
                   <div className="home-stat-grid">
                     <article className="home-stat">
-                      <div><strong>{total}</strong><span>{total===1?'alimento cadastrado':'alimentos cadastrados'}</span></div>
+                      <div><strong>{total}</strong><span>{language==='en'?(total===1?'food item':'food items'):(total===1?'alimento cadastrado':'alimentos cadastrados')}</span></div>
                     </article>
                     <article className="home-stat">
-                      <div><strong>{places.length}</strong><span>{places.length===1?'local organizado':'locais organizados'}</span></div>
+                      <div><strong>{places.length}</strong><span>{language==='en'?(places.length===1?'organized location':'organized locations'):(places.length===1?'local organizado':'locais organizados')}</span></div>
                     </article>
                     <article className="home-stat">
-                      <div><strong>{expiringFoods.filter(({food})=>food.quantity>0).length}</strong><span>itens perto da validade</span></div>
+                      <div><strong>{expiringFoods.filter(({food})=>food.quantity>0).length}</strong><span>{language==='en'?'items nearing expiration':'itens perto da validade'}</span></div>
                     </article>
                   </div>
                   <div className="home-shortcuts" aria-label="Acessos rápidos">
                     <button type="button" onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}}>
                       <span className="home-shortcut-icon"><ShoppingCart size={17}/></span>
-                      <span><strong>Lista de compras</strong><small>{shoppingItems.filter(item=>!item.is_purchased).length} {shoppingItems.filter(item=>!item.is_purchased).length===1?'item pendente':'itens pendentes'}</small></span>
+                      <span><strong>{language==='en'?'Shopping list':'Lista de compras'}</strong><small>{shoppingItems.filter(item=>!item.is_purchased).length} {language==='en'?(shoppingItems.filter(item=>!item.is_purchased).length===1?'item pending':'items pending'):(shoppingItems.filter(item=>!item.is_purchased).length===1?'item pendente':'itens pendentes')}</small></span>
                       <ChevronRight size={17}/>
                     </button>
                     <button type="button" onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}}>
                       <span className="home-shortcut-icon recipes"><BookOpen size={17}/></span>
-                      <span><strong>Encontrar receitas</strong><small>Ideias com o que você tem em casa</small></span>
+                      <span><strong>{language==='en'?'Find recipes':'Encontrar receitas'}</strong><small>{language==='en'?'Ideas using what you have at home':'Ideias com o que você tem em casa'}</small></span>
                       <ChevronRight size={17}/>
                     </button>
                   </div>
@@ -2231,12 +2231,12 @@ function App(){
 
       </main>
 
-      <nav className="bottom-nav" aria-label="Navegação principal">
-        <button className={!selected&&workspace==='inventory'?'active':''} onClick={()=>{setWorkspace('inventory');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='inventory'?'page':undefined}><Home size={20}/><span>Início</span></button>
-        <button className={!selected&&workspace==='shopping'?'active':''} onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='shopping'?'page':undefined}><ShoppingCart size={20}/><span>Compras</span>{shoppingItems.filter(item=>!item.is_purchased).length>0&&<i>{shoppingItems.filter(item=>!item.is_purchased).length>99?'99+':shoppingItems.filter(item=>!item.is_purchased).length}</i>}</button>
-        <button className={!selected&&workspace==='recipes'?'active':''} onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='recipes'?'page':undefined}><BookOpen size={20}/><span>Receitas</span></button>
-        <button className={!selected&&workspace==='report'?'active':''} onClick={()=>{setWorkspace('report');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='report'?'page':undefined}><ClipboardList size={20}/><span className="nav-label-full">Lista geral</span><span className="nav-label-compact">Estoque</span></button>
-        <button className={!selected&&workspace==='settings'?'active':''} onClick={()=>{setWorkspace('settings');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='settings'?'page':undefined}><Settings size={20}/><span>Ajustes</span></button>
+      <nav className="bottom-nav" aria-label={language==='en'?'Main navigation':'Navegação principal'}>
+        <button className={!selected&&workspace==='inventory'?'active':''} onClick={()=>{setWorkspace('inventory');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='inventory'?'page':undefined}><Home size={20}/><span>{language==='en'?'Home':'Início'}</span></button>
+        <button className={!selected&&workspace==='shopping'?'active':''} onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='shopping'?'page':undefined}><ShoppingCart size={20}/><span>{language==='en'?'Shopping':'Compras'}</span>{shoppingItems.filter(item=>!item.is_purchased).length>0&&<i>{shoppingItems.filter(item=>!item.is_purchased).length>99?'99+':shoppingItems.filter(item=>!item.is_purchased).length}</i>}</button>
+        <button className={!selected&&workspace==='recipes'?'active':''} onClick={()=>{setWorkspace('recipes');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='recipes'?'page':undefined}><BookOpen size={20}/><span>{language==='en'?'Recipes':'Receitas'}</span></button>
+        <button className={!selected&&workspace==='report'?'active':''} onClick={()=>{setWorkspace('report');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='report'?'page':undefined}><ClipboardList size={20}/><span className="nav-label-full">{language==='en'?'Inventory report':'Lista geral'}</span><span className="nav-label-compact">{language==='en'?'Inventory':'Estoque'}</span></button>
+        <button className={!selected&&workspace==='settings'?'active':''} onClick={()=>{setWorkspace('settings');setSelected(null);setSelectedSub(null)}} aria-current={!selected&&workspace==='settings'?'page':undefined}><Settings size={20}/><span>{language==='en'?'Settings':'Ajustes'}</span></button>
 
       </nav>
 
