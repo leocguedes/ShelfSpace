@@ -2285,7 +2285,7 @@ function App(){
       {zeroQtyConfirm&&<div className="overlay" role="presentation"><section className="modal zero-stock-modal" role="alertdialog" aria-modal="true" aria-labelledby="zero-stock-title" aria-describedby="zero-stock-description"><div className="modal-head"><h2 id="zero-stock-title">{language==='en'?"What would you like to do?":"O que deseja fazer?"}</h2><button type="button" onClick={()=>setZeroQtyConfirm(null)} aria-label="Fechar"><X size={18}/></button></div><p id="zero-stock-description" className="modal-help">{language==='en'?<>The quantity of <strong>{zeroQtyConfirm.food.name}</strong> has reached zero. You can remove it from your inventory or add it to your shopping list.</>:<>A quantidade de <strong>{zeroQtyConfirm.food.name}</strong> chegou a zero. Você pode removê-lo do estoque ou já adicioná-lo à lista de compras.</>}</p><div className="zero-stock-actions"><button type="button" className="secondary-action" onClick={()=>setZeroQtyConfirm(null)}>{language==='en'?"Cancel":"Cancelar"}</button><button type="button" className="secondary-action" onClick={()=>{const target=zeroQtyConfirm;setZeroQtyConfirm(null);void removeFood(target.placeId,target.subId,target.food.id);}}>{language==='en'?"Delete":"Excluir"}</button><button type="button" className="primary" onClick={()=>{const target=zeroQtyConfirm;if(!userId||!householdId){setZeroQtyConfirm(null);setAuthMessage('Entre na sua conta para adicionar alimentos à lista de compras compartilhada.');setAuthModal(true);return;}setZeroQtyConfirm(null);void (async()=>{await addShoppingItem(target.food.name,quantityStep(target.food.unit),target.food.unit,'low_stock');await removeFood(target.placeId,target.subId,target.food.id);})();}}>{language==='en'?"Delete and add to shopping list":"Excluir e adicionar à lista de compras"}</button></div></section></div>}
       {moveModal&&<MoveModal language={language} data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>} 
       {placeModal&&<PlaceModal language={language} places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
-      {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
+      {subModal&&<SubModal language={language} data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
       {onboardingOpen&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
       {authModal&&<AuthModal language={language} initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal language={language} recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
@@ -2297,12 +2297,13 @@ function App(){
         onDelete={()=>removeConsumptionRule(consumptionRuleModal.foodId)}
       />}
       {shoppingStockItem&&<ShoppingStockModal
+        language={language}
         item={shoppingStockItem}
         places={places}
         onClose={()=>setShoppingStockItem(null)}
         onConfirm={addPurchasedShoppingToStock}
       />}
-      {shoppingAddFood&&<AddFoodToShoppingModal food={shoppingAddFood} onClose={()=>setShoppingAddFood(null)} onConfirm={quantity=>{void addShoppingItem(shoppingAddFood.name,quantity,shoppingAddFood.unit,'manual');setShoppingAddFood(null)}}/>}
+      {shoppingAddFood&&<AddFoodToShoppingModal language={language} food={shoppingAddFood} onClose={()=>setShoppingAddFood(null)} onConfirm={quantity=>{void addShoppingItem(shoppingAddFood.name,quantity,shoppingAddFood.unit,'manual');setShoppingAddFood(null)}}/>}
       {householdModal&&<HouseholdModal
         language={language}
         initialCreateOnly={householdCreateOnly}
@@ -2741,7 +2742,7 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
         <div className="shopping-items">{purchased.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}</div>
       </details>}
     </>}
-    {editingShoppingItem&&<EditShoppingItemModal item={editingShoppingItem} onClose={()=>setEditingShoppingItem(null)} onSave={(quantity,unit)=>{onEdit(editingShoppingItem,quantity,unit);setEditingShoppingItem(null);}}/>}
+    {editingShoppingItem&&<EditShoppingItemModal language={language} item={editingShoppingItem} onClose={()=>setEditingShoppingItem(null)} onSave={(quantity,unit)=>{onEdit(editingShoppingItem,quantity,unit);setEditingShoppingItem(null);}}/>}
   </section>
 }
 
@@ -2759,44 +2760,44 @@ function ShoppingRow({item,onToggle,onDelete,onEdit,onStock}:{item:ShoppingItem;
   </div>
 }
 
-function EditShoppingItemModal({item,onClose,onSave}:{item:ShoppingItem;onClose:()=>void;onSave:(quantity:number,unit:Unit)=>void}){
+function EditShoppingItemModal({language,item,onClose,onSave}:{language:'pt-BR'|'en';item:ShoppingItem;onClose:()=>void;onSave:(quantity:number,unit:Unit)=>void}){
   const[quantity,setQuantity]=useState(String(item.quantity));
   const[unit,setUnit]=useState<Unit>(units.includes(item.unit as Unit)?item.unit as Unit:'unidades');
   const valid=quantity.trim()!==''&&Number.isFinite(Number(quantity))&&Number(quantity)>0;
-  return <Modal title={'Editar '+item.name} onClose={onClose}>
-    <label>Quantidade<input type="number" min="0.001" step="any" value={quantity} onChange={event=>setQuantity(event.target.value)}/></label>
-    <label>Unidade<select value={unit} onChange={event=>setUnit(event.target.value as Unit)}>{units.map(option=><option key={option} value={option}>{option[0].toUpperCase()+option.slice(1)}</option>)}</select></label>
-    <button type="button" className="primary full" disabled={!valid} onClick={()=>onSave(Number(quantity),unit)}>Salvar alterações</button>
+  return <Modal title={(language==='en'?'Edit ':'Editar ')+item.name} onClose={onClose}>
+    <label>{language==='en'?"Quantity":"Quantidade"}<input type="number" min="0.001" step="any" value={quantity} onChange={event=>setQuantity(event.target.value)}/></label>
+    <label>{language==='en'?"Unit":"Unidade"}<select value={unit} onChange={event=>setUnit(event.target.value as Unit)}>{units.map(option=><option key={option} value={option}>{option[0].toUpperCase()+option.slice(1)}</option>)}</select></label>
+    <button type="button" className="primary full" disabled={!valid} onClick={()=>onSave(Number(quantity),unit)}>{language==='en'?"Save changes":"Salvar alterações"}</button>
   </Modal>
 }
 
-function AddFoodToShoppingModal({food,onClose,onConfirm}:{food:Food;onClose:()=>void;onConfirm:(quantity:number)=>void}){
+function AddFoodToShoppingModal({language,food,onClose,onConfirm}:{language:'pt-BR'|'en';food:Food;onClose:()=>void;onConfirm:(quantity:number)=>void}){
   const[quantity,setQuantity]=useState(1);
   const step=quantityStep(food.unit);
-  return <Modal title="Adicionar à lista de compras" onClose={onClose}>
-    <div className="move-current"><span>Alimento</span><strong>{food.name}</strong><small>Unidade: {food.unit}</small></div>
-    <label>Quantidade para comprar<input type="number" min={step} step={step} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
-    <button className="primary full" disabled={!Number.isFinite(quantity)||quantity<=0} onClick={()=>onConfirm(Number(quantity))}>Adicionar {Number.isFinite(quantity)&&quantity>0?formatQuantity(quantity,food.unit):''} à lista</button>
+  return <Modal title={language==='en'?"Add to shopping list":"Adicionar à lista de compras"} onClose={onClose}>
+    <div className="move-current"><span>{language==='en'?"Food":"Alimento"}</span><strong>{food.name}</strong><small>{language==='en'?"Unit":"Unidade"}: {food.unit}</small></div>
+    <label>{language==='en'?"Quantity to buy":"Quantidade para comprar"}<input type="number" min={step} step={step} value={quantity} onChange={e=>setQuantity(Number(e.target.value))}/></label>
+    <button className="primary full" disabled={!Number.isFinite(quantity)||quantity<=0} onClick={()=>onConfirm(Number(quantity))}>{language==='en'?"Add ":"Adicionar "}{Number.isFinite(quantity)&&quantity>0?formatQuantity(quantity,food.unit):''} {language==='en'?"to list":"à lista"}</button>
   </Modal>
 }
 
-function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;places:Place[];onConfirm:(item:ShoppingItem,placeId:string,subId:string,expiresOn:string|null)=>void;onClose:()=>void}){
+function ShoppingStockModal({language,item,places,onClose,onConfirm}:{language:'pt-BR'|'en';item:ShoppingItem;places:Place[];onConfirm:(item:ShoppingItem,placeId:string,subId:string,expiresOn:string|null)=>void;onClose:()=>void}){
   const[placeId,setPlaceId]=useState(places[0]?.id||'');
   const[expiresOn,setExpiresOn]=useState('');
   const place=places.find(p=>p.id===placeId);
   const destination=place?.subdivisions[0];
   const unit=units.includes(item.unit as Unit)?item.unit as Unit:'unidades';
-  return <Modal title="Adicionar ao estoque" onClose={onClose}>
-    <div className="move-current"><span>Compra concluída</span><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}</small></div>
+  return <Modal title={language==='en'?"Add to inventory":"Adicionar ao estoque"} onClose={onClose}>
+    <div className="move-current"><span>{language==='en'?"Purchase completed":"Compra concluída"}</span><strong>{item.name}</strong><small>{formatQuantity(item.quantity,unit)}</small></div>
     {places.length?<>
-      <p className="modal-help">Escolha onde guardar o que você comprou.</p>
-      <label>Local<select value={placeId} onChange={e=>setPlaceId(e.target.value)}>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
-      <label>Validade (opcional)<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)}/></label>
-      {destination?.foods.some(f=>searchKey(f.name)===searchKey(item.name)&&f.unit===unit&&(f.expires_on||'')===expiresOn)&&<p className="modal-help">Esse alimento já existe neste local com a mesma validade. A quantidade será somada ao estoque atual.</p>}
-      <button className="primary full" disabled={!place||!destination} onClick={()=>onConfirm(item,placeId,destination!.id,expiresOn||null)}>Adicionar {formatQuantity(item.quantity,unit)}</button>
+      <p className="modal-help">{language==='en'?"Choose where to store your purchase.":"Escolha onde guardar o que você comprou."}</p>
+      <label>{language==='en'?"Location":"Local"}<select value={placeId} onChange={e=>setPlaceId(e.target.value)}>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
+      <label>{language==='en'?"Expiration date (optional)":"Validade (opcional)"}<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)}/></label>
+      {destination?.foods.some(f=>searchKey(f.name)===searchKey(item.name)&&f.unit===unit&&(f.expires_on||'')===expiresOn)&&<p className="modal-help">{language==='en'?"This food already exists in this location with the same expiration date. The quantity will be added to the current inventory.":"Esse alimento já existe neste local com a mesma validade. A quantidade será somada ao estoque atual."}</p>}
+      <button className="primary full" disabled={!place||!destination} onClick={()=>onConfirm(item,placeId,destination!.id,expiresOn||null)}>{language==='en'?"Add ":"Adicionar "}{formatQuantity(item.quantity,unit)}</button>
     </>:<>
-      <p className="modal-help">Crie um local antes de adicionar esta compra ao estoque.</p>
-      <button className="primary full" onClick={onClose}>Fechar</button>
+      <p className="modal-help">{language==='en'?"Create a location before adding this purchase to inventory.":"Crie um local antes de adicionar esta compra ao estoque."}</p>
+      <button className="primary full" onClick={onClose}>{language==='en'?"Close":"Fechar"}</button>
     </>}
   </Modal>
 }
@@ -3063,13 +3064,13 @@ function PlaceModal({language,places,initialEditId,onClose,onSave,onDelete}:{lan
     )}
   </Modal>
 }
-function SubModal({data,onClose,onSave,onDelete}:{data?:Sub;onClose:()=>void;onSave:(name:string)=>Promise<boolean>;onDelete:(id:string)=>Promise<boolean>}){
+function SubModal({language,data,onClose,onSave,onDelete}:{language:'pt-BR'|'en';data?:Sub;onClose:()=>void;onSave:(name:string)=>Promise<boolean>;onDelete:(id:string)=>Promise<boolean>}){
   const[name,setName]=useState(data?.name||'');
-  return <Modal title={data?'Editar subdivisão':'Nova subdivisão'} onClose={onClose}>
-    <p className="modal-help">{data?'Altere o nome desta divisão.':'Crie uma divisão como “Gaveta de cima”, “Porta” ou “Prateleira 2”.'}</p>
-    <label>Nome<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Gaveta de cima"/></label>
-    <button className="primary full" disabled={!name.trim()} onClick={async()=>{await onSave(name)}}>{data?'Salvar alterações':'Criar subdivisão'}</button>
-    {data&&data.foods.length===0&&<button className="text-danger" onClick={async()=>{if(await onDelete(data.id))onClose()}}><Trash2 size={15}/> Excluir subdivisão</button>}
+  return <Modal title={data?(language==='en'?'Edit subdivision':'Editar subdivisão'):(language==='en'?'New subdivision':'Nova subdivisão')} onClose={onClose}>
+    <p className="modal-help">{data?(language==='en'?'Change the name of this section.':'Altere o nome desta divisão.'):(language==='en'?'Create a section such as “Top drawer”, “Door”, or “Shelf 2”.':'Crie uma divisão como “Gaveta de cima”, “Porta” ou “Prateleira 2”.')}</p>
+    <label>{language==='en'?"Name":"Nome"}<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?"E.g. Top drawer":"Ex.: Gaveta de cima"}/></label>
+    <button className="primary full" disabled={!name.trim()} onClick={async()=>{await onSave(name)}}>{data?(language==='en'?'Save changes':'Salvar alterações'):(language==='en'?'Create subdivision':'Criar subdivisão')}</button>
+    {data&&data.foods.length===0&&<button className="text-danger" onClick={async()=>{if(await onDelete(data.id))onClose()}}><Trash2 size={15}/> {language==='en'?"Delete subdivision":"Excluir subdivisão"}</button>}
   </Modal>
 }
 
