@@ -204,7 +204,7 @@ function writeActiveHousehold(userId:string,householdId:string){
 
 async function fetchHouseholdContext(userId:string,preferredId?:string|null){
   const{data:personalId,error:personalError}=await supabase.rpc('ensure_personal_household');
-  if(personalError||!personalId)throw personalError||new Error('Não foi possível preparar sua casa.');
+  if(personalError||!personalId)throw personalError||new Error(language==='en'?"Could not prepare your household.":'Não foi possível preparar sua casa.');
   const{data,error}=await supabase.from('households')
     .select('id,name,created_by,is_personal,household_members!inner(user_id,role)')
     .eq('household_members.user_id',userId)
@@ -216,7 +216,7 @@ async function fetchHouseholdContext(userId:string,preferredId?:string|null){
   });
   const requested=preferredId||readActiveHousehold(userId);
   const chosen=list.some(h=>h.id===requested)?requested:(list.some(h=>h.id===personalId)?personalId:list[0]?.id);
-  if(!chosen)throw new Error('Nenhuma casa disponível para esta conta.');
+  if(!chosen)throw new Error(language==='en'?"No household is available for this account.":'Nenhuma casa disponível para esta conta.');
   return{households:list,personalId:personalId as string,householdId:chosen,household:list.find(h=>h.id===chosen)!};
 }
 
@@ -1271,9 +1271,9 @@ function App(){
 
     if(confirm&&rule.low_stock_threshold!==null&&rule.restock_quantity!==null&&nextQuantity<=rule.low_stock_threshold){
       await addShoppingItem(food.name,rule.restock_quantity,food.unit,'low_stock');
-      setAuthMessage(food.name+' foi adicionado à lista de compras porque o estoque ficou baixo.');
+      setAuthMessage(language==='en'?`${food.name} was added to the shopping list because stock is low.`:food.name+' foi adicionado à lista de compras porque o estoque ficou baixo.');
     }else if(confirm){
-      setAuthMessage('Consumo de '+food.name+' confirmado. O estoque foi atualizado.');
+      setAuthMessage(language==='en'?`Consumption of ${food.name} confirmed. Inventory has been updated.`:'Consumo de '+food.name+' confirmado. O estoque foi atualizado.');
     }else{
       setAuthMessage(language==='en'?"Consumption suggestion postponed until tomorrow.":'Sugestão de consumo adiada para amanhã.');
     }
@@ -1420,7 +1420,7 @@ function App(){
     setAuthMessage(null);
     try{
       const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:authRedirectUrl()});
-      setAuthMessage(error?'Não foi possível enviar o link de recuperação.':'Enviamos um link de recuperação para seu e-mail.');
+      setAuthMessage(error?(language==='en'?"Could not send the recovery link.":'Não foi possível enviar o link de recuperação.'):(language==='en'?"We sent a recovery link to your email.":'Enviamos um link de recuperação para seu e-mail.'));
     }finally{setAuthBusy(false)}
   }
 
@@ -1440,19 +1440,19 @@ function App(){
       setHouseholdId(null);
       setSynced(false);
       setAuthMessage(null);
-      showActionFeedback('Você saiu da conta.');
+      showActionFeedback(language==='en'?"You have signed out.":'Você saiu da conta.');
     }finally{setAuthBusy(false)}
   }
 
   async function deleteAccount(password:string):Promise<string|null>{
-     if(!user?.email||user.is_anonymous)return 'Entre em uma conta com e-mail e senha para continuar.';
+     if(!user?.email||user.is_anonymous)return language==='en'?"Sign in with an email and password to continue.":'Entre em uma conta com e-mail e senha para continuar.';
      setAuthBusy(true);
      setAuthMessage(null);
      try{
        const{error:reauthError}=await supabase.auth.signInWithPassword({email:user.email,password});
-       if(reauthError)return 'Não foi possível confirmar sua senha. Confira a senha e tente novamente.';
+       if(reauthError)return language==='en'?"Could not verify your password. Check it and try again.":'Não foi possível confirmar sua senha. Confira a senha e tente novamente.';
        const{error}=await supabase.functions.invoke('delete-account');
-       if(error)return 'Não foi possível excluir sua conta agora. Seus dados continuam disponíveis. Tente novamente mais tarde.';
+       if(error)return language==='en'?"Could not delete your account right now. Your data is still available. Please try again later.":'Não foi possível excluir sua conta agora. Seus dados continuam disponíveis. Tente novamente mais tarde.';
        ++authRequest.current;
        await supabase.auth.signOut();
        setLocalOwner(user.id);
@@ -1464,7 +1464,7 @@ function App(){
        setHouseholdId(null);
        setSynced(false);
        setDeleteAccountConfirm(false);
-       showActionFeedback('Sua conta foi excluída.');
+       showActionFeedback(language==='en'?"Your account has been deleted.":'Sua conta foi excluída.');
        return null;
      }catch{
        return 'Não foi possível excluir sua conta agora. Seus dados continuam disponíveis. Tente novamente mais tarde.';
@@ -1476,9 +1476,9 @@ function App(){
     setAuthMessage(null);
     try{
       const{error}=await supabase.auth.updateUser({password});
-      if(error)return 'Não foi possível alterar a senha. '+(error.message||'Tente novamente.');
+      if(error)return language==='en'?"Could not change the password. Please try again.":'Não foi possível alterar a senha. '+(error.message||'Tente novamente.');
       setPasswordChangeModal(false);
-      showActionFeedback('Senha alterada com sucesso.');
+      showActionFeedback(language==='en'?"Password changed successfully.":'Senha alterada com sucesso.');
       return null;
     }catch{
       return 'Não foi possível alterar a senha agora. Confira sua conexão e tente novamente.';
@@ -1632,7 +1632,7 @@ function App(){
       if(!ok)syncError(language==='en'?"Food removed on this device. The deletion will sync when the connection returns.":'Alimento removido neste dispositivo. A exclusão será sincronizada quando a conexão voltar.');
     }
     setFoodMenu(null);
-    offerUndo('Alimento removido',()=>{
+    offerUndo(language==='en'?"Food removed":"Alimento removido",()=>{
       setPlaces(ps=>ps.map(p=>p.id!==placeId?p:{...p,subdivisions:p.subdivisions.map(s=>s.id!==subId?s:{...s,foods:s.foods.some(f=>f.id===removed.id)?s.foods:[...s.foods,removed]})}));
       if(userId)void writeOrQueue(userId,{userId,table:'foods',action:'upsert',rowId:removed.id,data:{id:removed.id,user_id:userId,subdivision_id:subId,name:removed.name,quantity:removed.quantity,unit:removed.unit,expires_on:removed.expires_on||null}}).then(ok=>{if(!ok)syncError(language==='en'?"Food restored on this device. It will sync when the connection returns.":'O alimento foi restaurado neste dispositivo e será sincronizado quando a conexão voltar.')});
     });
@@ -1683,7 +1683,7 @@ function App(){
     }
     const destinationPlace=places.find(p=>p.id===toPlaceId);
     const destinationSub=destinationPlace?.subdivisions.find(s=>s.id===toSubId);
-    offerUndo('Alimento movido',()=>{
+    offerUndo(language==='en'?"Food moved":"Alimento movido",()=>{
       setPlaces(ps=>ps.map(p=>{
         if(p.id===toPlaceId)return{...p,subdivisions:p.subdivisions.map(s=>s.id===toSubId?{...s,foods:s.foods.filter(f=>f.id!==foodId)}:s)};
         if(p.id===fromPlaceId)return{...p,subdivisions:p.subdivisions.map(s=>s.id===fromSubId?{...s,foods:s.foods.some(f=>f.id===foodId)?s.foods:[...s.foods,food]}:s)};
@@ -1831,7 +1831,7 @@ function App(){
           <div><h1>ShelfSpace</h1><span>{language==='en'?'Your home, organized.':'Sua casa, organizada.'}</span></div>
         </div>
         <div className="header-actions">
-          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={'Alternar casa. Casa ativa: '+(households.find(h=>h.id===householdId)?.name||'Casa')} title={language==='en'?'Switch household':'Alternar casa'}><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
+          {userId&&households.length>1&&<button type="button" className="household-switch-button" onClick={()=>{setHouseholdCreateOnly(false);setHouseholdModal(true)}} aria-label={(language==='en'?'Switch household. Active household: ':'Alternar casa. Casa ativa: ')+(households.find(h=>h.id===householdId)?.name||(language==='en'?'House':'Casa'))} title={language==='en'?'Switch household':'Alternar casa'}><Home size={16}/><span>{households.find(h=>h.id===householdId)?.name||'Casa'}</span><ChevronDown size={14}/></button>}
           <button className={'notification-bell '+(notificationCenterOpen?'active':'')} onClick={()=>setNotificationCenterOpen(open=>!open)} aria-label={'Notificações: '+notificationCount+' pendentes'} title={language==='en'?'Notifications':'Notificações'}>
             <Bell size={19}/>{notificationCount>0&&<span className="notification-count">{notificationCount>99?'99+':notificationCount}</span>}
           </button>
@@ -1862,7 +1862,7 @@ function App(){
                   <p>
                     {current?.subdivisions.reduce((n,s)=>n+s.foods.length,0)||0}{' '}
                     {current?.subdivisions.reduce((n,s)=>n+s.foods.length,0)===1?'alimento':'alimentos'}{' '}
-                    <span className="sync-status">{!online?'Sem internet · dados locais':synced?'Sincronizado':userId?'Sincronização pendente':'Somente neste dispositivo'}</span>{userId&&online&&!synced&&<button className="sync-retry" type="button" onClick={()=>{void refreshCloud(userId);void refreshShoppingList(userId,householdId);void refreshRecurringRules(userId,householdId);void refreshConsumptionRules(userId,householdId)}}>Tentar sincronizar</button>}
+                    <span className="sync-status">{!online?(language==='en'?'Offline · local data': 'Sem internet · dados locais'):synced?(language==='en'?'Synced':'Sincronizado'):userId?(language==='en'?'Sync pending':'Sincronização pendente'):(language==='en'?'This device only':'Somente neste dispositivo')}</span>{userId&&online&&!synced&&<button className="sync-retry" type="button" onClick={()=>{void refreshCloud(userId);void refreshShoppingList(userId,householdId);void refreshRecurringRules(userId,householdId);void refreshConsumptionRules(userId,householdId)}}>{language==='en'?'Retry sync':'Tentar sincronizar'}</button>}
                   </p>
                 </div>
               </div>
@@ -2864,7 +2864,7 @@ function HouseholdModal({language,busy,households,activeHouseholdId,invite,joinC
       <div className="household-panel-heading"><Users size={18}/><strong>{active?.name||(language==='en'?'Your household':'Sua casa')}</strong></div>
       {active&&(nameEditing?<div className="household-rename">
         <label>{language==='en'?"Household name":"Nome da casa"}<input value={houseName} maxLength={15} onChange={event=>{setHouseName(event.target.value);setNameMessage('');}} placeholder={language==='en'?"E.g. My home":"Ex.: Minha casa"}/></label>
-        <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage('Nome da casa alterado com sucesso.');}});}}>{language==='en'?"Save name":"Salvar nome"}</button></div>
+        <div className="household-rename-actions"><button type="button" disabled={busy} onClick={()=>{setHouseName(active?.name||'');setNameEditing(false);setNameMessage('');}}>Cancelar</button><button type="button" className="primary" disabled={busy||!houseName.trim()||houseName.trim()===active?.name} onClick={()=>{void onRename(active!.id,houseName).then(ok=>{if(ok){setNameEditing(false);setNameMessage(language==='en'?"Household name changed successfully.":'Nome da casa alterado com sucesso.');}});}}>{language==='en'?"Save name":"Salvar nome"}</button></div>
       </div>:<button type="button" className="household-rename-trigger" onClick={()=>{setNameMessage('');setNameEditing(true);}}>{language==='en'?"Edit household name":"Editar nome da casa"}</button>)}
       {nameMessage&&<p className="household-rename-success" role="status" aria-live="polite">✓ {nameMessage}</p>}
       <p>{active?.is_personal?(language==='en'?'This is your personal household. You can invite family members to share the same inventory.':'Esta é sua casa pessoal. Você pode convidar familiares para compartilhar o mesmo estoque.'):(language==='en'?'You are viewing this household’s shared inventory.':'Você está vendo o estoque compartilhado desta casa.')}</p>
