@@ -2287,7 +2287,7 @@ function App(){
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
       {onboardingOpen&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
       {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
-      {cookConfirmRecipe&&<RecipeCookModal recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
+      {cookConfirmRecipe&&<RecipeCookModal language={language} recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
         food={places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods)).find(food=>food.id===consumptionRuleModal.foodId)}
         rule={consumptionRules.find(rule=>rule.food_id===consumptionRuleModal.foodId)}
@@ -2599,12 +2599,12 @@ function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en'
   </section>
 }
 
-function RecipeCookModal({recipe,onClose,onConfirm}:{recipe:Recipe;onClose:()=>void;onConfirm:()=>void}){
-  return <Modal title="Marcar receita como preparada" onClose={onClose}>
-    <div className="move-current"><span>Receita</span><strong>{recipe.name}</strong><small>{recipe.servings} {recipe.servings===1?'porção':'porções'} · {recipe.minutes} min</small></div>
-    <p className="modal-help">O ShelfSpace vai descontar as quantidades previstas do estoque, priorizando os alimentos com validade mais próxima. Nada será descontado se faltar ingrediente ou não for possível comparar as unidades.</p>
+function RecipeCookModal({language,recipe,onClose,onConfirm}:{language:'pt-BR'|'en';recipe:Recipe;onClose:()=>void;onConfirm:()=>void}){
+  return <Modal title={language==='en'?"Mark recipe as prepared":"Marcar receita como preparada"} onClose={onClose}>
+    <div className="move-current"><span>{language==='en'?'Recipe':'Receita'}</span><strong>{recipe.name}</strong><small>{recipe.servings} {language==='en'?(recipe.servings===1?'serving':'servings'):(recipe.servings===1?'porção':'porções')} · {recipe.minutes} min</small></div>
+    <p className="modal-help">{language==='en'?'ShelfSpace will deduct the planned quantities from inventory, prioritizing food closest to expiration. Nothing will be deducted if an ingredient is missing or units cannot be safely compared.':'O ShelfSpace vai descontar as quantidades previstas do estoque, priorizando os alimentos com validade mais próxima. Nada será descontado se faltar ingrediente ou não for possível comparar as unidades.'}</p>
     <div className="recipe-cook-list">{recipe.ingredients.map(ingredient=><div key={ingredient.name}><span>{ingredient.name}</span><strong>{formatQuantity(ingredient.quantity,ingredient.unit)}</strong></div>)}</div>
-    <button className="primary full" onClick={onConfirm}>Confirmar preparo e atualizar estoque</button>
+    <button className="primary full" onClick={onConfirm}>{language==='en'?'Confirm preparation and update inventory':'Confirmar preparo e atualizar estoque'}</button>
   </Modal>
 }
 
@@ -2704,21 +2704,21 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
       <details className="recurring-panel">
         <summary><span className="recurring-summary-icon" aria-hidden="true"><ClipboardList size={20}/></span><span className="recurring-summary-copy"><strong>{language==='en'?'Recurring restocks':'Reposições recorrentes'}</strong><small>{language==='en'?'Restock items at set intervals':'Repor itens em intervalos definidos'}</small></span><b>{recurringRules.filter(rule=>rule.is_active).length}</b><ChevronRight className="recurring-summary-chevron" size={18} aria-hidden="true"/></summary>
         <form id="recurring-shopping-form" className="recurring-form" onSubmit={submitRecurring}>
-          <strong>{editingRecurringId?'Editar reposição':'Criar uma reposição programada'}</strong>
-          <label>Produto<input value={recurringName} onChange={e=>setRecurringName(e.target.value)} placeholder="Ex.: Leite integral" maxLength={120}/></label>
+          <strong>{editingRecurringId?(language==='en'?'Edit restock':'Editar reposição'):(language==='en'?'Create a scheduled restock':'Criar uma reposição programada')}</strong>
+          <label>{language==='en'?'Item':'Produto'}<input value={recurringName} onChange={e=>setRecurringName(e.target.value)} placeholder={language==='en'?'e.g., Whole milk':'Ex.: Leite integral'} maxLength={120}/></label>
           <div className="recurring-form-row">
-            <label>Quantidade<input type="number" min="0.01" step={recurringUnit==='kg'||recurringUnit==='L'?0.1:1} value={recurringQuantity} onChange={e=>setRecurringQuantity(Number(e.target.value))}/></label>
-            <label>Unidade<select value={recurringUnit} onChange={e=>setRecurringUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
+            <label>{language==='en'?'Quantity':'Quantidade'}<input type="number" min="0.01" step={recurringUnit==='kg'||recurringUnit==='L'?0.1:1} value={recurringQuantity} onChange={e=>setRecurringQuantity(Number(e.target.value))}/></label>
+            <label>{language==='en'?'Unit':'Unidade'}<select value={recurringUnit} onChange={e=>setRecurringUnit(e.target.value as Unit)}>{units.map(value=><option key={value} value={value}>{value}</option>)}</select></label>
           </div>
           <div className="recurring-form-row">
-            <label>Repetir a cada (dias)<input type="number" min="1" max="365" step="1" value={recurringFrequency} onChange={e=>setRecurringFrequency(Number(e.target.value))}/></label>
-            <label>Próxima sugestão<input type="date" value={recurringNextDue} onChange={e=>setRecurringNextDue(e.target.value)}/></label>
+            <label>{language==='en'?'Repeat every (days)':'Repetir a cada (dias)'}<input type="number" min="1" max="365" step="1" value={recurringFrequency} onChange={e=>setRecurringFrequency(Number(e.target.value))}/></label>
+            <label>{language==='en'?'Next suggestion':'Próxima sugestão'}<input type="date" value={recurringNextDue} onChange={e=>setRecurringNextDue(e.target.value)}/></label>
           </div>
           <div className="recurring-form-actions">
-            <button className="primary" type="submit" disabled={recurringBusy||!recurringName.trim()||!Number.isFinite(recurringQuantity)||recurringQuantity<=0||!Number.isInteger(recurringFrequency)||recurringFrequency<1||recurringFrequency>365}>{recurringBusy?'Salvando…':editingRecurringId?'Salvar alteração':'Programar reposição'}</button>
-            {editingRecurringId&&<button className="secondary-action" type="button" onClick={resetRecurringForm}>Cancelar</button>}
+            <button className="primary" type="submit" disabled={recurringBusy||!recurringName.trim()||!Number.isFinite(recurringQuantity)||recurringQuantity<=0||!Number.isInteger(recurringFrequency)||recurringFrequency<1||recurringFrequency>365}>{recurringBusy?(language==='en'?'Saving…':'Salvando…'):editingRecurringId?(language==='en'?'Save changes':'Salvar alteração'):(language==='en'?'Schedule restock':'Programar reposição')}</button>
+            {editingRecurringId&&<button className="secondary-action" type="button" onClick={resetRecurringForm}>{language==='en'?'Cancel':'Cancelar'}</button>}
           </div>
-          <small className="recurring-note">Quando a data chegar, o item entra uma vez na lista compartilhada e a próxima data é calculada automaticamente.</small>
+          <small className="recurring-note">{language==='en'?'When the date arrives, the item is added once to the shared list and the next date is calculated automatically.':'Quando a data chegar, o item entra uma vez na lista compartilhada e a próxima data é calculada automaticamente.'}</small>
         </form>
         {recurringRules.length>0?<div className="recurring-rules">
           {recurringRules.map(rule=><div className={'recurring-rule '+(!rule.is_active?'inactive':'')} key={rule.id}>
@@ -2728,14 +2728,14 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
         </div>:<p className="recurring-empty">Nenhuma reposição programada. Crie uma rotina, como leite toda semana ou café todo mês.</p>}
       </details>
       <div className="shopping-section-heading">
-        <div><h3>Para comprar</h3><p>{pending.length?pending.length+(pending.length===1?' item aguardando':' itens aguardando'):'Tudo comprado por enquanto'}</p></div>
-        {loading&&<span className="shopping-loading">Sincronizando…</span>}
+        <div><h3>{language==='en'?'To buy':'Para comprar'}</h3><p>{pending.length?pending.length+(language==='en'?(pending.length===1?' item pending':' items pending'):(pending.length===1?' item aguardando':' itens aguardando')):(language==='en'?'All caught up for now':'Tudo comprado por enquanto')}</p></div>
+        {loading&&<span className="shopping-loading">{language==='en'?'Syncing…':'Sincronizando…'}</span>}
       </div>
       {pending.length? <div className="shopping-items">
         {pending.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}
-      </div>:<div className="shopping-empty"><ShoppingCart size={25}/><strong>Sua lista está vazia</strong><span>Adicione um item ou aproveite as sugestões de reposição quando estiverem disponíveis.</span></div>}
+      </div>:<div className="shopping-empty"><ShoppingCart size={25}/><strong>{language==='en'?'Your list is empty':'Sua lista está vazia'}</strong><span>{language==='en'?'Add an item or use restock suggestions when available.':'Adicione um item ou aproveite as sugestões de reposição quando estiverem disponíveis.'}</span></div>}
       {purchased.length>0&&<details className="shopping-purchased">
-        <summary>Comprados ({purchased.length})</summary>
+        <summary>{language==='en'?'Purchased':'Comprados'} ({purchased.length})</summary>
         <div className="shopping-items">{purchased.map(item=><ShoppingRow key={item.id} item={item} onToggle={onToggle} onDelete={onDelete} onEdit={setEditingShoppingItem} onStock={onStock}/>)}</div>
       </details>}
     </>}
