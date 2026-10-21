@@ -2726,10 +2726,10 @@ function ShoppingPage({language,places,items,loading,signedIn,recurringRules,rec
         </form>
         {recurringRules.length>0?<div className="recurring-rules">
           {recurringRules.map(rule=><div className={'recurring-rule '+(!rule.is_active?'inactive':'')} key={rule.id}>
-            <div className="recurring-rule-copy"><strong>{rule.name}</strong><small>{formatQuantity(rule.quantity,units.includes(rule.unit as Unit)?rule.unit as Unit:'unidades')} · a cada {rule.frequency_days} {rule.frequency_days===1?'dia':'dias'}</small><small>{rule.is_active?'Próxima sugestão: '+rule.next_due_on:'Pausada'}</small></div>
-            <div className="recurring-rule-actions"><button type="button" onClick={()=>editRecurring(rule)}>Editar</button><button type="button" onClick={()=>onToggleRecurring(rule)}>{rule.is_active?'Pausar':'Ativar'}</button><button type="button" onClick={()=>onDeleteRecurring(rule)} aria-label={'Excluir regra de '+rule.name}><Trash2 size={15}/></button></div>
+            <div className="recurring-rule-copy"><strong>{rule.name}</strong><small>{formatQuantity(rule.quantity,units.includes(rule.unit as Unit)?rule.unit as Unit:'unidades')} · {language==='en'?'every ':'a cada '}{rule.frequency_days} {language==='en'?(rule.frequency_days===1?'day':'days'):(rule.frequency_days===1?'dia':'dias')}</small><small>{rule.is_active?(language==='en'?'Next suggestion: ':'Próxima sugestão: ')+rule.next_due_on:(language==='en'?'Paused':'Pausada')}</small></div>
+            <div className="recurring-rule-actions"><button type="button" onClick={()=>editRecurring(rule)}>{language==='en'?"Edit":"Editar"}</button><button type="button" onClick={()=>onToggleRecurring(rule)}>{rule.is_active?(language==='en'?'Pause':'Pausar'):(language==='en'?'Activate':'Ativar')}</button><button type="button" onClick={()=>onDeleteRecurring(rule)} aria-label={(language==='en'?'Delete rule for ':'Excluir regra de ')+rule.name}><Trash2 size={15}/></button></div>
           </div>)}
-        </div>:<p className="recurring-empty">Nenhuma reposição programada. Crie uma rotina, como leite toda semana ou café todo mês.</p>}
+        </div>:<p className="recurring-empty">{language==='en'?"No recurring restocks scheduled. Create a routine, such as milk every week or coffee every month.":"Nenhuma reposição programada. Crie uma rotina, como leite toda semana ou café todo mês."}</p>}
       </details>
       <div className="shopping-section-heading">
         <div><h3>{language==='en'?'To buy':'Para comprar'}</h3><p>{pending.length?pending.length+(language==='en'?(pending.length===1?' item pending':' items pending'):(pending.length===1?' item aguardando':' itens aguardando')):(language==='en'?'All caught up for now':'Tudo comprado por enquanto')}</p></div>
