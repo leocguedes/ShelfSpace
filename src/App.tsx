@@ -2271,6 +2271,7 @@ function App(){
       }}/>} 
       {foodModal&&(
         <FoodModal
+          language={language}
           data={foodModal.food}
           placeId={foodModal.place}
           subId={foodModal.sub}
@@ -2286,7 +2287,7 @@ function App(){
       {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
       {onboardingOpen&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
-      {authModal&&<AuthModal initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
+      {authModal&&<AuthModal language={language} initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
       {cookConfirmRecipe&&<RecipeCookModal language={language} recipe={cookConfirmRecipe} onClose={()=>setCookConfirmRecipe(null)} onConfirm={()=>void cookRecipe(cookConfirmRecipe)}/>}
       {consumptionRuleModal&&<ConsumptionRuleModal
         food={places.flatMap(place=>place.subdivisions.flatMap(subdivision=>subdivision.foods)).find(food=>food.id===consumptionRuleModal.foodId)}
@@ -2460,14 +2461,14 @@ function PasswordRecoveryModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=
   const canSave=password.length>=6&&password===confirm;
   return <Modal title="Criar nova senha" onClose={onClose}>
     <p className="modal-help">Escolha uma nova senha para continuar usando sua conta.</p>
-    <label>Nova senha<input type="password" autoFocus value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete="new-password"/></label>
+    <label>Nova senha<input type="password" autoFocus value={password} onChange={e=>setPassword(e.target.value)} placeholder={language==='en'?'At least 6 characters':'Mínimo de 6 caracteres'} autoComplete="new-password"/></label>
     <label>Confirmar senha<input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Digite a senha novamente" autoComplete="new-password"/></label>
     {confirm&&password!==confirm&&<p className="password-mismatch">As senhas não coincidem.</p>}
     <button className="primary full" disabled={busy||!canSave} onClick={()=>onSubmit(password)}>{busy?'Aguarde...':'Salvar nova senha'}</button>
   </Modal>
 }
 
-function AuthModal({busy,onClose,onSubmit,onReset,onClearMessage,message,initialMode='signin'}:{busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>Promise<boolean>;onReset:(email:string)=>void;onClearMessage:()=>void;message:string|null;initialMode?:'signin'|'signup'}){
+function AuthModal({language,busy,onClose,onSubmit,onReset,onClearMessage,message,initialMode='signin'}:{language:'pt-BR'|'en';busy:boolean;onClose:()=>void;onSubmit:(mode:'signin'|'signup',email:string,password:string)=>Promise<boolean>;onReset:(email:string)=>void;onClearMessage:()=>void;message:string|null;initialMode?:'signin'|'signup'}){
   const[mode,setMode]=useState<'signin'|'signup'>(initialMode);
   const[email,setEmail]=useState('');
   const[password,setPassword]=useState('');
@@ -2492,14 +2493,14 @@ function AuthModal({busy,onClose,onSubmit,onReset,onClearMessage,message,initial
       <button type="button" className="auth-switch" onClick={onClose}>Fazer isso mais tarde</button>
     </div>
   </Modal>;
-  return <Modal title={mode==='signin'?'Entrar no ShelfSpace':'Criar sua conta'} onClose={onClose}>
-    <p className="modal-help">{mode==='signin'?'Entre para acessar seus alimentos em qualquer dispositivo.':'Crie uma conta para manter seu histórico sincronizado no celular, PC e outros navegadores.'}</p>
+  return <Modal title={mode==='signin'?(language==='en'?'Sign in to ShelfSpace':'Entrar no ShelfSpace'):(language==='en'?'Create your account':'Criar sua conta')} onClose={onClose}>
+    <p className="modal-help">{mode==='signin'?(language==='en'?'Sign in to access your food on any device.':'Entre para acessar seus alimentos em qualquer dispositivo.'):(language==='en'?'Create an account to sync your inventory across your phone, computer, and other browsers.':'Crie uma conta para manter seu histórico sincronizado no celular, PC e outros navegadores.')}</p>
     {message&&!/^(Crie uma conta gratuita|Entre na sua conta|Para começar)/.test(message)&&<p className="auth-note" role="alert" aria-live="assertive">{message}</p>}
-    <label>E-mail<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email"/></label>
-    <label>Senha<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
-    <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?'Aguarde...':mode==='signin'?'Entrar':'Criar conta'}</button>
-    {mode==='signin'&&<button className="auth-link" disabled={busy||!email.trim()} onClick={()=>onReset(email.trim())}>Esqueci minha senha</button>}
-    <button className="auth-switch" disabled={busy} onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');onClearMessage();}}>{mode==='signin'?'Ainda não tenho uma conta':'Já tenho uma conta'}</button>
+    <label>{language==='en'?'Email':'E-mail'}<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email"/></label>
+    <label>{language==='en'?'Password':'Senha'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
+    <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?(language==='en'?'Please wait...':'Aguarde...'):mode==='signin'?(language==='en'?'Sign in':'Entrar'):(language==='en'?'Create account':'Criar conta')}</button>
+    {mode==='signin'&&<button className="auth-link" disabled={busy||!email.trim()} onClick={()=>onReset(email.trim())}>{language==='en'?'Forgot password?':'Esqueci minha senha'}</button>}
+    <button className="auth-switch" disabled={busy} onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');onClearMessage();}}>{mode==='signin'?(language==='en'?\'I don\'t have an account yet\':\'Ainda não tenho uma conta\'):(language==='en'?\'I already have an account\':\'Já tenho uma conta\')}</button>
   </Modal>
 }
 function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en';places:Place[];onAddMissing:(items:Pick<RecipeIngredient,'name'|'quantity'|'unit'|'measureText'>[])=>void;onCook:(recipe:Recipe)=>void}){
@@ -2616,7 +2617,7 @@ function ConsumptionRuleModal({food,rule,onClose,onSave,onDelete}:{food?:Food;ru
   return <Modal title={rule?'Editar consumo previsto':'Programar consumo'} onClose={onClose}>
     <div className="move-current"><span>Alimento</span><strong>{food.name}</strong><small>Estoque atual: {formatQuantity(food.quantity,food.unit)}</small></div>
     <p className="modal-help">Informe por quantos dias uma unidade costuma durar. Na data prevista, perguntaremos se você consumiu uma unidade. O estoque só muda quando confirmar.</p>
-    <label>Quantos dias dura uma unidade?<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
+    <label>{language==='en'?'How many days does one unit last?':'Quantos dias dura uma unidade?'}<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label>
     <div className="consumption-rule-help">Com {formatQuantity(food.quantity,food.unit)} em estoque, a duração estimada é de {totalDays} dias. Exemplo: 3 caixas, 7 dias por caixa = 21 dias.</div>
     <button className="primary full" disabled={!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365} onClick={()=>onSave(food.id,daysPerUnit)}>{rule?'Salvar programação':'Ativar consumo previsto'}</button>
     {rule&&<button className="text-danger" onClick={onDelete}><Trash2 size={15}/> Remover programação</button>}
@@ -2763,7 +2764,7 @@ function EditShoppingItemModal({item,onClose,onSave}:{item:ShoppingItem;onClose:
   const valid=quantity.trim()!==''&&Number.isFinite(Number(quantity))&&Number(quantity)>0;
   return <Modal title={'Editar '+item.name} onClose={onClose}>
     <label>Quantidade<input type="number" min="0.001" step="any" value={quantity} onChange={event=>setQuantity(event.target.value)}/></label>
-    <label>Unidade<select value={unit} onChange={event=>setUnit(event.target.value as Unit)}>{units.map(option=><option key={option} value={option}>{option[0].toUpperCase()+option.slice(1)}</option>)}</select></label>
+    <label>{language==='en'?'Unit':'Unidade'}<select value={unit} onChange={event=>setUnit(event.target.value as Unit)}>{units.map(option=><option key={option} value={option}>{option[0].toUpperCase()+option.slice(1)}</option>)}</select></label>
     <button type="button" className="primary full" disabled={!valid} onClick={()=>onSave(Number(quantity),unit)}>Salvar alterações</button>
   </Modal>
 }
@@ -2789,7 +2790,7 @@ function ShoppingStockModal({item,places,onClose,onConfirm}:{item:ShoppingItem;p
     {places.length?<>
       <p className="modal-help">Escolha onde guardar o que você comprou.</p>
       <label>Local<select value={placeId} onChange={e=>setPlaceId(e.target.value)}>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
-      <label>Validade (opcional)<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)}/></label>
+      <label>{language==='en'?'Expiration date (optional)':'Validade (opcional)'}<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)}/></label>
       {destination?.foods.some(f=>searchKey(f.name)===searchKey(item.name)&&f.unit===unit&&(f.expires_on||'')===expiresOn)&&<p className="modal-help">Esse alimento já existe neste local com a mesma validade. A quantidade será somada ao estoque atual.</p>}
       <button className="primary full" disabled={!place||!destination} onClick={()=>onConfirm(item,placeId,destination!.id,expiresOn||null)}>Adicionar {formatQuantity(item.quantity,unit)}</button>
     </>:<>
@@ -2941,7 +2942,7 @@ function ImportInventoryModal({places,onClose,onImport}:{places:Place[];onClose:
   </Modal>;
 }
 
-function FoodModal({data,placeId,subId,places,recentFoods,onClose,onSave,onAddToExisting}:{data?:Food;placeId:string;subId:string;places:Place[];recentFoods:RecentFood[];onClose:()=>void;onSave:(placeId:string,subId:string,d:Omit<Food,'id'>,daysPerUnit?:number)=>void;onAddToExisting:(placeId:string,subId:string,existingId:string,amount:number,unit:Unit)=>void}){
+function FoodModal({language,data,placeId,subId,places,recentFoods,onClose,onSave,onAddToExisting}:{language:'pt-BR'|'en';data?:Food;placeId:string;subId:string;places:Place[];recentFoods:RecentFood[];onClose:()=>void;onSave:(placeId:string,subId:string,d:Omit<Food,'id'>,daysPerUnit?:number)=>void;onAddToExisting:(placeId:string,subId:string,existingId:string,amount:number,unit:Unit)=>void}){
   const[name,setName]=useState(data?.name||'');
   const[quantity,setQuantity]=useState(data?.quantity ?? 1);
   const[unit,setUnit]=useState<Unit>(data?.unit||'unidades');
@@ -2958,24 +2959,24 @@ function FoodModal({data,placeId,subId,places,recentFoods,onClose,onSave,onAddTo
   const quantityStep=unit==='kg'||unit==='L'?0.1:1;
   const canSave=!!name.trim()&&!!chosenPlace&&!!chosenSub&&Number.isFinite(quantity)&&quantity>=0;
   const canMerge=!!duplicateFood&&duplicateFood.unit===unit&&quantity>0;
-  return <Modal title={data?'Editar alimento':'Novo alimento'} onClose={onClose}>
+  return <Modal title={data?(language==='en'?'Edit food':'Editar alimento'):(language==='en'?'New food':'Novo alimento')} onClose={onClose}>
     {!data&&(!placeId||!places.some(p=>p.id===placeId))&&<div className="destination-fields">
-      <div className="destination-title"><span>Onde ele fica?</span><small>Escolha o local.</small></div>
+      <div className="destination-title"><span>{language==='en'?'Where is it stored?':'Onde ele fica?'}</span><small>{language==='en'?'Choose a location.':'Escolha o local.'}</small></div>
       <div className="row">
-        <label>Local<select value={chosenPlace} onChange={e=>{const nextPlace=places.find(p=>p.id===e.target.value);setChosenPlace(e.target.value);setChosenSub(nextPlace?.subdivisions[0]?.id||'')}}><option value="">Selecione...</option>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
+        <label>{language==='en'?'Location':'Local'}<select value={chosenPlace} onChange={e=>{const nextPlace=places.find(p=>p.id===e.target.value);setChosenPlace(e.target.value);setChosenSub(nextPlace?.subdivisions[0]?.id||'')}}><option value="">{language==='en'?'Select...':'Selecione...'}</option>{places.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
       </div>
     </div>}
     {!data&&placeId&&places.some(p=>p.id===placeId)&&<p className="food-destination-note"><Check size={14}/> Será adicionado a <strong>{places.find(p=>p.id===placeId)?.name}</strong>.</p>}
-    <label>Nome do alimento<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Arroz"/></label>
-    {!data&&recentFoods.length>0&&!name&&<div className="recent-foods"><span>Adicionados recentemente</span><div>{recentFoods.slice(0,6).map(f=><button key={f.name} onClick={()=>{setName(f.name);setUnit(f.unit)}}>{f.name}</button>)}</div></div>}
-    {duplicate&&<div className="duplicate-note"><strong>“{duplicateFood?.name}” já está neste local.</strong><span>Você pode somar a nova quantidade ao estoque existente.</span>{canMerge&&<button type="button" onClick={()=>onAddToExisting(chosenPlace,chosenSub,duplicateFood!.id,quantity,unit)}><Plus size={15}/> Somar {formatQuantity(quantity,unit)}</button>}</div>}
-    <label>Validade (opcional)<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)} aria-label="Data de validade do alimento"/><small className="field-help">Se houver várias embalagens com datas diferentes, cadastre cada lote separadamente.</small></label>
+    <label>{language==='en'?'Food name':'Nome do alimento'}<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?'e.g., Rice':'Ex.: Arroz'}/></label>
+    {!data&&recentFoods.length>0&&!name&&<div className="recent-foods"><span>{language==='en'?'Recently added':'Adicionados recentemente'}</span><div>{recentFoods.slice(0,6).map(f=><button key={f.name} onClick={()=>{setName(f.name);setUnit(f.unit)}}>{f.name}</button>)}</div></div>}
+    {duplicate&&<div className="duplicate-note"><strong>{language==='en'?`“${duplicateFood?.name}” is already in this location.`:`“${duplicateFood?.name}” já está neste local.`}</strong><span>{language==='en'?'You can add the new quantity to the existing inventory.':'Você pode somar a nova quantidade ao estoque existente.'}</span>{canMerge&&<button type="button" onClick={()=>onAddToExisting(chosenPlace,chosenSub,duplicateFood!.id,quantity,unit)}><Plus size={15}/> Somar {formatQuantity(quantity,unit)}</button>}</div>}
+    <label>Validade (opcional)<input type="date" value={expiresOn} onChange={e=>setExpiresOn(e.target.value)} aria-label="Data de validade do alimento"/><small className="field-help">{language==='en'?'If packages have different expiration dates, add each batch separately.':'Se houver várias embalagens com datas diferentes, cadastre cada lote separadamente.'}</small></label>
     <div className="row">
-      <label>Quantidade<div className="number"><button type="button" aria-label="Diminuir quantidade" onClick={()=>setQuantity(Math.max(0,Number((quantity-quantityStep).toFixed(3))))}><Minus/></button><input type="number" min="0" step={quantityStep} value={quantity} onChange={e=>{const value=Number(e.target.value);setQuantity(Number.isFinite(value)?Math.max(0,value):0)}} aria-label="Quantidade" /><button type="button" aria-label="Aumentar quantidade" onClick={()=>setQuantity(Number((quantity+quantityStep).toFixed(3)))}><Plus/></button></div></label>
+      <label>{language==='en'?'Quantity':'Quantidade'}<div className="number"><button type="button" aria-label={language==='en'?'Decrease quantity':'Diminuir quantidade'} onClick={()=>setQuantity(Math.max(0,Number((quantity-quantityStep).toFixed(3))))}><Minus/></button><input type="number" min="0" step={quantityStep} value={quantity} onChange={e=>{const value=Number(e.target.value);setQuantity(Number.isFinite(value)?Math.max(0,value):0)}} aria-label="Quantidade" /><button type="button" aria-label={language==='en'?'Increase quantity':'Aumentar quantidade'} onClick={()=>setQuantity(Number((quantity+quantityStep).toFixed(3)))}><Plus/></button></div></label>
       <label>Unidade<select value={unit} onChange={e=>setUnit(e.target.value as Unit)}>{units.map(u=><option key={u}>{u}</option>)}</select></label>
     </div>
-    {!data&&<div className="destination-fields consumption-setup"><label className="consumption-toggle"><input type="checkbox" checked={programConsumption} onChange={e=>setProgramConsumption(e.target.checked)}/> Programar consumo esperado</label>{programConsumption&&<><p className="modal-help">Informe quantos dias uma unidade costuma durar. Com {quantity} {unit}, a duração estimada será de {Math.round(quantity*daysPerUnit)} dias.</p><label>Quantos dias dura uma unidade?<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label></>}</div>}
-    <button className="primary full" disabled={!canSave||(programConsumption&&(!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365))} onClick={()=>onSave(chosenPlace,currentPlace?.subdivisions[0]?.id||chosenSub,{name:name.trim(),quantity,unit,expires_on:expiresOn||null},programConsumption?daysPerUnit:undefined)}>{data?'Salvar alterações':'Adicionar alimento'}</button>
+    {!data&&<div className="destination-fields consumption-setup"><label className="consumption-toggle"><input type="checkbox" checked={programConsumption} onChange={e=>setProgramConsumption(e.target.checked)}/> {language==='en'?'Schedule expected consumption':'Programar consumo esperado'}</label>{programConsumption&&<><p className="modal-help">Informe quantos dias uma unidade costuma durar. Com {quantity} {unit}, a duração estimada será de {Math.round(quantity*daysPerUnit)} dias.</p><label>Quantos dias dura uma unidade?<input type="number" min="1" max="365" step="1" value={daysPerUnit} onChange={e=>setDaysPerUnit(Number(e.target.value))}/></label></>}</div>}
+    <button className="primary full" disabled={!canSave||(programConsumption&&(!Number.isInteger(daysPerUnit)||daysPerUnit<1||daysPerUnit>365))} onClick={()=>onSave(chosenPlace,currentPlace?.subdivisions[0]?.id||chosenSub,{name:name.trim(),quantity,unit,expires_on:expiresOn||null},programConsumption?daysPerUnit:undefined)}>{data?(language==='en'?'Save changes':'Salvar alterações'):(language==='en'?'Add food':'Adicionar alimento')}</button>
   </Modal>
 }
 
