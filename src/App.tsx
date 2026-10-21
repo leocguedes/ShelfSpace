@@ -2449,7 +2449,7 @@ function AccountPasswordModal({busy,onClose,onSubmit}:{busy:boolean;onClose:()=>
   };
   return <Modal title="Alterar senha" onClose={onClose}>
     <p className="modal-help">Crie uma nova senha com pelo menos 8 caracteres. Sua sessão atual será mantida.</p>
-    <label>{language==='en'?"New password":"Nova senha"}<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder="Mínimo de 8 caracteres" autoComplete="new-password"/></label>
+    <label>Nova senha<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder="Mínimo de 8 caracteres" autoComplete="new-password"/></label>
     <label>Confirmar nova senha<input type={showPassword?'text':'password'} value={confirm} onChange={e=>{setConfirm(e.target.value);setError(null)}} placeholder="Digite a nova senha novamente" autoComplete="new-password"/></label>
     <label className="password-show-option"><input type="checkbox" checked={showPassword} onChange={e=>setShowPassword(e.target.checked)}/> Mostrar senhas</label>
     {confirm&&password!==confirm&&<p className="password-mismatch" role="status">As senhas não coincidem.</p>}
