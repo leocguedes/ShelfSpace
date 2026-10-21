@@ -2465,9 +2465,9 @@ function AccountPasswordModal({language,busy,onClose,onSubmit}:{language:'pt-BR'
     <label>{language==='en'?"New password":"Nova senha"}<input autoFocus type={showPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);setError(null)}} placeholder={language==='en'?"At least 8 characters":"Mínimo de 8 caracteres"} autoComplete="new-password"/></label>
     <label>{language==='en'?"Confirm new password":"Confirmar nova senha"}<input type={showPassword?'text':'password'} value={confirm} onChange={e=>{setConfirm(e.target.value);setError(null)}} placeholder={language==='en'?"Enter your new password again":"Digite a nova senha novamente"} autoComplete="new-password"/></label>
     <label className="password-show-option"><input type="checkbox" checked={showPassword} onChange={e=>setShowPassword(e.target.checked)}/>{language==='en'?" Show passwords":" Mostrar senhas"}</label>
-    {confirm&&password!==confirm&&<p className="password-mismatch" role="status">As senhas não coincidem.</p>}
+    {confirm&&password!==confirm&&<p className="password-mismatch" role="status">{language==='en'?"Passwords do not match.":"As senhas não coincidem."}</p>}
     {error&&<p className="password-form-error" role="alert">{error}</p>}
-    <button className="primary full" disabled={!canSave} onClick={()=>void submit()}>{busy?'Salvando…':'Salvar nova senha'}</button>
+    <button className="primary full" disabled={!canSave} onClick={()=>void submit()}>{busy?(language==='en'?'Saving…':'Salvando…'):(language==='en'?'Save new password':'Salvar nova senha')}</button>
   </Modal>
 }
 
@@ -2477,7 +2477,7 @@ function PasswordRecoveryModal({language,busy,onClose,onSubmit}:{language:'pt-BR
   const canSave=password.length>=6&&password===confirm;
   return <Modal title={language==='en'?"Create a new password":"Criar nova senha"} onClose={onClose}>
     <p className="modal-help">{language==='en'?"Choose a new password to keep using your account.":"Escolha uma nova senha para continuar usando sua conta."}</p>
-    <label>Nova senha<input type="password" autoFocus value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete="new-password"/></label>
+    <label>{language==='en'?"New password":"Nova senha"}<input type="password" autoFocus value={password} onChange={e=>setPassword(e.target.value)} placeholder={language==='en'?"At least 6 characters":"Mínimo de 6 caracteres"} autoComplete="new-password"/></label>
     <label>{language==='en'?"Confirm password":"Confirmar senha"}<input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder={language==='en'?"Enter your password again":"Digite a senha novamente"} autoComplete="new-password"/></label>
     {confirm&&password!==confirm&&<p className="password-mismatch">{language==='en'?"Passwords do not match.":"As senhas não coincidem."}</p>}
     <button className="primary full" disabled={busy||!canSave} onClick={()=>onSubmit(password)}>{busy?(language==='en'?'Please wait…':'Aguarde...'):(language==='en'?'Save new password':'Salvar nova senha')}</button>
@@ -2497,22 +2497,22 @@ function AuthModal({language,busy,onClose,onSubmit,onReset,onClearMessage,messag
       setPassword('');
     }
   };
-  if(confirmationEmail)return <Modal title="Confirme seu e-mail" onClose={onClose}>
+  if(confirmationEmail)return <Modal title={language==='en'?"Confirm your email":"Confirme seu e-mail"} onClose={onClose}>
     <div className="auth-confirmation" role="status" aria-live="polite">
       <div className="auth-confirmation-icon"><Check size={24}/></div>
-      <h3>Falta só confirmar sua conta</h3>
-      <p>Enviamos um link de confirmação para:</p>
+      <h3>{language==='en'?"Just one step left: confirm your account":"Falta só confirmar sua conta"}</h3>
+      <p>{language==='en'?"We sent a confirmation link to:":"Enviamos um link de confirmação para:"}</p>
       <strong className="auth-confirmation-email">{confirmationEmail}</strong>
-      <p>Abra sua caixa de entrada e clique no link para confirmar seu e-mail. Depois, volte ao ShelfSpace e entre com sua conta.</p>
-      <p className="auth-confirmation-hint">Não encontrou a mensagem? Confira a pasta de spam ou lixo eletrônico.</p>
-      <button type="button" className="primary full" onClick={()=>{setConfirmationEmail('');setMode('signin');setEmail(confirmationEmail);setPassword('');}}>Ir para entrar</button>
-      <button type="button" className="auth-switch" onClick={onClose}>Fazer isso mais tarde</button>
+      <p>{language==='en'?"Open your inbox and click the link to confirm your email. Then return to ShelfSpace and sign in.":"Abra sua caixa de entrada e clique no link para confirmar seu e-mail. Depois, volte ao ShelfSpace e entre com sua conta."}</p>
+      <p className="auth-confirmation-hint">{language==='en'?"Can’t find the message? Check your spam or junk folder.":"Não encontrou a mensagem? Confira a pasta de spam ou lixo eletrônico."}</p>
+      <button type="button" className="primary full" onClick={()=>{setConfirmationEmail('');setMode('signin');setEmail(confirmationEmail);setPassword('');}}>{language==='en'?"Go to sign in":"Ir para entrar"}</button>
+      <button type="button" className="auth-switch" onClick={onClose}>{language==='en'?"Do this later":"Fazer isso mais tarde"}</button>
     </div>
   </Modal>;
   return <Modal title={mode==='signin'?(language==='en'?'Sign in to ShelfSpace':'Entrar no ShelfSpace'):(language==='en'?'Create your account':'Criar sua conta')} onClose={onClose}>
     <p className="modal-help">{mode==='signin'?(language==='en'?'Sign in to access your food on any device.':'Entre para acessar seus alimentos em qualquer dispositivo.'):(language==='en'?'Create an account to sync your inventory across your phone, computer, and other browsers.':'Crie uma conta para manter seu histórico sincronizado no celular, PC e outros navegadores.')}</p>
     {message&&!/^(Crie uma conta gratuita|Entre na sua conta|Para começar)/.test(message)&&<p className="auth-note" role="alert" aria-live="assertive">{message}</p>}
-    <label>{language==='en'?'Email':'E-mail'}<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder="voce@email.com" autoComplete="email"/></label>
+    <label>{language==='en'?'Email':'E-mail'}<input type="email" autoFocus value={email} onChange={e=>setEmail(e.target.value)} placeholder={language==='en'?"you@email.com":"voce@email.com"} autoComplete="email"/></label>
     <label>{language==='en'?'Password':'Senha'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
     <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?(language==='en'?'Please wait...':'Aguarde...'):mode==='signin'?(language==='en'?'Sign in':'Entrar'):(language==='en'?'Create account':'Criar conta')}</button>
     {mode==='signin'&&<button className="auth-link" disabled={busy||!email.trim()} onClick={()=>onReset(email.trim())}>{language==='en'?'Forgot password?':'Esqueci minha senha'}</button>}
