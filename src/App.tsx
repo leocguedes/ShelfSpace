@@ -2283,8 +2283,8 @@ function App(){
         />
       )}
       {zeroQtyConfirm&&<div className="overlay" role="presentation"><section className="modal zero-stock-modal" role="alertdialog" aria-modal="true" aria-labelledby="zero-stock-title" aria-describedby="zero-stock-description"><div className="modal-head"><h2 id="zero-stock-title">{language==='en'?"What would you like to do?":"O que deseja fazer?"}</h2><button type="button" onClick={()=>setZeroQtyConfirm(null)} aria-label="Fechar"><X size={18}/></button></div><p id="zero-stock-description" className="modal-help">{language==='en'?<>The quantity of <strong>{zeroQtyConfirm.food.name}</strong> has reached zero. You can remove it from your inventory or add it to your shopping list.</>:<>A quantidade de <strong>{zeroQtyConfirm.food.name}</strong> chegou a zero. Você pode removê-lo do estoque ou já adicioná-lo à lista de compras.</>}</p><div className="zero-stock-actions"><button type="button" className="secondary-action" onClick={()=>setZeroQtyConfirm(null)}>{language==='en'?"Cancel":"Cancelar"}</button><button type="button" className="secondary-action" onClick={()=>{const target=zeroQtyConfirm;setZeroQtyConfirm(null);void removeFood(target.placeId,target.subId,target.food.id);}}>{language==='en'?"Delete":"Excluir"}</button><button type="button" className="primary" onClick={()=>{const target=zeroQtyConfirm;if(!userId||!householdId){setZeroQtyConfirm(null);setAuthMessage('Entre na sua conta para adicionar alimentos à lista de compras compartilhada.');setAuthModal(true);return;}setZeroQtyConfirm(null);void (async()=>{await addShoppingItem(target.food.name,quantityStep(target.food.unit),target.food.unit,'low_stock');await removeFood(target.placeId,target.subId,target.food.id);})();}}>{language==='en'?"Delete and add to shopping list":"Excluir e adicionar à lista de compras"}</button></div></section></div>}
-      {moveModal&&<MoveModal data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>} 
-      {placeModal&&<PlaceModal places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
+      {moveModal&&<MoveModal language={language} data={moveModal} places={places} onClose={()=>setMoveModal(null)} onMove={moveFood}/>} 
+      {placeModal&&<PlaceModal language={language} places={places} initialEditId={placeToEdit} onClose={()=>{setPlaceModal(false);setPlaceToEdit(null)}} onSave={savePlace} onDelete={async id=>{const ok=await removePlace(id);if(ok){setPlaceModal(false);setPlaceToEdit(null)}return ok}}/>}
       {subModal&&<SubModal data={subModal.sub} onClose={()=>setSubModal(null)} onSave={n=>saveSub(subModal.place,n,subModal.sub?.id)} onDelete={id=>removeSub(subModal.place,id)}/>}
       {onboardingOpen&&<OnboardingModal step={onboardingStep} onStep={setOnboardingStep} onFinish={finishOnboarding} onCreateAccount={()=>{finishOnboarding();setAuthMessage('Crie uma conta gratuita para começar a organizar sua casa.');setAuthModal(true)}} onSignIn={()=>{finishOnboarding();setAuthMessage('Entre na sua conta para acessar seu estoque.');setAuthModal(true)}}/>}
       {authModal&&<AuthModal language={language} initialMode={authMessage?.startsWith('Crie uma conta')||authMessage?.startsWith('Para começar')?'signup':'signin'} busy={authBusy} message={authMessage} onClearMessage={()=>setAuthMessage(null)} onClose={()=>setAuthModal(false)} onSubmit={handleEmailAuth} onReset={resetPassword}/>}
@@ -2980,10 +2980,10 @@ function FoodModal({language,data,placeId,subId,places,recentFoods,onClose,onSav
   </Modal>
 }
 
-function MoveModal({data,places,onClose,onMove}:{data:{place:string;sub:string;food:Food};places:Place[];onClose:()=>void;onMove:(fromPlaceId:string,fromSubId:string,foodId:string,toPlaceId:string,toSubId:string)=>void}){
-  return <Modal title="Mover alimento" onClose={onClose}>
-    <div className="move-current"><span>Movendo</span><strong>{data.food.name}</strong><small>{formatQuantity(data.food.quantity,data.food.unit)} · {places.find(p=>p.id===data.place)?.name}</small></div>
-    <p className="modal-help move-help">Escolha o local de destino.</p>
+function MoveModal({language,data,places,onClose,onMove}:{language:'pt-BR'|'en';data:{place:string;sub:string;food:Food};places:Place[];onClose:()=>void;onMove:(fromPlaceId:string,fromSubId:string,foodId:string,toPlaceId:string,toSubId:string)=>void}){
+  return <Modal title={language==='en'?'Move food':'Mover alimento'} onClose={onClose}>
+    <div className="move-current"><span>{language==='en'?'Moving':'Movendo'}</span><strong>{data.food.name}</strong><small>{formatQuantity(data.food.quantity,data.food.unit)} · {places.find(p=>p.id===data.place)?.name}</small></div>
+    <p className="modal-help move-help">{language==='en'?'Choose the destination.':'Escolha o local de destino.'}</p>
     <div className="move-list">
       {places.map(p=>{
         const destination=p.subdivisions[0];
@@ -2992,7 +2992,7 @@ function MoveModal({data,places,onClose,onMove}:{data:{place:string;sub:string;f
           <div className="move-place-head"><strong>{p.name}</strong></div>
           <div className="move-sub-list">
             <button className={same?'current':''} disabled={same||!destination} onClick={()=>destination&&onMove(data.place,data.sub,data.food.id,p.id,destination.id)}>
-              <span>{p.name}</span>{same?<small>Atual</small>:<ChevronRight size={16}/>}
+              <span>{p.name}</span>{same?<small>{language==='en'?'Current':'Atual'}</small>:<ChevronRight size={16}/>}
             </button>
           </div>
         </div>;
@@ -3001,7 +3001,7 @@ function MoveModal({data,places,onClose,onMove}:{data:{place:string;sub:string;f
   </Modal>
 }
 
-function PlaceModal({places,initialEditId,onClose,onSave,onDelete}:{places:Place[];initialEditId?:string|null;onClose:()=>void;onSave:(name:string,id?:string)=>Promise<boolean>;onDelete:(id:string)=>Promise<boolean>}){
+function PlaceModal({language,places,initialEditId,onClose,onSave,onDelete}:{language:'pt-BR'|'en';places:Place[];initialEditId?:string|null;onClose:()=>void;onSave:(name:string,id?:string)=>Promise<boolean>;onDelete:(id:string)=>Promise<boolean>}){
   const initialEdit=places.find(p=>p.id===initialEditId)||null;
   const[name,setName]=useState(initialEdit?.name||'');
   const[edit,setEdit]=useState<Place|null>(initialEdit);
@@ -3016,20 +3016,20 @@ function PlaceModal({places,initialEditId,onClose,onSave,onDelete}:{places:Place
     setDeleting(true);
     try{await onDelete(deleteCandidate.id)}finally{setDeleting(false);setDeleteCandidate(null)}
   };
-  return <Modal title={deleteCandidate?'Confirmar exclusão':edit?'Editar local':adding?'Novo local':'Seus locais'} onClose={onClose}>
+  return <Modal title={deleteCandidate?(language==='en'?'Confirm deletion':'Confirmar exclusão'):edit?(language==='en'?'Edit location':'Editar local'):adding?(language==='en'?'New location':'Novo local'):(language==='en'?'Your locations':'Seus locais')} onClose={onClose}>
     {deleteCandidate?(
       <div className="delete-confirm">
         <div className="delete-confirm-icon"><Trash2 size={22}/></div>
-        <h3>Excluir “{deleteCandidate.name}”?</h3>
-        <p>Os alimentos cadastrados nesse local também serão removidos do seu estoque. Quer continuar?</p>
+        <h3>{language==='en'?`Delete “${deleteCandidate.name}”?`:`Excluir “${deleteCandidate.name}”?`}</h3>
+        <p>{language==='en'?'Foods stored in this location will also be removed from your inventory. Do you want to continue?':'Os alimentos cadastrados nesse local também serão removidos do seu estoque. Quer continuar?'}</p>
         <div className="delete-confirm-actions">
-          <button className="secondary" disabled={deleting} onClick={()=>setDeleteCandidate(null)}>Cancelar</button>
-          <button className="danger" disabled={deleting} onClick={()=>void confirmDelete()}>{deleting?'Excluindo…':'Sim, excluir local'}</button>
+          <button className="secondary" disabled={deleting} onClick={()=>setDeleteCandidate(null)}>{language==='en'?'Cancel':'Cancelar'}</button>
+          <button className="danger" disabled={deleting} onClick={()=>void confirmDelete()}>{deleting?(language==='en'?'Deleting…':'Excluindo…'):(language==='en'?'Yes, delete location':'Sim, excluir local')}</button>
         </div>
       </div>
     ):!edit&&!adding?(
       <>
-        <p className="modal-help">Organize sua casa por locais como geladeira, freezer, despensa ou armário.</p>
+        <p className="modal-help">{language==='en'?'Organize your home into locations such as fridge, freezer, pantry, or cupboard.':'Organize sua casa por locais como geladeira, freezer, despensa ou armário.'}</p>
         {places.length?(
           <div className="manage-list">
             {places.map(p=>(
@@ -3047,17 +3047,17 @@ function PlaceModal({places,initialEditId,onClose,onSave,onDelete}:{places:Place
         ):(
           <div className="manage-empty">
             <div className="no-places-icon"><Box size={20}/></div>
-            <strong>Nenhum local criado</strong>
-            <span>Comece pelo lugar onde seus alimentos ficam.</span>
+            <strong>{language==='en'?'No locations created yet':'Nenhum local criado'}</strong>
+            <span>{language==='en'?'Start with where you keep your food.':'Comece pelo lugar onde seus alimentos ficam.'}</span>
           </div>
         )}
-        <button className="primary full" onClick={startAdd}><Plus size={18}/> Novo local</button>
+        <button className="primary full" onClick={startAdd}><Plus size={18}/> {language==='en'?'New location':'Novo local'}</button>
       </>
     ):(
       <>
-        {places.length>0&&<button className="back modal-back" onClick={goBack}>← Voltar aos locais</button>}
-        <label>Nome do local<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Geladeira"/></label>
-        <button className="primary full" disabled={!name.trim()} onClick={save}>{edit?'Salvar alterações':'Criar local'}</button>
+        {places.length>0&&<button className="back modal-back" onClick={goBack}{language==='en'?'← Back to locations':'← Voltar aos locais'}</button>}
+        <label>{language==='en'?'Location name':'Nome do local'}<input autoFocus value={name} onChange={e=>setName(e.target.value)} placeholder={language==='en'?'E.g. Fridge':'Ex.: Geladeira'}/></label>
+        <button className="primary full" disabled={!name.trim()} onClick={save}>{edit?(language==='en'?'Save changes':'Salvar alterações'):(language==='en'?'Create location':'Criar local')}</button>
       </>
     )}
   </Modal>
