@@ -2103,7 +2103,7 @@ function App(){
                       <div><strong>{expiringFoods.filter(({food})=>food.quantity>0).length}</strong><span>{language==='en'?'items nearing expiration':'itens perto da validade'}</span></div>
                     </article>
                   </div>
-                  <div className="home-shortcuts" aria-label="Acessos rápidos">
+                  <div className="home-shortcuts" aria-label={language==='en'?"Quick links":"Acessos rápidos"}>
                     <button type="button" onClick={()=>{setWorkspace('shopping');setSelected(null);setSelectedSub(null)}}>
                       <span className="home-shortcut-icon"><ShoppingCart size={17}/></span>
                       <span><strong>{language==='en'?'Shopping list':'Lista de compras'}</strong><small>{shoppingItems.filter(item=>!item.is_purchased).length} {language==='en'?(shoppingItems.filter(item=>!item.is_purchased).length===1?'item pending':'items pending'):(shoppingItems.filter(item=>!item.is_purchased).length===1?'item pendente':'itens pendentes')}</small></span>
@@ -2120,12 +2120,12 @@ function App(){
             )}
 
             {!search&&expiringFoods.length>0&&<section className="expiry-panel">
-              <div className="smart-panel-heading"><div><p className="eyebrow">REDUZA O DESPERDÍCIO</p><h3>Validade próxima</h3><p>Itens vencidos ou que vencem nos próximos 7 dias.</p></div><span>{expiringFoods.length}</span></div>
+              <div className="smart-panel-heading"><div><p className="eyebrow">{language==='en'?"REDUCE WASTE":"REDUZA O DESPERDÍCIO"}</p><h3>{language==='en'?"Expiring soon":"Validade próxima"}</h3><p>{language==='en'?"Items that are expired or will expire in the next 7 days.":"Itens vencidos ou que vencem nos próximos 7 dias."}</p></div><span>{expiringFoods.length}</span></div>
               <div className="expiry-items">
                 {expiringFoods.slice(0,5).map(({food,place,subdivision,days})=><div className="expiry-item" key={food.id}>
                   <div className="expiry-item-copy"><strong>{food.name}</strong><small>{formatQuantity(food.quantity,food.unit)} · {place.name}</small></div>
                   <span className={'expiry-label '+(days<0?'expired':days<=3?'urgent':'')}>{expiryCaption(food.expires_on!)}</span>
-                  <button type="button" className="tertiary-action" onClick={()=>openSearchResult(place.id,subdivision.id)}>Ver</button>
+                  <button type="button" className="tertiary-action" onClick={()=>openSearchResult(place.id,subdivision.id)}>{language==='en'?"View":"Ver"}</button>
                 </div>)}
               </div>
             </section>}
@@ -2134,8 +2134,8 @@ function App(){
               <>
                 <div className="search-results-head">
                   <div>
-                    <p className="eyebrow">RESULTADOS</p>
-                    <h3>{results.length} {results.length===1?'alimento encontrado':'alimentos encontrados'}</h3>
+                    <p className="eyebrow">{language==='en'?"RESULTS":"RESULTADOS"}</p>
+                    <h3>{results.length} {language==='en'?(results.length===1?'item found':'items found'):(results.length===1?'alimento encontrado':'alimentos encontrados')}</h3>
                   </div>
                 </div>
 
@@ -2146,7 +2146,7 @@ function App(){
                         <Apple size={18}/>
                         <span>
                           <strong>{r.name}</strong>
-                          <small>{r.quantity===0?'Sem estoque':formatQuantity(r.quantity,r.unit)} · {r.place}</small>
+                          <small>{r.quantity===0?(language==='en'?'Out of stock':'Sem estoque'):formatQuantity(r.quantity,r.unit)} · {r.place}</small>
                         </span>
                         <ChevronRight size={17}/>
                       </button>
@@ -2155,9 +2155,9 @@ function App(){
                 ):(
                   <div className="search-empty">
                     <Search size={24}/>
-                    <h3>Nenhum alimento encontrado</h3>
-                    <p>Tente outro nome ou limpe a busca para ver seus locais.</p>
-                    <button className="primary" onClick={()=>setSearch('')}>Ver meus locais</button>
+                    <h3>{language==='en'?"No items found":"Nenhum alimento encontrado"}</h3>
+                    <p>{language==='en'?"Try another name or clear the search to see your locations.":"Tente outro nome ou limpe a busca para ver seus locais."}</p>
+                    <button className="primary" onClick={()=>setSearch('')}>{language==='en'?"View my locations":"Ver meus locais"}</button>
                   </div>
                 )}
               </>
@@ -2165,8 +2165,8 @@ function App(){
               <>
                 <div className="section-title">
                   <div>
-                    <h3>Seus locais</h3>
-                    <p className="section-caption">{total} {total===1?'alimento':'alimentos'} em {places.length} {places.length===1?'local':'locais'}</p>
+                    <h3>{language==='en'?"Your locations":"Seus locais"}</h3>
+                    <p className="section-caption">{total} {language==='en'?(total===1?'food item':'food items'):(total===1?'alimento':'alimentos')} {language==='en'?'in':'em'} {places.length} {language==='en'?(places.length===1?'location':'locations'):(places.length===1?'local':'locais')}</p>
                   </div>
                   <button onClick={()=>{setPlaceToEdit(null);setPlaceModal(true)}}><Plus size={17}/> Novo local</button>
                 </div>
