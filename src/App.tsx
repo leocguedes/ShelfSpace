@@ -2500,7 +2500,7 @@ function AuthModal({language,busy,onClose,onSubmit,onReset,onClearMessage,messag
     <label>{language==='en'?'Password':'Senha'}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo de 6 caracteres" autoComplete={mode==='signin'?'current-password':'new-password'}/></label>
     <button className="primary full" disabled={busy||!email.trim()||password.length<6} onClick={()=>void submit()}>{busy?(language==='en'?'Please wait...':'Aguarde...'):mode==='signin'?(language==='en'?'Sign in':'Entrar'):(language==='en'?'Create account':'Criar conta')}</button>
     {mode==='signin'&&<button className="auth-link" disabled={busy||!email.trim()} onClick={()=>onReset(email.trim())}>{language==='en'?'Forgot password?':'Esqueci minha senha'}</button>}
-    <button className="auth-switch" disabled={busy} onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');onClearMessage();}}>{mode==='signin'?(language==='en'?\'I don\'t have an account yet\':\'Ainda não tenho uma conta\'):(language==='en'?\'I already have an account\':\'Já tenho uma conta\')}</button>
+    <button className="auth-switch" disabled={busy} onClick={()=>{setMode(mode==='signin'?'signup':'signin');setPassword('');onClearMessage();}}>{mode==='signin'?(language==='en'?"I don't have an account yet":"Ainda não tenho uma conta"):(language==='en'?"I already have an account":"Já tenho uma conta")}</button>
   </Modal>
 }
 function RecipePage({language,places,onAddMissing,onCook}:{language:'pt-BR'|'en';places:Place[];onAddMissing:(items:Pick<RecipeIngredient,'name'|'quantity'|'unit'|'measureText'>[])=>void;onCook:(recipe:Recipe)=>void}){
