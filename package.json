@@ -11,7 +11,7 @@
     "test": "tsc --ignoreConfig --target ES2022 --module commonjs --outDir .test-dist --skipLibCheck src/lib/domain.ts src/lib/recipes.ts && echo '{\"type\":\"commonjs\"}' > .test-dist/package.json && node --test tests/*.test.cjs; status=$?; rm -rf .test-dist; exit $status"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.117.2",
+    "@supabase/supabase-js": "2.118.0",
     "@vitejs/plugin-react": "latest",
     "vite": "latest",
     "typescript": "latest",
